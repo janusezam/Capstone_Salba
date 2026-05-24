@@ -1,0 +1,41 @@
+barangay,disaster_type,incident_count
+Casisang,Earthquake,33
+San Jose,Flood,32
+Barangay 10,Flood,32
+Violeta,Earthquake,32
+Aglayan,Earthquake,30
+Violeta,Landslide,30
+San Jose,Earthquake,29
+Bangcud,Landslide,29
+San Jose,Fire,29
+Barangay 10,Earthquake,29
+Casisang,Landslide,29
+San Jose,Landslide,28
+Aglayan,Fire,28
+Barangay 11,Flood,27
+Violeta,Fire,27
+Malaybalay Proper,Flood,27
+Bangcud,Earthquake,26
+Barangay 11,Earthquake,26
+Barangay 11,Fire,26
+Bangcud,Fire,26
+Sumpong,Landslide,26
+Barangay 10,Fire,25
+Casisang,Fire,25
+Barangay 9,Fire,25
+Malaybalay Proper,Earthquake,24
+Barangay 9,Earthquake,24
+Sumpong,Fire,24
+Aglayan,Landslide,23
+Sumpong,Earthquake,23
+Bangcud,Flood,23
+Sumpong,Flood,22
+Barangay 10,Landslide,22
+Malaybalay Proper,Fire,22
+Malaybalay Proper,Landslide,21
+Barangay 9,Flood,19
+Aglayan,Flood,18
+Casisang,Flood,18
+Barangay 11,Landslide,16
+Violeta,Flood,13
+Barangay 9,Landslide,12

@@ -1,0 +1,592 @@
+[
+  {
+    "location": "Cabangahan",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon",
+      "Whirlwind"
+    ],
+    "incidentCount": 2,
+    "totalAffected": 1068,
+    "totalDamages": 13553000,
+    "riskScore": 130,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "2013-10-05",
+        "affected": 1056,
+        "damages": 13505000
+      },
+      {
+        "type": "Whirlwind",
+        "date": "2013-07-23",
+        "affected": 12,
+        "damages": 48000
+      }
+    ],
+    "riskLevel": "HIGH"
+  },
+  {
+    "location": "Barangay 9",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon",
+      "Whirlwind"
+    ],
+    "incidentCount": 5,
+    "totalAffected": 260,
+    "totalDamages": 439300,
+    "riskScore": 90.393,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "2010-10-11",
+        "affected": 243,
+        "damages": 382300
+      },
+      {
+        "type": "Whirlwind",
+        "date": "2012-02-17",
+        "affected": 4,
+        "damages": 5000
+      },
+      {
+        "type": "Whirlwind",
+        "date": "2012-02-19",
+        "affected": 4,
+        "damages": 25000
+      },
+      {
+        "type": "Whirlwind",
+        "date": "2012-04-14",
+        "affected": 3,
+        "damages": 20000
+      },
+      {
+        "type": "Whirlwind",
+        "date": "2012-06-28",
+        "affected": 6,
+        "damages": 7000
+      }
+    ],
+    "riskLevel": "HIGH"
+  },
+  {
+    "location": "Linabo",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon",
+      "Whirlwind"
+    ],
+    "incidentCount": 2,
+    "totalAffected": 440,
+    "totalDamages": 610000,
+    "riskScore": 80.1,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "Unknown",
+        "affected": 438,
+        "damages": 600000
+      },
+      {
+        "type": "Whirlwind",
+        "date": "2010-09-16",
+        "affected": 2,
+        "damages": 10000
+      }
+    ],
+    "riskLevel": "HIGH"
+  },
+  {
+    "location": "Cabangahan (Purok 3, 4, & 5)",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 483,
+    "totalDamages": 1443400,
+    "riskScore": 77.734,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "2012-06-12",
+        "affected": 483,
+        "damages": 1443400
+      }
+    ],
+    "riskLevel": "HIGH"
+  },
+  {
+    "location": "Sto. Niño",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Flashflood"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 704,
+    "totalDamages": 653000,
+    "riskScore": 71.53,
+    "events": [
+      {
+        "type": "Flashflood",
+        "date": "Unknown",
+        "affected": 704,
+        "damages": 653000
+      }
+    ],
+    "riskLevel": "HIGH"
+  },
+  {
+    "location": "Violeta",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon"
+    ],
+    "incidentCount": 2,
+    "totalAffected": 256,
+    "totalDamages": 1933190,
+    "riskScore": 69.9319,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "Unknown",
+        "affected": 0,
+        "damages": 501300
+      },
+      {
+        "type": "Typhoon",
+        "date": "2013-10-09",
+        "affected": 256,
+        "damages": 1431890
+      }
+    ],
+    "riskLevel": "HIGH"
+  },
+  {
+    "location": "Panamucan, San Jose",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 296,
+    "totalDamages": 1900000,
+    "riskScore": 63.6,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "2011-05-25",
+        "affected": 296,
+        "damages": 1900000
+      }
+    ],
+    "riskLevel": "HIGH"
+  },
+  {
+    "location": "Panamucan",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Landslide"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 364,
+    "totalDamages": 322500,
+    "riskScore": 54.625,
+    "events": [
+      {
+        "type": "Landslide",
+        "date": "2012-10-09",
+        "affected": 364,
+        "damages": 322500
+      }
+    ],
+    "riskLevel": "HIGH"
+  },
+  {
+    "location": "San Jose (Purok 1)",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 108,
+    "totalDamages": 2035000,
+    "riskScore": 46.150000000000006,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "2012-06-10",
+        "affected": 108,
+        "damages": 2035000
+      }
+    ],
+    "riskLevel": "MEDIUM"
+  },
+  {
+    "location": "Sumpong",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Landslide",
+      "Whirlwind"
+    ],
+    "incidentCount": 3,
+    "totalAffected": 9,
+    "totalDamages": 7000,
+    "riskScore": 40.97,
+    "events": [
+      {
+        "type": "Landslide",
+        "date": "2012-05-16",
+        "affected": 5,
+        "damages": 3500
+      },
+      {
+        "type": "Whirlwind",
+        "date": "2012-07-14",
+        "affected": 3,
+        "damages": 3500
+      },
+      {
+        "type": "Whirlwind",
+        "date": "2012-06-06",
+        "affected": 1,
+        "damages": 0
+      }
+    ],
+    "riskLevel": "MEDIUM"
+  },
+  {
+    "location": "Casisang",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon",
+      "Tornado"
+    ],
+    "incidentCount": 2,
+    "totalAffected": 36,
+    "totalDamages": 41190,
+    "riskScore": 34.011900000000004,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "Unknown",
+        "affected": 28,
+        "damages": 35990
+      },
+      {
+        "type": "Tornado",
+        "date": "2012-07-15",
+        "affected": 8,
+        "damages": 5200
+      }
+    ],
+    "riskLevel": "MEDIUM"
+  },
+  {
+    "location": "Paiwaig, Linabo",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 116,
+    "totalDamages": 464000,
+    "riskScore": 31.240000000000002,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "Unknown",
+        "affected": 116,
+        "damages": 464000
+      }
+    ],
+    "riskLevel": "MEDIUM"
+  },
+  {
+    "location": "Mabuhay, San Jose",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 0,
+    "totalDamages": 1200000,
+    "riskScore": 27,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "Unknown",
+        "affected": 0,
+        "damages": 1200000
+      }
+    ],
+    "riskLevel": "MEDIUM"
+  },
+  {
+    "location": "Casisang (2,3, & 17)",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 67,
+    "totalDamages": 247000,
+    "riskScore": 24.169999999999998,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "Unknown",
+        "affected": 67,
+        "damages": 247000
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "Simaya",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Flashflood"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 4,
+    "totalDamages": 600000,
+    "riskScore": 21.4,
+    "events": [
+      {
+        "type": "Flashflood",
+        "date": "Unknown",
+        "affected": 4,
+        "damages": 600000
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "San Martin",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Flashflood"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 36,
+    "totalDamages": 264000,
+    "riskScore": 21.240000000000002,
+    "events": [
+      {
+        "type": "Flashflood",
+        "date": "2011-06-19",
+        "affected": 36,
+        "damages": 264000
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "Magsaysay",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Tornado"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 36,
+    "totalDamages": 98886,
+    "riskScore": 19.58886,
+    "events": [
+      {
+        "type": "Tornado",
+        "date": "2010-06-27",
+        "affected": 36,
+        "damages": 98886
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "Barangay 7",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Whirlwind"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 4,
+    "totalDamages": 60473,
+    "riskScore": 16.004730000000002,
+    "events": [
+      {
+        "type": "Whirlwind",
+        "date": "2011-10-19",
+        "affected": 4,
+        "damages": 60473
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "Mamala, Casisang",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Typhoon"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 7,
+    "totalDamages": 30000,
+    "riskScore": 16,
+    "events": [
+      {
+        "type": "Typhoon",
+        "date": "2011-06-19",
+        "affected": 7,
+        "damages": 30000
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "Bangcud",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Whirlwind"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 6,
+    "totalDamages": 15000,
+    "riskScore": 15.75,
+    "events": [
+      {
+        "type": "Whirlwind",
+        "date": "2012-07-05",
+        "affected": 6,
+        "damages": 15000
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "San Jose",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Whirlwind"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 4,
+    "totalDamages": 10000,
+    "riskScore": 15.5,
+    "events": [
+      {
+        "type": "Whirlwind",
+        "date": "2013-06-11",
+        "affected": 4,
+        "damages": 10000
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "Can-ayan",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Whirlwind"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 4,
+    "totalDamages": 7000,
+    "riskScore": 15.47,
+    "events": [
+      {
+        "type": "Whirlwind",
+        "date": "2013-02-28",
+        "affected": 4,
+        "damages": 7000
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "Manalog",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Whirlwind"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 3,
+    "totalDamages": 15000,
+    "riskScore": 15.450000000000001,
+    "events": [
+      {
+        "type": "Whirlwind",
+        "date": "2012-10-04",
+        "affected": 3,
+        "damages": 15000
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "Zamboanguita",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Whirlwind"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 4,
+    "totalDamages": 2000,
+    "riskScore": 15.42,
+    "events": [
+      {
+        "type": "Whirlwind",
+        "date": "2012-08-11",
+        "affected": 4,
+        "damages": 2000
+      }
+    ],
+    "riskLevel": "LOW"
+  },
+  {
+    "location": "Indalasa",
+    "latitude": 8.15831,
+    "longitude": 125.03631,
+    "hazardTypes": [
+      "Tornado"
+    ],
+    "incidentCount": 1,
+    "totalAffected": 1,
+    "totalDamages": 30000,
+    "riskScore": 15.4,
+    "events": [
+      {
+        "type": "Tornado",
+        "date": "2011-10-20",
+        "affected": 1,
+        "damages": 30000
+      }
+    ],
+    "riskLevel": "LOW"
+  }
+]

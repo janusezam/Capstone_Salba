@@ -1,0 +1,2834 @@
+const malaybalayLocations = [
+  {
+    barangay: "Barangay 1",
+    purok: "Purok 1",
+    label: "Barangay 1 - Purok 1",
+    value: "Barangay1-Purok1",
+    latitude: 8.1632,
+    longitude: 125.1278,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 1",
+    purok: "Purok 2",
+    label: "Barangay 1 - Purok 2",
+    value: "Barangay1-Purok2",
+    latitude: 8.1625,
+    longitude: 125.129,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 1",
+    purok: "Purok 3",
+    label: "Barangay 1 - Purok 3",
+    value: "Barangay1-Purok3",
+    latitude: 8.1615,
+    longitude: 125.13,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 1",
+    purok: "Purok 4",
+    label: "Barangay 1 - Purok 4",
+    value: "Barangay1-Purok4",
+    latitude: 8.1605,
+    longitude: 125.131,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 1",
+    purok: "Purok 5",
+    label: "Barangay 1 - Purok 5",
+    value: "Barangay1-Purok5",
+    latitude: 8.161,
+    longitude: 125.128,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 1",
+    purok: "Purok 6",
+    label: "Barangay 1 - Purok 6",
+    value: "Barangay1-Purok6",
+    latitude: 8.162,
+    longitude: 125.1265,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 2",
+    purok: "Purok 1",
+    label: "Barangay 2 - Purok 1",
+    value: "Barangay2-Purok1",
+    latitude: 8.159,
+    longitude: 125.1248,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 2",
+    purok: "Purok 2",
+    label: "Barangay 2 - Purok 2",
+    value: "Barangay2-Purok2",
+    latitude: 8.1582,
+    longitude: 125.1258,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 2",
+    purok: "Purok 3",
+    label: "Barangay 2 - Purok 3",
+    value: "Barangay2-Purok3",
+    latitude: 8.1575,
+    longitude: 125.1262,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 3",
+    purok: "Purok 1",
+    label: "Barangay 3 - Purok 1",
+    value: "Barangay3-Purok1",
+    latitude: 8.1578,
+    longitude: 125.123,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 3",
+    purok: "Purok 2",
+    label: "Barangay 3 - Purok 2",
+    value: "Barangay3-Purok2",
+    latitude: 8.1568,
+    longitude: 125.124,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 3",
+    purok: "Purok 3",
+    label: "Barangay 3 - Purok 3",
+    value: "Barangay3-Purok3",
+    latitude: 8.156,
+    longitude: 125.1248,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 4",
+    purok: "Purok 1",
+    label: "Barangay 4 - Purok 1",
+    value: "Barangay4-Purok1",
+    latitude: 8.1555,
+    longitude: 125.1258,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 4",
+    purok: "Purok 2",
+    label: "Barangay 4 - Purok 2",
+    value: "Barangay4-Purok2",
+    latitude: 8.1545,
+    longitude: 125.1272,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 4",
+    purok: "Purok 3",
+    label: "Barangay 4 - Purok 3",
+    value: "Barangay4-Purok3",
+    latitude: 8.1538,
+    longitude: 125.126,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 5",
+    purok: "Purok 1",
+    label: "Barangay 5 - Purok 1",
+    value: "Barangay5-Purok1",
+    latitude: 8.1558,
+    longitude: 125.1275,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 5",
+    purok: "Purok 2",
+    label: "Barangay 5 - Purok 2",
+    value: "Barangay5-Purok2",
+    latitude: 8.1548,
+    longitude: 125.1285,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 6",
+    purok: "Purok 1",
+    label: "Barangay 6 - Purok 1",
+    value: "Barangay6-Purok1",
+    latitude: 8.1564,
+    longitude: 125.129,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 6",
+    purok: "Purok 2",
+    label: "Barangay 6 - Purok 2",
+    value: "Barangay6-Purok2",
+    latitude: 8.1555,
+    longitude: 125.1302,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 6",
+    purok: "Purok 3",
+    label: "Barangay 6 - Purok 3",
+    value: "Barangay6-Purok3",
+    latitude: 8.1546,
+    longitude: 125.1295,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 7",
+    purok: "Purok 1",
+    label: "Barangay 7 - Purok 1",
+    value: "Barangay7-Purok1",
+    latitude: 8.1508,
+    longitude: 125.1295,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 7",
+    purok: "Purok 2",
+    label: "Barangay 7 - Purok 2",
+    value: "Barangay7-Purok2",
+    latitude: 8.1498,
+    longitude: 125.1308,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 7",
+    purok: "Purok 3",
+    label: "Barangay 7 - Purok 3",
+    value: "Barangay7-Purok3",
+    latitude: 8.149,
+    longitude: 125.1315,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 7",
+    purok: "Purok 4",
+    label: "Barangay 7 - Purok 4",
+    value: "Barangay7-Purok4",
+    latitude: 8.1485,
+    longitude: 125.1298,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 7",
+    purok: "Purok 5",
+    label: "Barangay 7 - Purok 5",
+    value: "Barangay7-Purok5",
+    latitude: 8.1495,
+    longitude: 125.1285,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 8",
+    purok: "Purok 1",
+    label: "Barangay 8 - Purok 1",
+    value: "Barangay8-Purok1",
+    latitude: 8.1522,
+    longitude: 125.1315,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 8",
+    purok: "Purok 2",
+    label: "Barangay 8 - Purok 2",
+    value: "Barangay8-Purok2",
+    latitude: 8.1512,
+    longitude: 125.1328,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 8",
+    purok: "Purok 3",
+    label: "Barangay 8 - Purok 3",
+    value: "Barangay8-Purok3",
+    latitude: 8.1503,
+    longitude: 125.1322,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 9",
+    purok: "Purok 1",
+    label: "Barangay 9 - Purok 1",
+    value: "Barangay9-Purok1",
+    latitude: 8.152,
+    longitude: 125.1305,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 9",
+    purok: "Purok 2",
+    label: "Barangay 9 - Purok 2",
+    value: "Barangay9-Purok2",
+    latitude: 8.1515,
+    longitude: 125.132,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 9",
+    purok: "Purok 3",
+    label: "Barangay 9 - Purok 3",
+    value: "Barangay9-Purok3",
+    latitude: 8.1508,
+    longitude: 125.1332,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 9",
+    purok: "Purok 4",
+    label: "Barangay 9 - Purok 4",
+    value: "Barangay9-Purok4",
+    latitude: 8.1498,
+    longitude: 125.1322,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 9",
+    purok: "Purok 5",
+    label: "Barangay 9 - Purok 5",
+    value: "Barangay9-Purok5",
+    latitude: 8.1492,
+    longitude: 125.131,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 9",
+    purok: "Purok 6",
+    label: "Barangay 9 - Purok 6",
+    value: "Barangay9-Purok6",
+    latitude: 8.1488,
+    longitude: 125.1298,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 9",
+    purok: "Purok 7",
+    label: "Barangay 9 - Purok 7",
+    value: "Barangay9-Purok7",
+    latitude: 8.1478,
+    longitude: 125.131,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 9",
+    purok: "Purok 8",
+    label: "Barangay 9 - Purok 8",
+    value: "Barangay9-Purok8",
+    latitude: 8.147,
+    longitude: 125.132,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 10",
+    purok: "Purok 1",
+    label: "Barangay 10 - Purok 1",
+    value: "Barangay10-Purok1",
+    latitude: 8.1535,
+    longitude: 125.1222,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 10",
+    purok: "Purok 2",
+    label: "Barangay 10 - Purok 2",
+    value: "Barangay10-Purok2",
+    latitude: 8.1525,
+    longitude: 125.1235,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 10",
+    purok: "Purok 3",
+    label: "Barangay 10 - Purok 3",
+    value: "Barangay10-Purok3",
+    latitude: 8.1518,
+    longitude: 125.1245,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 10",
+    purok: "Purok 4",
+    label: "Barangay 10 - Purok 4",
+    value: "Barangay10-Purok4",
+    latitude: 8.151,
+    longitude: 125.1228,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 10",
+    purok: "Purok 5",
+    label: "Barangay 10 - Purok 5",
+    value: "Barangay10-Purok5",
+    latitude: 8.1505,
+    longitude: 125.1218,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 11",
+    purok: "Purok 1",
+    label: "Barangay 11 - Purok 1",
+    value: "Barangay11-Purok1",
+    latitude: 8.1508,
+    longitude: 125.1225,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 11",
+    purok: "Purok 2",
+    label: "Barangay 11 - Purok 2",
+    value: "Barangay11-Purok2",
+    latitude: 8.1498,
+    longitude: 125.1238,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 11",
+    purok: "Purok 3",
+    label: "Barangay 11 - Purok 3",
+    value: "Barangay11-Purok3",
+    latitude: 8.1488,
+    longitude: 125.1242,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 11",
+    purok: "Purok 4",
+    label: "Barangay 11 - Purok 4",
+    value: "Barangay11-Purok4",
+    latitude: 8.1482,
+    longitude: 125.1228,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Barangay 11",
+    purok: "Purok 5",
+    label: "Barangay 11 - Purok 5",
+    value: "Barangay11-Purok5",
+    latitude: 8.149,
+    longitude: 125.1215,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok 1",
+    label: "Casisang - Purok 1",
+    value: "Casisang-Purok1",
+    latitude: 8.14,
+    longitude: 125.126,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok 2",
+    label: "Casisang - Purok 2",
+    value: "Casisang-Purok2",
+    latitude: 8.1388,
+    longitude: 125.1272,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok 3",
+    label: "Casisang - Purok 3",
+    value: "Casisang-Purok3",
+    latitude: 8.1375,
+    longitude: 125.1265,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok 4",
+    label: "Casisang - Purok 4",
+    value: "Casisang-Purok4",
+    latitude: 8.1362,
+    longitude: 125.127,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok 5",
+    label: "Casisang - Purok 5",
+    value: "Casisang-Purok5",
+    latitude: 8.135,
+    longitude: 125.1258,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok 6",
+    label: "Casisang - Purok 6",
+    value: "Casisang-Purok6",
+    latitude: 8.1338,
+    longitude: 125.1268,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok 7",
+    label: "Casisang - Purok 7",
+    value: "Casisang-Purok7",
+    latitude: 8.1325,
+    longitude: 125.1255,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok 8",
+    label: "Casisang - Purok 8",
+    value: "Casisang-Purok8",
+    latitude: 8.1345,
+    longitude: 125.1238,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok 9",
+    label: "Casisang - Purok 9",
+    value: "Casisang-Purok9",
+    latitude: 8.1358,
+    longitude: 125.1225,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok 10",
+    label: "Casisang - Purok 10",
+    value: "Casisang-Purok10",
+    latitude: 8.137,
+    longitude: 125.1235,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Purok Landing",
+    label: "Casisang - Purok Landing",
+    value: "Casisang-PurokLanding",
+    latitude: 8.139,
+    longitude: 125.123,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Sitio Natid-asan",
+    label: "Casisang - Sitio Natid-asan",
+    value: "Casisang-SitioNatid-asan",
+    latitude: 8.133,
+    longitude: 125.13,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Sitio Gabunan",
+    label: "Casisang - Sitio Gabunan",
+    value: "Casisang-SitioGabunan",
+    latitude: 8.131,
+    longitude: 125.124,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Sitio Santa Ana",
+    label: "Casisang - Sitio Santa Ana",
+    value: "Casisang-SitioSantaAna",
+    latitude: 8.1295,
+    longitude: 125.126,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Sitio Kibarok",
+    label: "Casisang - Sitio Kibarok",
+    value: "Casisang-SitioKibarok",
+    latitude: 8.1285,
+    longitude: 125.122,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Casisang",
+    purok: "Sitio Santa Cruz",
+    label: "Casisang - Sitio Santa Cruz",
+    value: "Casisang-SitioSantaCruz",
+    latitude: 8.137,
+    longitude: 125.129,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Sumpong",
+    purok: "Purok 1",
+    label: "Sumpong - Purok 1",
+    value: "Sumpong-Purok1",
+    latitude: 8.1645,
+    longitude: 125.1182,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Sumpong",
+    purok: "Purok 2",
+    label: "Sumpong - Purok 2",
+    value: "Sumpong-Purok2",
+    latitude: 8.1638,
+    longitude: 125.1198,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Sumpong",
+    purok: "Purok 3",
+    label: "Sumpong - Purok 3",
+    value: "Sumpong-Purok3",
+    latitude: 8.163,
+    longitude: 125.121,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Sumpong",
+    purok: "Purok 4",
+    label: "Sumpong - Purok 4",
+    value: "Sumpong-Purok4",
+    latitude: 8.162,
+    longitude: 125.1215,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Sumpong",
+    purok: "Purok 5",
+    label: "Sumpong - Purok 5",
+    value: "Sumpong-Purok5",
+    latitude: 8.1612,
+    longitude: 125.12,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Sumpong",
+    purok: "Purok 6",
+    label: "Sumpong - Purok 6",
+    value: "Sumpong-Purok6",
+    latitude: 8.1605,
+    longitude: 125.1188,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Sumpong",
+    purok: "Purok 7",
+    label: "Sumpong - Purok 7",
+    value: "Sumpong-Purok7",
+    latitude: 8.1618,
+    longitude: 125.1175,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Sumpong",
+    purok: "Purok 8",
+    label: "Sumpong - Purok 8",
+    value: "Sumpong-Purok8",
+    latitude: 8.1635,
+    longitude: 125.1168,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Sumpong",
+    purok: "Sitio Kimambong",
+    label: "Sumpong - Sitio Kimambong",
+    value: "Sumpong-SitioKimambong",
+    latitude: 8.165,
+    longitude: 125.1155,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Sumpong",
+    purok: "Sitio Santa Cruz",
+    label: "Sumpong - Sitio Santa Cruz",
+    value: "Sumpong-SitioSantaCruz",
+    latitude: 8.166,
+    longitude: 125.1195,
+    district: "Poblacion",
+    classification: "Urban"
+  },
+  {
+    barangay: "Canayan (Can-ayan)",
+    purok: "Purok 1",
+    label: "Canayan (Can-ayan) - Purok 1",
+    value: "Canayan(Can-ayan)-Purok1",
+    latitude: 8.1882,
+    longitude: 125.152,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Canayan (Can-ayan)",
+    purok: "Purok 2",
+    label: "Canayan (Can-ayan) - Purok 2",
+    value: "Canayan(Can-ayan)-Purok2",
+    latitude: 8.1875,
+    longitude: 125.1538,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Canayan (Can-ayan)",
+    purok: "Purok 3",
+    label: "Canayan (Can-ayan) - Purok 3",
+    value: "Canayan(Can-ayan)-Purok3",
+    latitude: 8.1865,
+    longitude: 125.1545,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Canayan (Can-ayan)",
+    purok: "Purok 4",
+    label: "Canayan (Can-ayan) - Purok 4",
+    value: "Canayan(Can-ayan)-Purok4",
+    latitude: 8.1855,
+    longitude: 125.1538,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Canayan (Can-ayan)",
+    purok: "Purok 5",
+    label: "Canayan (Can-ayan) - Purok 5",
+    value: "Canayan(Can-ayan)-Purok5",
+    latitude: 8.1848,
+    longitude: 125.1525,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Canayan (Can-ayan)",
+    purok: "Purok 6",
+    label: "Canayan (Can-ayan) - Purok 6",
+    value: "Canayan(Can-ayan)-Purok6",
+    latitude: 8.186,
+    longitude: 125.1512,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Canayan (Can-ayan)",
+    purok: "Purok 7",
+    label: "Canayan (Can-ayan) - Purok 7",
+    value: "Canayan(Can-ayan)-Purok7",
+    latitude: 8.1872,
+    longitude: 125.1505,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Canayan (Can-ayan)",
+    purok: "Purok 8",
+    label: "Canayan (Can-ayan) - Purok 8",
+    value: "Canayan(Can-ayan)-Purok8",
+    latitude: 8.188,
+    longitude: 125.1515,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Capitan Angel",
+    purok: "Purok 1",
+    label: "Capitan Angel - Purok 1",
+    value: "CapitanAngel-Purok1",
+    latitude: 8.1862,
+    longitude: 125.0628,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Capitan Angel",
+    purok: "Purok 2",
+    label: "Capitan Angel - Purok 2",
+    value: "CapitanAngel-Purok2",
+    latitude: 8.1852,
+    longitude: 125.0645,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Capitan Angel",
+    purok: "Purok 3",
+    label: "Capitan Angel - Purok 3",
+    value: "CapitanAngel-Purok3",
+    latitude: 8.1842,
+    longitude: 125.0652,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Capitan Angel",
+    purok: "Purok 4",
+    label: "Capitan Angel - Purok 4",
+    value: "CapitanAngel-Purok4",
+    latitude: 8.1835,
+    longitude: 125.0638,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Capitan Angel",
+    purok: "Purok 5",
+    label: "Capitan Angel - Purok 5",
+    value: "CapitanAngel-Purok5",
+    latitude: 8.184,
+    longitude: 125.0622,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Capitan Angel",
+    purok: "Purok 6",
+    label: "Capitan Angel - Purok 6",
+    value: "CapitanAngel-Purok6",
+    latitude: 8.1855,
+    longitude: 125.0615,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Capitan Angel",
+    purok: "Sitio Malobago",
+    label: "Capitan Angel - Sitio Malobago",
+    value: "CapitanAngel-SitioMalobago",
+    latitude: 8.1825,
+    longitude: 125.066,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Dalwangan",
+    purok: "Purok 1",
+    label: "Dalwangan - Purok 1",
+    value: "Dalwangan-Purok1",
+    latitude: 8.2035,
+    longitude: 125.0398,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Dalwangan",
+    purok: "Purok 2",
+    label: "Dalwangan - Purok 2",
+    value: "Dalwangan-Purok2",
+    latitude: 8.2028,
+    longitude: 125.0415,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Dalwangan",
+    purok: "Purok 3",
+    label: "Dalwangan - Purok 3",
+    value: "Dalwangan-Purok3",
+    latitude: 8.2018,
+    longitude: 125.0425,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Dalwangan",
+    purok: "Purok 4",
+    label: "Dalwangan - Purok 4",
+    value: "Dalwangan-Purok4",
+    latitude: 8.2008,
+    longitude: 125.0418,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Dalwangan",
+    purok: "Purok 5",
+    label: "Dalwangan - Purok 5",
+    value: "Dalwangan-Purok5",
+    latitude: 8.2,
+    longitude: 125.0405,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Dalwangan",
+    purok: "Purok 6",
+    label: "Dalwangan - Purok 6",
+    value: "Dalwangan-Purok6",
+    latitude: 8.201,
+    longitude: 125.039,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Dalwangan",
+    purok: "Purok 7",
+    label: "Dalwangan - Purok 7",
+    value: "Dalwangan-Purok7",
+    latitude: 8.2025,
+    longitude: 125.0382,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Dalwangan",
+    purok: "Sitio Sil-ipen",
+    label: "Dalwangan - Sitio Sil-ipen",
+    value: "Dalwangan-SitioSil-ipen",
+    latitude: 8.204,
+    longitude: 125.044,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Dalwangan",
+    purok: "Sitio Karangkarang",
+    label: "Dalwangan - Sitio Karangkarang",
+    value: "Dalwangan-SitioKarangkarang",
+    latitude: 8.205,
+    longitude: 125.0378,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Dalwangan",
+    purok: "Sitio Pal-ing",
+    label: "Dalwangan - Sitio Pal-ing",
+    value: "Dalwangan-SitioPal-ing",
+    latitude: 8.1995,
+    longitude: 125.038,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Imbayao",
+    purok: "Purok 1",
+    label: "Imbayao - Purok 1",
+    value: "Imbayao-Purok1",
+    latitude: 8.1192,
+    longitude: 125.029,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Imbayao",
+    purok: "Purok 2",
+    label: "Imbayao - Purok 2",
+    value: "Imbayao-Purok2",
+    latitude: 8.1182,
+    longitude: 125.0305,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Imbayao",
+    purok: "Purok 3",
+    label: "Imbayao - Purok 3",
+    value: "Imbayao-Purok3",
+    latitude: 8.1172,
+    longitude: 125.0312,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Imbayao",
+    purok: "Purok 4",
+    label: "Imbayao - Purok 4",
+    value: "Imbayao-Purok4",
+    latitude: 8.1162,
+    longitude: 125.0302,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Imbayao",
+    purok: "Purok 5",
+    label: "Imbayao - Purok 5",
+    value: "Imbayao-Purok5",
+    latitude: 8.1168,
+    longitude: 125.0288,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Imbayao",
+    purok: "Purok 6",
+    label: "Imbayao - Purok 6",
+    value: "Imbayao-Purok6",
+    latitude: 8.118,
+    longitude: 125.0278,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Kalasungay",
+    purok: "Purok 1",
+    label: "Kalasungay - Purok 1",
+    value: "Kalasungay-Purok1",
+    latitude: 8.1745,
+    longitude: 125.0998,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Kalasungay",
+    purok: "Purok 2",
+    label: "Kalasungay - Purok 2",
+    value: "Kalasungay-Purok2",
+    latitude: 8.1738,
+    longitude: 125.1015,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Kalasungay",
+    purok: "Purok 3",
+    label: "Kalasungay - Purok 3",
+    value: "Kalasungay-Purok3",
+    latitude: 8.1728,
+    longitude: 125.1025,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Kalasungay",
+    purok: "Purok 4",
+    label: "Kalasungay - Purok 4",
+    value: "Kalasungay-Purok4",
+    latitude: 8.1718,
+    longitude: 125.1018,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Kalasungay",
+    purok: "Purok 5",
+    label: "Kalasungay - Purok 5",
+    value: "Kalasungay-Purok5",
+    latitude: 8.171,
+    longitude: 125.1005,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Kalasungay",
+    purok: "Purok 6",
+    label: "Kalasungay - Purok 6",
+    value: "Kalasungay-Purok6",
+    latitude: 8.1715,
+    longitude: 125.0992,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Kalasungay",
+    purok: "Purok 7",
+    label: "Kalasungay - Purok 7",
+    value: "Kalasungay-Purok7",
+    latitude: 8.1725,
+    longitude: 125.098,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Kalasungay",
+    purok: "Purok 8",
+    label: "Kalasungay - Purok 8",
+    value: "Kalasungay-Purok8",
+    latitude: 8.1738,
+    longitude: 125.0985,
+    district: "North Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Kabalabag",
+    purok: "Purok 1",
+    label: "Kabalabag - Purok 1",
+    value: "Kabalabag-Purok1",
+    latitude: 8.2265,
+    longitude: 125.184,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Kabalabag",
+    purok: "Purok 2",
+    label: "Kabalabag - Purok 2",
+    value: "Kabalabag-Purok2",
+    latitude: 8.2255,
+    longitude: 125.1858,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Kabalabag",
+    purok: "Purok 3",
+    label: "Kabalabag - Purok 3",
+    value: "Kabalabag-Purok3",
+    latitude: 8.2243,
+    longitude: 125.1862,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Kabalabag",
+    purok: "Purok 4",
+    label: "Kabalabag - Purok 4",
+    value: "Kabalabag-Purok4",
+    latitude: 8.2238,
+    longitude: 125.1845,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Kabalabag",
+    purok: "Purok 5",
+    label: "Kabalabag - Purok 5",
+    value: "Kabalabag-Purok5",
+    latitude: 8.2245,
+    longitude: 125.1832,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Manalog",
+    purok: "Purok 1",
+    label: "Manalog - Purok 1",
+    value: "Manalog-Purok1",
+    latitude: 8.2528,
+    longitude: 125.1678,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Manalog",
+    purok: "Purok 2",
+    label: "Manalog - Purok 2",
+    value: "Manalog-Purok2",
+    latitude: 8.2518,
+    longitude: 125.1695,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Manalog",
+    purok: "Purok 3",
+    label: "Manalog - Purok 3",
+    value: "Manalog-Purok3",
+    latitude: 8.2505,
+    longitude: 125.1705,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Manalog",
+    purok: "Purok 4",
+    label: "Manalog - Purok 4",
+    value: "Manalog-Purok4",
+    latitude: 8.2495,
+    longitude: 125.1692,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Manalog",
+    purok: "Purok 5",
+    label: "Manalog - Purok 5",
+    value: "Manalog-Purok5",
+    latitude: 8.2502,
+    longitude: 125.1675,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Miglamin",
+    purok: "Purok 1",
+    label: "Miglamin - Purok 1",
+    value: "Miglamin-Purok1",
+    latitude: 8.2398,
+    longitude: 125.094,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Miglamin",
+    purok: "Purok 2",
+    label: "Miglamin - Purok 2",
+    value: "Miglamin-Purok2",
+    latitude: 8.2385,
+    longitude: 125.0958,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Miglamin",
+    purok: "Purok 3",
+    label: "Miglamin - Purok 3",
+    value: "Miglamin-Purok3",
+    latitude: 8.2372,
+    longitude: 125.0962,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Miglamin",
+    purok: "Purok 4",
+    label: "Miglamin - Purok 4",
+    value: "Miglamin-Purok4",
+    latitude: 8.2368,
+    longitude: 125.0945,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Miglamin",
+    purok: "Sitio Upper Miglamin",
+    label: "Miglamin - Sitio Upper Miglamin",
+    value: "Miglamin-SitioUpperMiglamin",
+    latitude: 8.241,
+    longitude: 125.0925,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Patpat",
+    purok: "Purok 1",
+    label: "Patpat - Purok 1",
+    value: "Patpat-Purok1",
+    latitude: 8.2128,
+    longitude: 125.0768,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Patpat",
+    purok: "Purok 2",
+    label: "Patpat - Purok 2",
+    value: "Patpat-Purok2",
+    latitude: 8.2118,
+    longitude: 125.0785,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Patpat",
+    purok: "Purok 3",
+    label: "Patpat - Purok 3",
+    value: "Patpat-Purok3",
+    latitude: 8.2105,
+    longitude: 125.0795,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Patpat",
+    purok: "Purok 4",
+    label: "Patpat - Purok 4",
+    value: "Patpat-Purok4",
+    latitude: 8.2095,
+    longitude: 125.0782,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Patpat",
+    purok: "Purok 5",
+    label: "Patpat - Purok 5",
+    value: "Patpat-Purok5",
+    latitude: 8.21,
+    longitude: 125.0765,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Patpat",
+    purok: "Sitio Pal-ing",
+    label: "Patpat - Sitio Pal-ing",
+    value: "Patpat-SitioPal-ing",
+    latitude: 8.2135,
+    longitude: 125.0752,
+    district: "North Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 1A",
+    label: "Aglayan - Purok 1A",
+    value: "Aglayan-Purok1A",
+    latitude: 8.056,
+    longitude: 125.133,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 1B",
+    label: "Aglayan - Purok 1B",
+    value: "Aglayan-Purok1B",
+    latitude: 8.0555,
+    longitude: 125.1342,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 2",
+    label: "Aglayan - Purok 2",
+    value: "Aglayan-Purok2",
+    latitude: 8.0548,
+    longitude: 125.1355,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 3",
+    label: "Aglayan - Purok 3",
+    value: "Aglayan-Purok3",
+    latitude: 8.0538,
+    longitude: 125.136,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 4",
+    label: "Aglayan - Purok 4",
+    value: "Aglayan-Purok4",
+    latitude: 8.0528,
+    longitude: 125.135,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 5A",
+    label: "Aglayan - Purok 5A",
+    value: "Aglayan-Purok5A",
+    latitude: 8.052,
+    longitude: 125.134,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 5B",
+    label: "Aglayan - Purok 5B",
+    value: "Aglayan-Purok5B",
+    latitude: 8.0515,
+    longitude: 125.1328,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 6A",
+    label: "Aglayan - Purok 6A",
+    value: "Aglayan-Purok6A",
+    latitude: 8.0525,
+    longitude: 125.1318,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 6B",
+    label: "Aglayan - Purok 6B",
+    value: "Aglayan-Purok6B",
+    latitude: 8.0532,
+    longitude: 125.1308,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 7",
+    label: "Aglayan - Purok 7",
+    value: "Aglayan-Purok7",
+    latitude: 8.0542,
+    longitude: 125.13,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 8",
+    label: "Aglayan - Purok 8",
+    value: "Aglayan-Purok8",
+    latitude: 8.0552,
+    longitude: 125.1312,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 9",
+    label: "Aglayan - Purok 9",
+    value: "Aglayan-Purok9",
+    latitude: 8.0562,
+    longitude: 125.1322,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 10",
+    label: "Aglayan - Purok 10",
+    value: "Aglayan-Purok10",
+    latitude: 8.0568,
+    longitude: 125.1338,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Aglayan",
+    purok: "Purok 11",
+    label: "Aglayan - Purok 11",
+    value: "Aglayan-Purok11",
+    latitude: 8.0575,
+    longitude: 125.135,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Bangcud",
+    purok: "Purok 1",
+    label: "Bangcud - Purok 1",
+    value: "Bangcud-Purok1",
+    latitude: 7.996,
+    longitude: 125.1358,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Bangcud",
+    purok: "Purok 2",
+    label: "Bangcud - Purok 2",
+    value: "Bangcud-Purok2",
+    latitude: 7.9952,
+    longitude: 125.1372,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Bangcud",
+    purok: "Purok 3",
+    label: "Bangcud - Purok 3",
+    value: "Bangcud-Purok3",
+    latitude: 7.994,
+    longitude: 125.1382,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Bangcud",
+    purok: "Purok 4",
+    label: "Bangcud - Purok 4",
+    value: "Bangcud-Purok4",
+    latitude: 7.993,
+    longitude: 125.1375,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Bangcud",
+    purok: "Purok 5",
+    label: "Bangcud - Purok 5",
+    value: "Bangcud-Purok5",
+    latitude: 7.9922,
+    longitude: 125.1362,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Bangcud",
+    purok: "Purok 6",
+    label: "Bangcud - Purok 6",
+    value: "Bangcud-Purok6",
+    latitude: 7.9928,
+    longitude: 125.1348,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Bangcud",
+    purok: "Purok 7",
+    label: "Bangcud - Purok 7",
+    value: "Bangcud-Purok7",
+    latitude: 7.994,
+    longitude: 125.134,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Bangcud",
+    purok: "Purok 8",
+    label: "Bangcud - Purok 8",
+    value: "Bangcud-Purok8",
+    latitude: 7.9955,
+    longitude: 125.1345,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Bangcud",
+    purok: "Sitio Nasuli",
+    label: "Bangcud - Sitio Nasuli",
+    value: "Bangcud-SitioNasuli",
+    latitude: 7.9918,
+    longitude: 125.139,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Cabangahan",
+    purok: "Purok 1",
+    label: "Cabangahan - Purok 1",
+    value: "Cabangahan-Purok1",
+    latitude: 8.0242,
+    longitude: 125.1358,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Cabangahan",
+    purok: "Purok 2",
+    label: "Cabangahan - Purok 2",
+    value: "Cabangahan-Purok2",
+    latitude: 8.0232,
+    longitude: 125.1372,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Cabangahan",
+    purok: "Purok 3",
+    label: "Cabangahan - Purok 3",
+    value: "Cabangahan-Purok3",
+    latitude: 8.022,
+    longitude: 125.138,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Cabangahan",
+    purok: "Purok 4",
+    label: "Cabangahan - Purok 4",
+    value: "Cabangahan-Purok4",
+    latitude: 8.021,
+    longitude: 125.137,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Cabangahan",
+    purok: "Purok 5",
+    label: "Cabangahan - Purok 5",
+    value: "Cabangahan-Purok5",
+    latitude: 8.0215,
+    longitude: 125.1355,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Cabangahan",
+    purok: "Purok 6",
+    label: "Cabangahan - Purok 6",
+    value: "Cabangahan-Purok6",
+    latitude: 8.0228,
+    longitude: 125.1345,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Laguitas",
+    purok: "Purok 1",
+    label: "Laguitas - Purok 1",
+    value: "Laguitas-Purok1",
+    latitude: 8.0718,
+    longitude: 125.112,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Laguitas",
+    purok: "Purok 2",
+    label: "Laguitas - Purok 2",
+    value: "Laguitas-Purok2",
+    latitude: 8.0708,
+    longitude: 125.1135,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Laguitas",
+    purok: "Purok 3",
+    label: "Laguitas - Purok 3",
+    value: "Laguitas-Purok3",
+    latitude: 8.0695,
+    longitude: 125.1142,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Laguitas",
+    purok: "Purok 4",
+    label: "Laguitas - Purok 4",
+    value: "Laguitas-Purok4",
+    latitude: 8.0685,
+    longitude: 125.113,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Laguitas",
+    purok: "Purok 5",
+    label: "Laguitas - Purok 5",
+    value: "Laguitas-Purok5",
+    latitude: 8.0692,
+    longitude: 125.1115,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Magsaysay",
+    purok: "Purok 1",
+    label: "Magsaysay - Purok 1",
+    value: "Magsaysay-Purok1",
+    latitude: 8.0858,
+    longitude: 125.098,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Magsaysay",
+    purok: "Purok 2",
+    label: "Magsaysay - Purok 2",
+    value: "Magsaysay-Purok2",
+    latitude: 8.0848,
+    longitude: 125.0995,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Magsaysay",
+    purok: "Purok 3",
+    label: "Magsaysay - Purok 3",
+    value: "Magsaysay-Purok3",
+    latitude: 8.0835,
+    longitude: 125.1002,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Magsaysay",
+    purok: "Purok 4",
+    label: "Magsaysay - Purok 4",
+    value: "Magsaysay-Purok4",
+    latitude: 8.0825,
+    longitude: 125.0992,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Magsaysay",
+    purok: "Purok 5",
+    label: "Magsaysay - Purok 5",
+    value: "Magsaysay-Purok5",
+    latitude: 8.083,
+    longitude: 125.0978,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Magsaysay",
+    purok: "Purok 6",
+    label: "Magsaysay - Purok 6",
+    value: "Magsaysay-Purok6",
+    latitude: 8.0845,
+    longitude: 125.0968,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Mapayag",
+    purok: "Purok 1",
+    label: "Mapayag - Purok 1",
+    value: "Mapayag-Purok1",
+    latitude: 8.0878,
+    longitude: 125.04,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Mapayag",
+    purok: "Purok 2",
+    label: "Mapayag - Purok 2",
+    value: "Mapayag-Purok2",
+    latitude: 8.0865,
+    longitude: 125.0418,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Mapayag",
+    purok: "Purok 3",
+    label: "Mapayag - Purok 3",
+    value: "Mapayag-Purok3",
+    latitude: 8.0852,
+    longitude: 125.0425,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Mapayag",
+    purok: "Purok 4",
+    label: "Mapayag - Purok 4",
+    value: "Mapayag-Purok4",
+    latitude: 8.0845,
+    longitude: 125.041,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "Mapayag",
+    purok: "Purok 5",
+    label: "Mapayag - Purok 5",
+    value: "Mapayag-Purok5",
+    latitude: 8.0852,
+    longitude: 125.0395,
+    district: "South Highway",
+    classification: "Rural"
+  },
+  {
+    barangay: "San Jose",
+    purok: "Purok 1",
+    label: "San Jose - Purok 1",
+    value: "SanJose-Purok1",
+    latitude: 8.1075,
+    longitude: 125.1262,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "San Jose",
+    purok: "Purok 2",
+    label: "San Jose - Purok 2",
+    value: "SanJose-Purok2",
+    latitude: 8.1065,
+    longitude: 125.1278,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "San Jose",
+    purok: "Purok 3",
+    label: "San Jose - Purok 3",
+    value: "SanJose-Purok3",
+    latitude: 8.1052,
+    longitude: 125.1285,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "San Jose",
+    purok: "Purok 4",
+    label: "San Jose - Purok 4",
+    value: "SanJose-Purok4",
+    latitude: 8.104,
+    longitude: 125.1278,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "San Jose",
+    purok: "Purok 5",
+    label: "San Jose - Purok 5",
+    value: "SanJose-Purok5",
+    latitude: 8.1035,
+    longitude: 125.1265,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "San Jose",
+    purok: "Purok 6",
+    label: "San Jose - Purok 6",
+    value: "SanJose-Purok6",
+    latitude: 8.1042,
+    longitude: 125.125,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "San Jose",
+    purok: "Sitio Santo Niño",
+    label: "San Jose - Sitio Santo Niño",
+    value: "SanJose-SitioSantoNiño",
+    latitude: 8.106,
+    longitude: 125.1295,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "San Jose",
+    purok: "Sitio Mabuhay",
+    label: "San Jose - Sitio Mabuhay",
+    value: "SanJose-SitioMabuhay",
+    latitude: 8.1028,
+    longitude: 125.126,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "San Jose",
+    purok: "Sitio Panamucan",
+    label: "San Jose - Sitio Panamucan",
+    value: "SanJose-SitioPanamucan",
+    latitude: 8.1072,
+    longitude: 125.1245,
+    district: "South Highway",
+    classification: "Urban"
+  },
+  {
+    barangay: "Apo Macote",
+    purok: "Purok 1",
+    label: "Apo Macote - Purok 1",
+    value: "ApoMacote-Purok1",
+    latitude: 8.1038,
+    longitude: 125.2638,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Apo Macote",
+    purok: "Purok 2",
+    label: "Apo Macote - Purok 2",
+    value: "ApoMacote-Purok2",
+    latitude: 8.1028,
+    longitude: 125.2655,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Apo Macote",
+    purok: "Purok 3",
+    label: "Apo Macote - Purok 3",
+    value: "ApoMacote-Purok3",
+    latitude: 8.1015,
+    longitude: 125.2662,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Apo Macote",
+    purok: "Purok 4",
+    label: "Apo Macote - Purok 4",
+    value: "ApoMacote-Purok4",
+    latitude: 8.1005,
+    longitude: 125.2648,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Apo Macote",
+    purok: "Purok 5",
+    label: "Apo Macote - Purok 5",
+    value: "ApoMacote-Purok5",
+    latitude: 8.1012,
+    longitude: 125.2632,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Apo Macote",
+    purok: "Sitio Mamanao",
+    label: "Apo Macote - Sitio Mamanao",
+    value: "ApoMacote-SitioMamanao",
+    latitude: 8.1045,
+    longitude: 125.268,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Indalaza",
+    purok: "Purok 1",
+    label: "Indalaza - Purok 1",
+    value: "Indalaza-Purok1",
+    latitude: 8.1248,
+    longitude: 125.239,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Indalaza",
+    purok: "Purok 2",
+    label: "Indalaza - Purok 2",
+    value: "Indalaza-Purok2",
+    latitude: 8.1238,
+    longitude: 125.2405,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Indalaza",
+    purok: "Purok 3",
+    label: "Indalaza - Purok 3",
+    value: "Indalaza-Purok3",
+    latitude: 8.1225,
+    longitude: 125.2412,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Indalaza",
+    purok: "Purok 4",
+    label: "Indalaza - Purok 4",
+    value: "Indalaza-Purok4",
+    latitude: 8.1215,
+    longitude: 125.24,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Indalaza",
+    purok: "Purok 5",
+    label: "Indalaza - Purok 5",
+    value: "Indalaza-Purok5",
+    latitude: 8.122,
+    longitude: 125.2385,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Linabo",
+    purok: "Purok 1",
+    label: "Linabo - Purok 1",
+    value: "Linabo-Purok1",
+    latitude: 8.0738,
+    longitude: 125.1768,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Linabo",
+    purok: "Purok 2",
+    label: "Linabo - Purok 2",
+    value: "Linabo-Purok2",
+    latitude: 8.0728,
+    longitude: 125.1782,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Linabo",
+    purok: "Purok 3",
+    label: "Linabo - Purok 3",
+    value: "Linabo-Purok3",
+    latitude: 8.0715,
+    longitude: 125.1792,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Linabo",
+    purok: "Purok 4",
+    label: "Linabo - Purok 4",
+    value: "Linabo-Purok4",
+    latitude: 8.0705,
+    longitude: 125.178,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Linabo",
+    purok: "Purok 5",
+    label: "Linabo - Purok 5",
+    value: "Linabo-Purok5",
+    latitude: 8.071,
+    longitude: 125.1762,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Linabo",
+    purok: "Purok 6",
+    label: "Linabo - Purok 6",
+    value: "Linabo-Purok6",
+    latitude: 8.0725,
+    longitude: 125.1752,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Linabo",
+    purok: "Sitio Upper Linabo",
+    label: "Linabo - Sitio Upper Linabo",
+    value: "Linabo-SitioUpperLinabo",
+    latitude: 8.0748,
+    longitude: 125.18,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Maligaya",
+    purok: "Purok 1",
+    label: "Maligaya - Purok 1",
+    value: "Maligaya-Purok1",
+    latitude: 8.0435,
+    longitude: 125.2025,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Maligaya",
+    purok: "Purok 2",
+    label: "Maligaya - Purok 2",
+    value: "Maligaya-Purok2",
+    latitude: 8.0425,
+    longitude: 125.204,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Maligaya",
+    purok: "Purok 3",
+    label: "Maligaya - Purok 3",
+    value: "Maligaya-Purok3",
+    latitude: 8.0412,
+    longitude: 125.2048,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Maligaya",
+    purok: "Purok 4",
+    label: "Maligaya - Purok 4",
+    value: "Maligaya-Purok4",
+    latitude: 8.0402,
+    longitude: 125.2035,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Managok",
+    purok: "Purok 1",
+    label: "Managok - Purok 1",
+    value: "Managok-Purok1",
+    latitude: 8.1598,
+    longitude: 125.2188,
+    district: "Basakan",
+    classification: "Urban"
+  },
+  {
+    barangay: "Managok",
+    purok: "Purok 2",
+    label: "Managok - Purok 2",
+    value: "Managok-Purok2",
+    latitude: 8.1588,
+    longitude: 125.2205,
+    district: "Basakan",
+    classification: "Urban"
+  },
+  {
+    barangay: "Managok",
+    purok: "Purok 3",
+    label: "Managok - Purok 3",
+    value: "Managok-Purok3",
+    latitude: 8.1575,
+    longitude: 125.2215,
+    district: "Basakan",
+    classification: "Urban"
+  },
+  {
+    barangay: "Managok",
+    purok: "Purok 4",
+    label: "Managok - Purok 4",
+    value: "Managok-Purok4",
+    latitude: 8.1565,
+    longitude: 125.2205,
+    district: "Basakan",
+    classification: "Urban"
+  },
+  {
+    barangay: "Managok",
+    purok: "Purok 5",
+    label: "Managok - Purok 5",
+    value: "Managok-Purok5",
+    latitude: 8.1568,
+    longitude: 125.2188,
+    district: "Basakan",
+    classification: "Urban"
+  },
+  {
+    barangay: "Managok",
+    purok: "Purok 6",
+    label: "Managok - Purok 6",
+    value: "Managok-Purok6",
+    latitude: 8.1578,
+    longitude: 125.2175,
+    district: "Basakan",
+    classification: "Urban"
+  },
+  {
+    barangay: "Managok",
+    purok: "Purok 7",
+    label: "Managok - Purok 7",
+    value: "Managok-Purok7",
+    latitude: 8.159,
+    longitude: 125.217,
+    district: "Basakan",
+    classification: "Urban"
+  },
+  {
+    barangay: "Managok",
+    purok: "Sitio Old Managok",
+    label: "Managok - Sitio Old Managok",
+    value: "Managok-SitioOldManagok",
+    latitude: 8.1605,
+    longitude: 125.2222,
+    district: "Basakan",
+    classification: "Urban"
+  },
+  {
+    barangay: "San Martin",
+    purok: "Purok 1",
+    label: "San Martin - Purok 1",
+    value: "SanMartin-Purok1",
+    latitude: 8.0378,
+    longitude: 125.18,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "San Martin",
+    purok: "Purok 2",
+    label: "San Martin - Purok 2",
+    value: "SanMartin-Purok2",
+    latitude: 8.0368,
+    longitude: 125.1815,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "San Martin",
+    purok: "Purok 3",
+    label: "San Martin - Purok 3",
+    value: "SanMartin-Purok3",
+    latitude: 8.0355,
+    longitude: 125.1822,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "San Martin",
+    purok: "Purok 4",
+    label: "San Martin - Purok 4",
+    value: "SanMartin-Purok4",
+    latitude: 8.0345,
+    longitude: 125.181,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "San Martin",
+    purok: "Sitio Mambual",
+    label: "San Martin - Sitio Mambual",
+    value: "SanMartin-SitioMambual",
+    latitude: 8.039,
+    longitude: 125.183,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Santo Niño",
+    purok: "Purok 1",
+    label: "Santo Niño - Purok 1",
+    value: "SantoNiño-Purok1",
+    latitude: 8.0218,
+    longitude: 125.159,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Santo Niño",
+    purok: "Purok 2",
+    label: "Santo Niño - Purok 2",
+    value: "SantoNiño-Purok2",
+    latitude: 8.0208,
+    longitude: 125.1605,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Santo Niño",
+    purok: "Purok 3",
+    label: "Santo Niño - Purok 3",
+    value: "SantoNiño-Purok3",
+    latitude: 8.0195,
+    longitude: 125.1612,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Santo Niño",
+    purok: "Purok 4",
+    label: "Santo Niño - Purok 4",
+    value: "SantoNiño-Purok4",
+    latitude: 8.0185,
+    longitude: 125.16,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Santo Niño",
+    purok: "Purok 5",
+    label: "Santo Niño - Purok 5",
+    value: "SantoNiño-Purok5",
+    latitude: 8.0192,
+    longitude: 125.1585,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Simaya",
+    purok: "Purok 1",
+    label: "Simaya - Purok 1",
+    value: "Simaya-Purok1",
+    latitude: 8.0468,
+    longitude: 125.193,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Simaya",
+    purok: "Purok 2",
+    label: "Simaya - Purok 2",
+    value: "Simaya-Purok2",
+    latitude: 8.0458,
+    longitude: 125.1945,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Simaya",
+    purok: "Purok 3",
+    label: "Simaya - Purok 3",
+    value: "Simaya-Purok3",
+    latitude: 8.0445,
+    longitude: 125.1952,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Simaya",
+    purok: "Purok 4",
+    label: "Simaya - Purok 4",
+    value: "Simaya-Purok4",
+    latitude: 8.0435,
+    longitude: 125.194,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Sinanglanan",
+    purok: "Purok 1",
+    label: "Sinanglanan - Purok 1",
+    value: "Sinanglanan-Purok1",
+    latitude: 8.0638,
+    longitude: 125.209,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Sinanglanan",
+    purok: "Purok 2",
+    label: "Sinanglanan - Purok 2",
+    value: "Sinanglanan-Purok2",
+    latitude: 8.0628,
+    longitude: 125.2105,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Sinanglanan",
+    purok: "Purok 3",
+    label: "Sinanglanan - Purok 3",
+    value: "Sinanglanan-Purok3",
+    latitude: 8.0615,
+    longitude: 125.2115,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Sinanglanan",
+    purok: "Purok 4",
+    label: "Sinanglanan - Purok 4",
+    value: "Sinanglanan-Purok4",
+    latitude: 8.0605,
+    longitude: 125.2102,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Sinanglanan",
+    purok: "Purok 5",
+    label: "Sinanglanan - Purok 5",
+    value: "Sinanglanan-Purok5",
+    latitude: 8.0612,
+    longitude: 125.2085,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Violeta",
+    purok: "Purok 1",
+    label: "Violeta - Purok 1",
+    value: "Violeta-Purok1",
+    latitude: 8.0638,
+    longitude: 125.16,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Violeta",
+    purok: "Purok 2",
+    label: "Violeta - Purok 2",
+    value: "Violeta-Purok2",
+    latitude: 8.0628,
+    longitude: 125.1615,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Violeta",
+    purok: "Purok 3",
+    label: "Violeta - Purok 3",
+    value: "Violeta-Purok3",
+    latitude: 8.0615,
+    longitude: 125.1622,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Violeta",
+    purok: "Purok 4",
+    label: "Violeta - Purok 4",
+    value: "Violeta-Purok4",
+    latitude: 8.0605,
+    longitude: 125.161,
+    district: "Basakan",
+    classification: "Rural"
+  },
+  {
+    barangay: "Busdi",
+    purok: "Purok 1",
+    label: "Busdi - Purok 1",
+    value: "Busdi-Purok1",
+    latitude: 8.2668,
+    longitude: 125.3088,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Busdi",
+    purok: "Purok 2",
+    label: "Busdi - Purok 2",
+    value: "Busdi-Purok2",
+    latitude: 8.2658,
+    longitude: 125.3105,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Busdi",
+    purok: "Purok 3",
+    label: "Busdi - Purok 3",
+    value: "Busdi-Purok3",
+    latitude: 8.2645,
+    longitude: 125.3115,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Busdi",
+    purok: "Purok 4",
+    label: "Busdi - Purok 4",
+    value: "Busdi-Purok4",
+    latitude: 8.2635,
+    longitude: 125.31,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Busdi",
+    purok: "Sitio Bendum",
+    label: "Busdi - Sitio Bendum",
+    value: "Busdi-SitioBendum",
+    latitude: 8.269,
+    longitude: 125.3135,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Busdi",
+    purok: "Sitio Kilusan",
+    label: "Busdi - Sitio Kilusan",
+    value: "Busdi-SitioKilusan",
+    latitude: 8.262,
+    longitude: 125.308,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Caburacanan",
+    purok: "Purok 1",
+    label: "Caburacanan - Purok 1",
+    value: "Caburacanan-Purok1",
+    latitude: 8.2168,
+    longitude: 125.2742,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Caburacanan",
+    purok: "Purok 2",
+    label: "Caburacanan - Purok 2",
+    value: "Caburacanan-Purok2",
+    latitude: 8.2158,
+    longitude: 125.2758,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Caburacanan",
+    purok: "Purok 3",
+    label: "Caburacanan - Purok 3",
+    value: "Caburacanan-Purok3",
+    latitude: 8.2145,
+    longitude: 125.2765,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Caburacanan",
+    purok: "Purok 4",
+    label: "Caburacanan - Purok 4",
+    value: "Caburacanan-Purok4",
+    latitude: 8.2135,
+    longitude: 125.275,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Kulaman",
+    purok: "Purok 1",
+    label: "Kulaman - Purok 1",
+    value: "Kulaman-Purok1",
+    latitude: 8.2425,
+    longitude: 125.2618,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Kulaman",
+    purok: "Purok 2",
+    label: "Kulaman - Purok 2",
+    value: "Kulaman-Purok2",
+    latitude: 8.2415,
+    longitude: 125.2635,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Kulaman",
+    purok: "Purok 3",
+    label: "Kulaman - Purok 3",
+    value: "Kulaman-Purok3",
+    latitude: 8.2402,
+    longitude: 125.2642,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Kulaman",
+    purok: "Purok 4",
+    label: "Kulaman - Purok 4",
+    value: "Kulaman-Purok4",
+    latitude: 8.2392,
+    longitude: 125.2628,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Kulaman",
+    purok: "Sitio Upper Kulaman",
+    label: "Kulaman - Sitio Upper Kulaman",
+    value: "Kulaman-SitioUpperKulaman",
+    latitude: 8.2442,
+    longitude: 125.2605,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Mapulo",
+    purok: "Purok 1",
+    label: "Mapulo - Purok 1",
+    value: "Mapulo-Purok1",
+    latitude: 8.1638,
+    longitude: 125.235,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Mapulo",
+    purok: "Purok 2",
+    label: "Mapulo - Purok 2",
+    value: "Mapulo-Purok2",
+    latitude: 8.1628,
+    longitude: 125.2365,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Mapulo",
+    purok: "Purok 3",
+    label: "Mapulo - Purok 3",
+    value: "Mapulo-Purok3",
+    latitude: 8.1615,
+    longitude: 125.2372,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Mapulo",
+    purok: "Purok 4",
+    label: "Mapulo - Purok 4",
+    value: "Mapulo-Purok4",
+    latitude: 8.1605,
+    longitude: 125.2358,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Mapulo",
+    purok: "Sitio Dalurong",
+    label: "Mapulo - Sitio Dalurong",
+    value: "Mapulo-SitioDalurong",
+    latitude: 8.165,
+    longitude: 125.2388,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Silae",
+    purok: "Purok 1",
+    label: "Silae - Purok 1",
+    value: "Silae-Purok1",
+    latitude: 8.1888,
+    longitude: 125.217,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Silae",
+    purok: "Purok 2",
+    label: "Silae - Purok 2",
+    value: "Silae-Purok2",
+    latitude: 8.1878,
+    longitude: 125.2185,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Silae",
+    purok: "Purok 3",
+    label: "Silae - Purok 3",
+    value: "Silae-Purok3",
+    latitude: 8.1865,
+    longitude: 125.2192,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Silae",
+    purok: "Purok 4",
+    label: "Silae - Purok 4",
+    value: "Silae-Purok4",
+    latitude: 8.1855,
+    longitude: 125.2178,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 1",
+    label: "Saint Peter - Purok 1",
+    value: "SaintPeter-Purok1",
+    latitude: 8.2968,
+    longitude: 125.3388,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 2",
+    label: "Saint Peter - Purok 2",
+    value: "SaintPeter-Purok2",
+    latitude: 8.2958,
+    longitude: 125.3405,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 3",
+    label: "Saint Peter - Purok 3",
+    value: "SaintPeter-Purok3",
+    latitude: 8.2945,
+    longitude: 125.3415,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 4",
+    label: "Saint Peter - Purok 4",
+    value: "SaintPeter-Purok4",
+    latitude: 8.2935,
+    longitude: 125.3402,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 5",
+    label: "Saint Peter - Purok 5",
+    value: "SaintPeter-Purok5",
+    latitude: 8.2928,
+    longitude: 125.3388,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 6",
+    label: "Saint Peter - Purok 6",
+    value: "SaintPeter-Purok6",
+    latitude: 8.2935,
+    longitude: 125.3372,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 7",
+    label: "Saint Peter - Purok 7",
+    value: "SaintPeter-Purok7",
+    latitude: 8.2948,
+    longitude: 125.3362,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 8",
+    label: "Saint Peter - Purok 8",
+    value: "SaintPeter-Purok8",
+    latitude: 8.2962,
+    longitude: 125.337,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 9",
+    label: "Saint Peter - Purok 9",
+    value: "SaintPeter-Purok9",
+    latitude: 8.2975,
+    longitude: 125.3382,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 10",
+    label: "Saint Peter - Purok 10",
+    value: "SaintPeter-Purok10",
+    latitude: 8.2982,
+    longitude: 125.3398,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Purok 11",
+    label: "Saint Peter - Purok 11",
+    value: "SaintPeter-Purok11",
+    latitude: 8.297,
+    longitude: 125.3415,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Sitio Mahayag",
+    label: "Saint Peter - Sitio Mahayag",
+    value: "SaintPeter-SitioMahayag",
+    latitude: 8.3005,
+    longitude: 125.3425,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Sitio Pinuwakan",
+    label: "Saint Peter - Sitio Pinuwakan",
+    value: "SaintPeter-SitioPinuwakan",
+    latitude: 8.2918,
+    longitude: 125.344,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Sitio Tawantawan",
+    label: "Saint Peter - Sitio Tawantawan",
+    value: "SaintPeter-SitioTawantawan",
+    latitude: 8.2942,
+    longitude: 125.3445,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Saint Peter",
+    purok: "Sitio Balaudo",
+    label: "Saint Peter - Sitio Balaudo",
+    value: "SaintPeter-SitioBalaudo",
+    latitude: 8.2965,
+    longitude: 125.3458,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Zamboanguita",
+    purok: "Purok 1",
+    label: "Zamboanguita - Purok 1",
+    value: "Zamboanguita-Purok1",
+    latitude: 8.2218,
+    longitude: 125.304,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Zamboanguita",
+    purok: "Purok 2",
+    label: "Zamboanguita - Purok 2",
+    value: "Zamboanguita-Purok2",
+    latitude: 8.2208,
+    longitude: 125.3055,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Zamboanguita",
+    purok: "Purok 3",
+    label: "Zamboanguita - Purok 3",
+    value: "Zamboanguita-Purok3",
+    latitude: 8.2195,
+    longitude: 125.3062,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Zamboanguita",
+    purok: "Purok 4",
+    label: "Zamboanguita - Purok 4",
+    value: "Zamboanguita-Purok4",
+    latitude: 8.2185,
+    longitude: 125.3048,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  },
+  {
+    barangay: "Zamboanguita",
+    purok: "Sitio Upper Zamboanguita",
+    label: "Zamboanguita - Sitio Upper Zamboanguita",
+    value: "Zamboanguita-SitioUpperZamboanguita",
+    latitude: 8.2235,
+    longitude: 125.3068,
+    district: "Upper Pulangi",
+    classification: "Rural"
+  }
+];
+
+module.exports = malaybalayLocations;

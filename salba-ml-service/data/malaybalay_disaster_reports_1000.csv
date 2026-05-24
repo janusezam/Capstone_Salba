@@ -1,0 +1,1001 @@
+report_id,report_text,disaster_type,severity,latitude,longitude,barangay,timestamp
+1,Strong earthquake alarmed residents,Earthquake,Critical,8.157023,125.126137,Barangay 10,2021-03-07
+2,Heavy rain triggered landslide near homes,Landslide,Low,8.150505,125.130272,Sumpong,2015-03-31
+3,Floodwater already waist deep,Flood,High,8.156065,125.132144,San Jose,2016-08-26
+4,Buildings shaking for several seconds,Earthquake,Low,8.155712,125.126267,Malaybalay Proper,2018-09-19
+5,Flood entering homes after heavy rain,Flood,Moderate,8.159101,125.12594,Casisang,2019-03-17
+6,Road covered by landslide debris,Landslide,Critical,8.147541,125.119351,Aglayan,2015-02-25
+7,Flood entering homes after heavy rain,Flood,Low,8.157368,125.133324,San Jose,2015-05-03
+8,Soil and rocks falling from hillside,Landslide,High,8.158725,125.129737,Barangay 11,2016-11-14
+9,Water rising quickly near our house,Flood,Moderate,8.158226,125.128004,Barangay 11,2017-12-24
+10,Electrical short circuit started a fire,Fire,Moderate,8.149401,125.141678,Violeta,2022-01-24
+11,Water rising quickly near our house,Flood,Low,8.156647,125.12722,Barangay 9,2015-12-16
+12,Water rising quickly near our house,Flood,High,8.150857,125.129858,Sumpong,2020-06-29
+13,Floodwater already waist deep,Flood,Low,8.159982,125.126441,Casisang,2023-03-05
+14,Fire spreading to nearby houses,Fire,Moderate,8.152463,125.132308,Sumpong,2020-10-15
+15,Fire spreading to nearby houses,Fire,Low,8.153145,125.131955,Sumpong,2016-08-03
+16,Landslide blocking the road,Landslide,Moderate,8.15358,125.133121,San Jose,2019-12-10
+17,Strong shaking felt in our area,Earthquake,Moderate,8.159805,125.126809,Casisang,2016-11-04
+18,Strong earthquake alarmed residents,Earthquake,High,8.157081,125.128305,Barangay 9,2021-07-14
+19,Electrical short circuit started a fire,Fire,Moderate,8.156201,125.128378,Barangay 10,2021-01-18
+20,Landslide blocking the road,Landslide,Moderate,8.15627,125.126677,Malaybalay Proper,2019-10-04
+21,Minor tremor felt in the barangay,Earthquake,High,8.156228,125.130391,Barangay 11,2023-12-26
+22,Flood entering homes after heavy rain,Flood,Moderate,8.155554,125.128959,Barangay 10,2018-01-25
+23,Road blocked due to floodwater,Flood,Low,8.153575,125.13417,San Jose,2019-07-19
+24,Water rising quickly near our house,Flood,Moderate,8.1571,125.127166,Malaybalay Proper,2020-08-31
+25,Buildings shaking for several seconds,Earthquake,Moderate,8.158437,125.12626,Barangay 10,2015-05-31
+26,Floodwater already waist deep,Flood,High,8.155898,125.127532,Barangay 10,2016-11-24
+27,Buildings shaking for several seconds,Earthquake,Critical,8.157766,125.120707,Bangcud,2019-02-13
+28,House on fire please send help,Fire,Low,8.157994,125.121411,Bangcud,2021-04-19
+29,Floodwater already waist deep,Flood,Low,8.158309,125.129721,Barangay 9,2016-06-07
+30,Minor tremor felt in the barangay,Earthquake,Critical,8.160427,125.124233,Casisang,2022-06-18
+31,Road covered by landslide debris,Landslide,Critical,8.162735,125.12684,Casisang,2022-11-05
+32,River overflow causing flooding in the area,Flood,High,8.157003,125.127456,Malaybalay Proper,2023-03-29
+33,Soil and rocks falling from hillside,Landslide,Low,8.148628,125.118353,Aglayan,2020-07-10
+34,Water rising quickly near our house,Flood,Low,8.158931,125.128743,Barangay 10,2021-07-15
+35,Strong shaking felt in our area,Earthquake,Low,8.155327,125.126986,Barangay 9,2019-01-12
+36,Flood entering homes after heavy rain,Flood,Critical,8.157906,125.126525,Barangay 9,2020-02-29
+37,Strong earthquake alarmed residents,Earthquake,Low,8.147937,125.119412,Aglayan,2021-08-01
+38,Soil and rocks falling from hillside,Landslide,Critical,8.157945,125.126085,Barangay 10,2022-10-09
+39,Heavy rain triggered landslide near homes,Landslide,Moderate,8.146497,125.116884,Aglayan,2023-06-22
+40,Market stall caught fire,Fire,Critical,8.152763,125.1323,Sumpong,2021-05-11
+41,Floodwater already waist deep,Flood,High,8.157808,125.127328,Barangay 10,2021-10-03
+42,Landslide blocking the road,Landslide,Moderate,8.158419,125.122565,Bangcud,2022-07-05
+43,House on fire please send help,Fire,High,8.158252,125.120115,Bangcud,2015-04-16
+44,Heavy rain triggered landslide near homes,Landslide,High,8.151848,125.129515,Sumpong,2022-09-25
+45,Earthquake caused cracks in the wall,Earthquake,Moderate,8.150087,125.138707,Violeta,2015-11-02
+46,Market stall caught fire,Fire,Low,8.157329,125.130269,Barangay 9,2023-06-27
+47,Road covered by landslide debris,Landslide,High,8.16285,125.126908,Casisang,2016-09-26
+48,Landslide blocking the road,Landslide,Critical,8.157963,125.12067,Bangcud,2019-09-25
+49,Minor tremor felt in the barangay,Earthquake,High,8.146083,125.118802,Aglayan,2015-12-26
+50,Buildings shaking for several seconds,Earthquake,Low,8.155572,125.127507,Barangay 9,2016-05-22
+51,Heavy rain triggered landslide near homes,Landslide,Low,8.152275,125.128866,Sumpong,2015-11-30
+52,Buildings shaking for several seconds,Earthquake,Low,8.152164,125.129322,Sumpong,2019-04-14
+53,Soil and rocks falling from hillside,Landslide,Moderate,8.150061,125.131986,Sumpong,2023-02-01
+54,Electrical short circuit started a fire,Fire,Low,8.155743,125.126594,Barangay 9,2022-03-20
+55,Strong earthquake alarmed residents,Earthquake,Critical,8.159291,125.125839,Malaybalay Proper,2024-11-16
+56,Flood entering homes after heavy rain,Flood,High,8.149143,125.140419,Violeta,2020-02-11
+57,Road covered by landslide debris,Landslide,Moderate,8.158632,125.12971,Barangay 11,2021-03-07
+58,Strong earthquake alarmed residents,Earthquake,Moderate,8.159618,125.125355,Casisang,2023-03-23
+59,Buildings shaking for several seconds,Earthquake,Low,8.157768,125.129145,Malaybalay Proper,2024-08-06
+60,Buildings shaking for several seconds,Earthquake,Moderate,8.156803,125.127902,Malaybalay Proper,2024-10-16
+61,Market stall caught fire,Fire,High,8.161153,125.126195,Casisang,2020-07-27
+62,Flood entering homes after heavy rain,Flood,Critical,8.156589,125.121545,Bangcud,2021-12-21
+63,Minor tremor felt in the barangay,Earthquake,Low,8.152473,125.128809,Sumpong,2016-05-16
+64,Soil and rocks falling from hillside,Landslide,High,8.154636,125.133379,San Jose,2024-08-22
+65,Buildings shaking for several seconds,Earthquake,High,8.150409,125.129265,Sumpong,2016-06-29
+66,Strong earthquake alarmed residents,Earthquake,Low,8.149162,125.116889,Aglayan,2019-07-27
+67,House on fire please send help,Fire,High,8.146802,125.118083,Aglayan,2023-01-07
+68,Smoke and flames seen in residential area,Fire,Critical,8.155101,125.127335,Barangay 9,2019-08-28
+69,Water rising quickly near our house,Flood,High,8.150744,125.129176,Sumpong,2016-12-12
+70,Strong shaking felt in our area,Earthquake,Moderate,8.153004,125.129789,Sumpong,2015-06-23
+71,Road blocked due to floodwater,Flood,Low,8.157341,125.130438,San Jose,2015-01-04
+72,Flood entering homes after heavy rain,Flood,Moderate,8.156885,125.128208,Malaybalay Proper,2016-10-22
+73,Water rising quickly near our house,Flood,Moderate,8.157477,125.126309,Barangay 10,2018-08-03
+74,Buildings shaking for several seconds,Earthquake,High,8.158225,125.125847,Barangay 10,2022-05-14
+75,Smoke and flames seen in residential area,Fire,Moderate,8.15397,125.132047,San Jose,2023-03-24
+76,Earthquake caused cracks in the wall,Earthquake,Critical,8.154547,125.133322,San Jose,2020-12-26
+77,Earthquake caused cracks in the wall,Earthquake,Moderate,8.157273,125.129098,Barangay 11,2024-12-10
+78,Landslide blocking the road,Landslide,Critical,8.146376,125.117796,Aglayan,2020-06-26
+79,Strong shaking felt in our area,Earthquake,Critical,8.150313,125.140868,Violeta,2023-08-15
+80,Road blocked due to floodwater,Flood,Low,8.157711,125.128283,Barangay 10,2024-08-11
+81,Buildings shaking for several seconds,Earthquake,Low,8.145235,125.116537,Aglayan,2020-12-27
+82,Smoke and flames seen in residential area,Fire,Low,8.155756,125.128694,Barangay 10,2024-10-13
+83,Buildings shaking for several seconds,Earthquake,High,8.147601,125.117995,Aglayan,2021-01-31
+84,Earthquake caused cracks in the wall,Earthquake,Moderate,8.158587,125.129603,Barangay 11,2024-12-19
+85,Soil and rocks falling from hillside,Landslide,Moderate,8.156258,125.126784,Barangay 10,2016-12-11
+86,Minor tremor felt in the barangay,Earthquake,High,8.15999,125.121177,Bangcud,2022-11-18
+87,River overflow causing flooding in the area,Flood,Moderate,8.15139,125.130807,Sumpong,2018-02-20
+88,Fire spreading to nearby houses,Fire,Low,8.157855,125.125877,Barangay 10,2023-01-19
+89,Market stall caught fire,Fire,Low,8.153251,125.128869,Sumpong,2018-05-06
+90,Flood entering homes after heavy rain,Flood,Critical,8.148902,125.11946,Aglayan,2022-07-05
+91,Soil and rocks falling from hillside,Landslide,Critical,8.148698,125.139844,Violeta,2015-11-21
+92,Fire spreading to nearby houses,Fire,Low,8.15657,125.131688,San Jose,2022-05-14
+93,Road covered by landslide debris,Landslide,High,8.149124,125.116399,Aglayan,2017-03-27
+94,Road covered by landslide debris,Landslide,High,8.147673,125.116993,Aglayan,2016-06-30
+95,Water rising quickly near our house,Flood,Low,8.158452,125.128785,Malaybalay Proper,2017-07-31
+96,House on fire please send help,Fire,Critical,8.157895,125.128372,Malaybalay Proper,2023-11-14
+97,Buildings shaking for several seconds,Earthquake,High,8.160988,125.124782,Casisang,2016-01-29
+98,Water rising quickly near our house,Flood,High,8.146287,125.116931,Aglayan,2019-09-18
+99,Market stall caught fire,Fire,Critical,8.15564,125.128657,Barangay 10,2017-06-01
+100,Buildings shaking for several seconds,Earthquake,Low,8.158456,125.129247,Barangay 9,2015-11-21
+101,Smoke and flames seen in residential area,Fire,Low,8.157245,125.129326,Malaybalay Proper,2020-08-21
+102,Fire spreading to nearby houses,Fire,Critical,8.16251,125.126262,Casisang,2022-10-03
+103,Minor tremor felt in the barangay,Earthquake,High,8.156302,125.125465,Barangay 10,2019-09-09
+104,Water rising quickly near our house,Flood,High,8.154275,125.133935,San Jose,2017-07-21
+105,Fire spreading to nearby houses,Fire,Low,8.157884,125.128751,Malaybalay Proper,2022-03-20
+106,Soil and rocks falling from hillside,Landslide,Low,8.148933,125.140049,Violeta,2024-12-09
+107,Buildings shaking for several seconds,Earthquake,Moderate,8.156844,125.127182,Barangay 10,2015-07-11
+108,Market stall caught fire,Fire,Moderate,8.159565,125.130124,Barangay 11,2016-06-10
+109,Minor tremor felt in the barangay,Earthquake,Critical,8.15523,125.130781,San Jose,2024-04-11
+110,Road covered by landslide debris,Landslide,Moderate,8.156477,125.12932,Barangay 11,2023-02-14
+111,Strong earthquake alarmed residents,Earthquake,High,8.149492,125.140423,Violeta,2016-08-31
+112,Road covered by landslide debris,Landslide,Moderate,8.158981,125.129672,Malaybalay Proper,2020-06-12
+113,Road blocked due to floodwater,Flood,Low,8.154987,125.127111,Barangay 9,2020-03-30
+114,Strong shaking felt in our area,Earthquake,Low,8.156276,125.128612,Barangay 10,2021-09-03
+115,Landslide blocking the road,Landslide,Critical,8.156738,125.122159,Bangcud,2023-08-05
+116,Road covered by landslide debris,Landslide,Moderate,8.157779,125.12089,Bangcud,2020-07-12
+117,Soil and rocks falling from hillside,Landslide,High,8.158713,125.127949,Barangay 11,2021-06-16
+118,Road blocked due to floodwater,Flood,Moderate,8.15705,125.12976,Barangay 9,2024-06-24
+119,Earthquake caused cracks in the wall,Earthquake,High,8.151235,125.129383,Sumpong,2018-04-29
+120,Heavy rain triggered landslide near homes,Landslide,Low,8.156499,125.12876,Barangay 10,2022-11-18
+121,Minor tremor felt in the barangay,Earthquake,Critical,8.15153,125.129677,Sumpong,2018-04-28
+122,House on fire please send help,Fire,Moderate,8.159479,125.130503,Barangay 11,2024-05-20
+123,Market stall caught fire,Fire,Critical,8.14804,125.138226,Violeta,2016-08-31
+124,Smoke and flames seen in residential area,Fire,Moderate,8.153317,125.129934,Sumpong,2024-01-10
+125,Fire spreading to nearby houses,Fire,Moderate,8.155394,125.12581,Barangay 10,2016-09-30
+126,River overflow causing flooding in the area,Flood,Moderate,8.156743,125.128273,Malaybalay Proper,2023-06-30
+127,Landslide blocking the road,Landslide,Critical,8.151595,125.131461,Sumpong,2020-12-30
+128,Landslide damaged farm area,Landslide,Moderate,8.157272,125.129736,Barangay 9,2019-01-27
+129,Soil and rocks falling from hillside,Landslide,Moderate,8.155359,125.129496,Barangay 9,2023-08-18
+130,Strong earthquake alarmed residents,Earthquake,Moderate,8.152302,125.129203,Sumpong,2017-01-10
+131,Strong shaking felt in our area,Earthquake,Moderate,8.149954,125.128966,Sumpong,2017-11-19
+132,Floodwater already waist deep,Flood,Low,8.158674,125.126444,Malaybalay Proper,2022-02-19
+133,Strong shaking felt in our area,Earthquake,High,8.157365,125.127718,Barangay 11,2024-08-16
+134,Earthquake caused cracks in the wall,Earthquake,Low,8.147711,125.117306,Aglayan,2017-09-02
+135,Landslide blocking the road,Landslide,Critical,8.155042,125.129713,Barangay 9,2019-11-23
+136,Strong earthquake alarmed residents,Earthquake,High,8.157789,125.127901,Barangay 10,2017-02-09
+137,Earthquake caused cracks in the wall,Earthquake,High,8.162507,125.124876,Casisang,2024-11-24
+138,Flood entering homes after heavy rain,Flood,High,8.157114,125.121843,Bangcud,2019-02-23
+139,Buildings shaking for several seconds,Earthquake,Critical,8.155459,125.125844,Barangay 10,2021-04-24
+140,House on fire please send help,Fire,Low,8.159278,125.129736,Barangay 11,2016-06-21
+141,Floodwater already waist deep,Flood,Low,8.158661,125.129656,Malaybalay Proper,2020-04-19
+142,Earthquake caused cracks in the wall,Earthquake,Moderate,8.160218,125.125803,Casisang,2016-03-08
+143,River overflow causing flooding in the area,Flood,Critical,8.15488,125.127783,Barangay 9,2017-12-23
+144,Minor tremor felt in the barangay,Earthquake,Moderate,8.157538,125.128709,Barangay 11,2015-05-18
+145,Smoke and flames seen in residential area,Fire,Critical,8.156882,125.12901,Barangay 9,2023-10-02
+146,Road blocked due to floodwater,Flood,Low,8.156901,125.129183,Malaybalay Proper,2017-02-15
+147,Earthquake caused cracks in the wall,Earthquake,Moderate,8.156303,125.128876,Malaybalay Proper,2015-03-05
+148,Landslide blocking the road,Landslide,Moderate,8.148488,125.139183,Violeta,2022-12-26
+149,Electrical short circuit started a fire,Fire,Moderate,8.154919,125.133287,San Jose,2018-04-17
+150,Road covered by landslide debris,Landslide,Moderate,8.157192,125.129229,Barangay 11,2019-12-17
+151,Minor tremor felt in the barangay,Earthquake,Moderate,8.157118,125.129543,Barangay 11,2018-06-03
+152,Road blocked due to floodwater,Flood,Moderate,8.146218,125.118019,Aglayan,2021-11-23
+153,Road covered by landslide debris,Landslide,Low,8.161694,125.125838,Casisang,2017-10-06
+154,Fire spreading to nearby houses,Fire,Moderate,8.146655,125.117627,Aglayan,2022-01-14
+155,Landslide damaged farm area,Landslide,Moderate,8.158179,125.127658,Malaybalay Proper,2019-07-08
+156,Strong earthquake alarmed residents,Earthquake,Moderate,8.159405,125.123157,Bangcud,2020-03-21
+157,Road blocked due to floodwater,Flood,Low,8.15547,125.128115,Barangay 10,2022-07-18
+158,Market stall caught fire,Fire,Low,8.159002,125.128432,Malaybalay Proper,2017-08-20
+159,Landslide blocking the road,Landslide,Critical,8.155547,125.132943,San Jose,2016-11-19
+160,Landslide blocking the road,Landslide,Moderate,8.152285,125.131731,Sumpong,2019-10-07
+161,Market stall caught fire,Fire,Low,8.157124,125.128863,Barangay 10,2018-07-08
+162,Landslide damaged farm area,Landslide,Low,8.160665,125.12419,Casisang,2016-07-28
+163,Flood entering homes after heavy rain,Flood,High,8.157568,125.127605,Malaybalay Proper,2015-03-11
+164,Water rising quickly near our house,Flood,High,8.151752,125.129626,Sumpong,2017-08-26
+165,Landslide blocking the road,Landslide,Moderate,8.146927,125.140208,Violeta,2019-05-15
+166,Landslide damaged farm area,Landslide,Moderate,8.153536,125.13158,San Jose,2015-06-27
+167,Landslide blocking the road,Landslide,High,8.158384,125.12863,Barangay 11,2017-07-27
+168,Strong earthquake alarmed residents,Earthquake,High,8.156399,125.130506,Barangay 11,2022-01-23
+169,Road covered by landslide debris,Landslide,Moderate,8.151113,125.130111,Sumpong,2023-04-02
+170,Water rising quickly near our house,Flood,Low,8.155576,125.125691,Barangay 10,2017-02-06
+171,Water rising quickly near our house,Flood,Moderate,8.161969,125.126935,Casisang,2015-11-18
+172,Soil and rocks falling from hillside,Landslide,High,8.157278,125.126712,Barangay 10,2015-03-01
+173,Strong earthquake alarmed residents,Earthquake,Critical,8.147197,125.14212,Violeta,2016-09-16
+174,Heavy rain triggered landslide near homes,Landslide,Low,8.156314,125.121329,Bangcud,2017-05-28
+175,Heavy rain triggered landslide near homes,Landslide,Low,8.14848,125.138917,Violeta,2018-11-10
+176,Soil and rocks falling from hillside,Landslide,Low,8.147865,125.118425,Aglayan,2020-03-26
+177,Electrical short circuit started a fire,Fire,Moderate,8.159778,125.131201,Barangay 11,2017-08-31
+178,House on fire please send help,Fire,High,8.148672,125.139414,Violeta,2017-05-28
+179,Landslide damaged farm area,Landslide,High,8.156656,125.125947,Barangay 10,2016-08-05
+180,Earthquake caused cracks in the wall,Earthquake,Low,8.156308,125.120057,Bangcud,2023-12-28
+181,Road covered by landslide debris,Landslide,Low,8.162564,125.124621,Casisang,2024-05-25
+182,Buildings shaking for several seconds,Earthquake,High,8.159806,125.130322,Barangay 11,2016-12-31
+183,Flood entering homes after heavy rain,Flood,Moderate,8.159805,125.12028,Bangcud,2016-04-09
+184,House on fire please send help,Fire,Low,8.158219,125.125904,Malaybalay Proper,2018-07-23
+185,House on fire please send help,Fire,Critical,8.156265,125.129988,Barangay 9,2023-03-02
+186,Road blocked due to floodwater,Flood,Critical,8.15752,125.127475,Malaybalay Proper,2021-05-06
+187,Soil and rocks falling from hillside,Landslide,Moderate,8.155776,125.128072,Barangay 10,2020-03-16
+188,Floodwater already waist deep,Flood,Low,8.157092,125.128606,Barangay 11,2018-02-25
+189,Strong shaking felt in our area,Earthquake,Low,8.156738,125.127273,Barangay 10,2017-01-03
+190,Road blocked due to floodwater,Flood,Low,8.149092,125.116566,Aglayan,2023-07-30
+191,Market stall caught fire,Fire,Low,8.155238,125.125977,Barangay 10,2021-10-27
+192,Strong shaking felt in our area,Earthquake,Critical,8.152749,125.132361,Sumpong,2024-10-31
+193,Electrical short circuit started a fire,Fire,Moderate,8.156619,125.120048,Bangcud,2019-06-02
+194,Electrical short circuit started a fire,Fire,Moderate,8.157941,125.130292,Barangay 9,2017-05-08
+195,House on fire please send help,Fire,Low,8.157243,125.125968,Malaybalay Proper,2022-12-12
+196,Landslide blocking the road,Landslide,High,8.14701,125.141935,Violeta,2023-04-11
+197,Smoke and flames seen in residential area,Fire,High,8.149905,125.13916,Violeta,2021-02-18
+198,Road covered by landslide debris,Landslide,Critical,8.146704,125.141979,Violeta,2017-06-17
+199,Minor tremor felt in the barangay,Earthquake,Critical,8.148555,125.138912,Violeta,2016-07-06
+200,Landslide blocking the road,Landslide,Moderate,8.149035,125.119497,Aglayan,2023-05-18
+201,Road blocked due to floodwater,Flood,Moderate,8.157927,125.128226,Barangay 10,2022-01-24
+202,Heavy rain triggered landslide near homes,Landslide,Critical,8.158572,125.129118,Malaybalay Proper,2021-05-10
+203,Flood entering homes after heavy rain,Flood,Critical,8.148693,125.118691,Aglayan,2017-06-07
+204,Buildings shaking for several seconds,Earthquake,Moderate,8.148142,125.140486,Violeta,2021-06-16
+205,Floodwater already waist deep,Flood,Low,8.147105,125.141138,Violeta,2017-08-07
+206,Road blocked due to floodwater,Flood,Moderate,8.150393,125.129116,Sumpong,2019-08-06
+207,Fire spreading to nearby houses,Fire,Moderate,8.156036,125.131808,San Jose,2020-03-19
+208,Heavy rain triggered landslide near homes,Landslide,High,8.14573,125.116875,Aglayan,2019-07-14
+209,Market stall caught fire,Fire,Critical,8.159985,125.120975,Bangcud,2021-08-25
+210,Landslide damaged farm area,Landslide,High,8.15073,125.12896,Sumpong,2019-07-02
+211,Minor tremor felt in the barangay,Earthquake,Moderate,8.159949,125.121204,Bangcud,2021-08-15
+212,Road blocked due to floodwater,Flood,Low,8.153938,125.131017,San Jose,2024-02-11
+213,Water rising quickly near our house,Flood,Critical,8.162711,125.126924,Casisang,2019-06-06
+214,Electrical short circuit started a fire,Fire,High,8.159345,125.126562,Malaybalay Proper,2023-11-03
+215,House on fire please send help,Fire,Moderate,8.157798,125.126666,Barangay 9,2016-11-12
+216,Earthquake caused cracks in the wall,Earthquake,Low,8.152122,125.129332,Sumpong,2017-01-15
+217,Heavy rain triggered landslide near homes,Landslide,Low,8.158009,125.126149,Barangay 10,2017-08-25
+218,Strong shaking felt in our area,Earthquake,Low,8.156886,125.126606,Barangay 9,2020-12-03
+219,Smoke and flames seen in residential area,Fire,High,8.158448,125.121704,Bangcud,2022-05-05
+220,Smoke and flames seen in residential area,Fire,Moderate,8.158694,125.119227,Bangcud,2016-08-02
+221,Fire spreading to nearby houses,Fire,Low,8.1569,125.127905,Barangay 9,2020-03-12
+222,Strong earthquake alarmed residents,Earthquake,High,8.156861,125.127716,Malaybalay Proper,2017-06-13
+223,Floodwater already waist deep,Flood,Critical,8.150277,125.130481,Sumpong,2017-07-17
+224,Heavy rain triggered landslide near homes,Landslide,Moderate,8.14767,125.118194,Aglayan,2018-09-11
+225,Road blocked due to floodwater,Flood,High,8.158552,125.127329,Barangay 9,2015-07-04
+226,Road blocked due to floodwater,Flood,Critical,8.158404,125.129117,Malaybalay Proper,2024-06-29
+227,Market stall caught fire,Fire,Critical,8.157378,125.132331,San Jose,2018-11-27
+228,Electrical short circuit started a fire,Fire,High,8.148066,125.117781,Aglayan,2018-03-03
+229,Water rising quickly near our house,Flood,Low,8.153773,125.132208,San Jose,2020-09-13
+230,Strong shaking felt in our area,Earthquake,High,8.156607,125.129742,Barangay 9,2015-04-14
+231,Strong shaking felt in our area,Earthquake,Moderate,8.157305,125.132112,San Jose,2022-06-11
+232,Soil and rocks falling from hillside,Landslide,Moderate,8.156463,125.126808,Barangay 10,2018-05-05
+233,Landslide blocking the road,Landslide,Low,8.158231,125.119427,Bangcud,2020-07-11
+234,Fire spreading to nearby houses,Fire,Moderate,8.155687,125.126224,Malaybalay Proper,2022-03-09
+235,River overflow causing flooding in the area,Flood,High,8.156136,125.128383,Barangay 10,2019-10-31
+236,House on fire please send help,Fire,High,8.14535,125.117599,Aglayan,2021-12-11
+237,Strong earthquake alarmed residents,Earthquake,Low,8.148359,125.141366,Violeta,2017-08-13
+238,Strong earthquake alarmed residents,Earthquake,Low,8.158268,125.128398,Malaybalay Proper,2019-05-18
+239,Landslide damaged farm area,Landslide,High,8.159157,125.125119,Casisang,2022-12-27
+240,Road blocked due to floodwater,Flood,High,8.159861,125.121614,Bangcud,2020-03-06
+241,Road covered by landslide debris,Landslide,Low,8.149659,125.12924,Sumpong,2020-05-31
+242,Soil and rocks falling from hillside,Landslide,Moderate,8.16123,125.124003,Casisang,2015-06-13
+243,Strong earthquake alarmed residents,Earthquake,Critical,8.159765,125.130724,Barangay 11,2016-01-06
+244,Landslide damaged farm area,Landslide,Moderate,8.157846,125.128456,Barangay 10,2018-09-24
+245,Market stall caught fire,Fire,High,8.153586,125.132976,San Jose,2017-05-29
+246,Floodwater already waist deep,Flood,Moderate,8.157244,125.127532,Barangay 10,2018-09-26
+247,Road blocked due to floodwater,Flood,Low,8.151197,125.128945,Sumpong,2015-12-20
+248,Landslide blocking the road,Landslide,Moderate,8.160268,125.124648,Casisang,2024-12-25
+249,Electrical short circuit started a fire,Fire,Moderate,8.148967,125.116666,Aglayan,2020-11-07
+250,Strong earthquake alarmed residents,Earthquake,High,8.155543,125.126223,Barangay 10,2019-06-03
+251,Floodwater already waist deep,Flood,Moderate,8.161378,125.125269,Casisang,2019-07-03
+252,Buildings shaking for several seconds,Earthquake,High,8.149108,125.117434,Aglayan,2022-03-26
+253,Market stall caught fire,Fire,Critical,8.153321,125.128467,Sumpong,2024-09-22
+254,Heavy rain triggered landslide near homes,Landslide,Critical,8.14694,125.140494,Violeta,2018-03-04
+255,Earthquake caused cracks in the wall,Earthquake,Critical,8.148036,125.119369,Aglayan,2016-09-14
+256,Smoke and flames seen in residential area,Fire,Low,8.148371,125.140577,Violeta,2018-12-07
+257,Buildings shaking for several seconds,Earthquake,High,8.146936,125.118496,Aglayan,2016-07-03
+258,Floodwater already waist deep,Flood,Critical,8.158772,125.125277,Barangay 10,2018-02-17
+259,Strong shaking felt in our area,Earthquake,Low,8.153692,125.132132,San Jose,2024-04-27
+260,River overflow causing flooding in the area,Flood,Low,8.155935,125.133622,San Jose,2016-01-21
+261,Earthquake caused cracks in the wall,Earthquake,High,8.160012,125.125243,Casisang,2019-01-11
+262,Flood entering homes after heavy rain,Flood,Low,8.155503,125.128448,Barangay 9,2015-07-02
+263,Road covered by landslide debris,Landslide,Low,8.148968,125.116685,Aglayan,2016-02-01
+264,House on fire please send help,Fire,High,8.15709,125.127114,Malaybalay Proper,2023-05-14
+265,Fire spreading to nearby houses,Fire,High,8.149249,125.139075,Violeta,2016-06-16
+266,Buildings shaking for several seconds,Earthquake,Critical,8.155075,125.132299,San Jose,2023-10-26
+267,Heavy rain triggered landslide near homes,Landslide,Moderate,8.150036,125.140721,Violeta,2017-09-20
+268,Strong earthquake alarmed residents,Earthquake,High,8.156763,125.130484,San Jose,2023-06-18
+269,Landslide damaged farm area,Landslide,Critical,8.156721,125.120656,Bangcud,2017-06-19
+270,Smoke and flames seen in residential area,Fire,Low,8.146908,125.118639,Aglayan,2015-04-07
+271,Fire spreading to nearby houses,Fire,Moderate,8.156586,125.128454,Barangay 11,2023-01-22
+272,Heavy rain triggered landslide near homes,Landslide,Low,8.158198,125.120096,Bangcud,2017-05-28
+273,River overflow causing flooding in the area,Flood,Critical,8.157681,125.130808,Barangay 11,2018-04-29
+274,River overflow causing flooding in the area,Flood,High,8.157575,125.125184,Barangay 10,2015-09-29
+275,Strong shaking felt in our area,Earthquake,High,8.156694,125.126718,Barangay 10,2022-04-06
+276,Landslide blocking the road,Landslide,High,8.158376,125.128501,Barangay 10,2022-02-02
+277,Heavy rain triggered landslide near homes,Landslide,Critical,8.148122,125.118402,Aglayan,2021-12-02
+278,Market stall caught fire,Fire,High,8.158191,125.126846,Barangay 9,2022-01-08
+279,Landslide damaged farm area,Landslide,Critical,8.158069,125.128393,Barangay 9,2021-03-13
+280,Buildings shaking for several seconds,Earthquake,Moderate,8.156481,125.130236,Barangay 9,2021-04-02
+281,Heavy rain triggered landslide near homes,Landslide,Critical,8.158582,125.126964,Malaybalay Proper,2019-12-17
+282,River overflow causing flooding in the area,Flood,Critical,8.158232,125.130292,Barangay 11,2022-04-16
+283,Road covered by landslide debris,Landslide,High,8.155626,125.127735,Barangay 10,2023-06-02
+284,Road covered by landslide debris,Landslide,Moderate,8.157504,125.121133,Bangcud,2016-03-02
+285,River overflow causing flooding in the area,Flood,Moderate,8.158074,125.119423,Bangcud,2015-09-27
+286,Strong earthquake alarmed residents,Earthquake,Moderate,8.149523,125.142194,Violeta,2022-12-28
+287,Minor tremor felt in the barangay,Earthquake,Moderate,8.156246,125.120656,Bangcud,2022-05-28
+288,Landslide damaged farm area,Landslide,Critical,8.149542,125.140637,Violeta,2017-11-30
+289,River overflow causing flooding in the area,Flood,Critical,8.152665,125.130508,Sumpong,2016-09-16
+290,Road blocked due to floodwater,Flood,Critical,8.155025,125.130665,San Jose,2015-01-09
+291,Floodwater already waist deep,Flood,High,8.14897,125.118544,Aglayan,2015-04-27
+292,Flood entering homes after heavy rain,Flood,High,8.155703,125.127051,Barangay 10,2021-05-28
+293,Heavy rain triggered landslide near homes,Landslide,Critical,8.15597,125.126777,Malaybalay Proper,2016-05-04
+294,Landslide damaged farm area,Landslide,High,8.158986,125.129312,Malaybalay Proper,2023-07-17
+295,Heavy rain triggered landslide near homes,Landslide,Low,8.162249,125.125058,Casisang,2017-07-01
+296,House on fire please send help,Fire,Moderate,8.158726,125.122768,Bangcud,2024-11-14
+297,Landslide damaged farm area,Landslide,Low,8.158193,125.121239,Bangcud,2016-10-16
+298,Minor tremor felt in the barangay,Earthquake,Low,8.157235,125.131579,San Jose,2023-11-12
+299,Strong earthquake alarmed residents,Earthquake,Critical,8.157641,125.125874,Barangay 10,2016-05-19
+300,Electrical short circuit started a fire,Fire,Critical,8.157817,125.126838,Barangay 10,2024-01-13
+301,Smoke and flames seen in residential area,Fire,High,8.146629,125.11718,Aglayan,2015-04-19
+302,Road blocked due to floodwater,Flood,Critical,8.156515,125.122039,Bangcud,2023-03-26
+303,Electrical short circuit started a fire,Fire,Low,8.156913,125.130235,Barangay 11,2016-07-01
+304,Water rising quickly near our house,Flood,Critical,8.148564,125.11657,Aglayan,2017-04-17
+305,Flood entering homes after heavy rain,Flood,Low,8.156168,125.131055,Barangay 11,2018-10-29
+306,Fire spreading to nearby houses,Fire,Critical,8.159877,125.121312,Bangcud,2018-05-02
+307,Electrical short circuit started a fire,Fire,Critical,8.145886,125.116665,Aglayan,2019-04-29
+308,Earthquake caused cracks in the wall,Earthquake,High,8.154899,125.129216,Barangay 9,2022-10-12
+309,Smoke and flames seen in residential area,Fire,High,8.155484,125.130618,San Jose,2023-08-27
+310,Road covered by landslide debris,Landslide,Low,8.153741,125.131274,San Jose,2015-04-11
+311,Heavy rain triggered landslide near homes,Landslide,Moderate,8.156147,125.133194,San Jose,2023-11-07
+312,House on fire please send help,Fire,High,8.147768,125.139792,Violeta,2023-09-14
+313,Market stall caught fire,Fire,High,8.149745,125.140126,Violeta,2016-08-18
+314,Market stall caught fire,Fire,Critical,8.156595,125.131547,San Jose,2019-04-28
+315,Landslide blocking the road,Landslide,High,8.156253,125.12856,Malaybalay Proper,2020-04-04
+316,Water rising quickly near our house,Flood,Critical,8.158278,125.130667,Barangay 11,2022-07-24
+317,Smoke and flames seen in residential area,Fire,Low,8.160941,125.126111,Casisang,2021-03-01
+318,Smoke and flames seen in residential area,Fire,Critical,8.149614,125.130284,Sumpong,2017-02-04
+319,River overflow causing flooding in the area,Flood,Low,8.159715,125.124884,Casisang,2017-01-12
+320,Fire spreading to nearby houses,Fire,Critical,8.145633,125.117867,Aglayan,2017-12-07
+321,Heavy rain triggered landslide near homes,Landslide,Low,8.154257,125.133593,San Jose,2020-01-26
+322,Fire spreading to nearby houses,Fire,Low,8.157392,125.129762,Barangay 11,2018-07-23
+323,House on fire please send help,Fire,Low,8.159493,125.120251,Bangcud,2021-11-08
+324,Strong earthquake alarmed residents,Earthquake,High,8.156138,125.127342,Malaybalay Proper,2016-06-05
+325,Strong earthquake alarmed residents,Earthquake,High,8.148929,125.118971,Aglayan,2022-08-27
+326,Water rising quickly near our house,Flood,Moderate,8.155666,125.127108,Barangay 9,2022-01-04
+327,Landslide damaged farm area,Landslide,Critical,8.158364,125.125744,Barangay 10,2020-02-06
+328,Buildings shaking for several seconds,Earthquake,Low,8.155897,125.132115,San Jose,2015-03-20
+329,Flood entering homes after heavy rain,Flood,Critical,8.147164,125.116583,Aglayan,2021-09-28
+330,Soil and rocks falling from hillside,Landslide,High,8.157285,125.128705,Malaybalay Proper,2019-01-28
+331,Floodwater already waist deep,Flood,Moderate,8.149079,125.118453,Aglayan,2019-02-06
+332,Fire spreading to nearby houses,Fire,Low,8.156972,125.126552,Malaybalay Proper,2018-09-27
+333,Fire spreading to nearby houses,Fire,Low,8.14871,125.116827,Aglayan,2022-08-04
+334,Heavy rain triggered landslide near homes,Landslide,Low,8.159719,125.129779,Barangay 11,2018-11-02
+335,Buildings shaking for several seconds,Earthquake,Low,8.156999,125.12895,Barangay 9,2018-07-01
+336,Market stall caught fire,Fire,High,8.158733,125.127062,Malaybalay Proper,2015-09-03
+337,Landslide blocking the road,Landslide,Moderate,8.158227,125.120457,Bangcud,2016-02-01
+338,Water rising quickly near our house,Flood,High,8.151707,125.131145,Sumpong,2021-07-10
+339,Landslide blocking the road,Landslide,Critical,8.155155,125.130411,San Jose,2019-06-18
+340,Earthquake caused cracks in the wall,Earthquake,Critical,8.159527,125.129635,Barangay 11,2023-06-07
+341,Smoke and flames seen in residential area,Fire,High,8.149822,125.14158,Violeta,2015-10-28
+342,Landslide blocking the road,Landslide,Low,8.159144,125.125816,Barangay 10,2020-07-14
+343,Smoke and flames seen in residential area,Fire,Moderate,8.15123,125.131409,Sumpong,2023-10-28
+344,Landslide damaged farm area,Landslide,Low,8.159123,125.127065,Casisang,2023-06-14
+345,Heavy rain triggered landslide near homes,Landslide,Critical,8.152602,125.131549,Sumpong,2021-06-02
+346,River overflow causing flooding in the area,Flood,High,8.157122,125.128028,Barangay 11,2021-08-26
+347,Market stall caught fire,Fire,Low,8.148791,125.142099,Violeta,2020-10-25
+348,Soil and rocks falling from hillside,Landslide,Moderate,8.157379,125.130384,San Jose,2024-06-10
+349,Water rising quickly near our house,Flood,Moderate,8.157353,125.128721,Malaybalay Proper,2016-06-08
+350,Soil and rocks falling from hillside,Landslide,High,8.156162,125.128774,Barangay 9,2015-10-14
+351,House on fire please send help,Fire,Critical,8.148476,125.139088,Violeta,2015-03-20
+352,Water rising quickly near our house,Flood,Moderate,8.158607,125.123141,Bangcud,2021-01-01
+353,Buildings shaking for several seconds,Earthquake,Low,8.147695,125.119684,Aglayan,2021-05-13
+354,Strong shaking felt in our area,Earthquake,Moderate,8.159659,125.125801,Casisang,2024-07-05
+355,Road blocked due to floodwater,Flood,Critical,8.157061,125.127536,Barangay 9,2022-03-11
+356,House on fire please send help,Fire,High,8.148502,125.138958,Violeta,2024-04-06
+357,Flood entering homes after heavy rain,Flood,Critical,8.157323,125.132376,San Jose,2016-02-23
+358,Water rising quickly near our house,Flood,Moderate,8.156655,125.127776,Barangay 11,2018-12-03
+359,Road blocked due to floodwater,Flood,Critical,8.150488,125.1395,Violeta,2023-12-11
+360,Buildings shaking for several seconds,Earthquake,Moderate,8.157816,125.121795,Bangcud,2024-05-04
+361,Water rising quickly near our house,Flood,Critical,8.147708,125.119458,Aglayan,2016-09-27
+362,Buildings shaking for several seconds,Earthquake,Critical,8.156139,125.12765,Barangay 9,2017-07-20
+363,Road blocked due to floodwater,Flood,Moderate,8.158093,125.129447,Barangay 9,2019-10-31
+364,Strong earthquake alarmed residents,Earthquake,Moderate,8.155836,125.126225,Malaybalay Proper,2022-07-31
+365,Strong shaking felt in our area,Earthquake,Critical,8.153657,125.133375,San Jose,2024-01-19
+366,Buildings shaking for several seconds,Earthquake,Low,8.155273,125.133726,San Jose,2022-04-27
+367,Strong shaking felt in our area,Earthquake,High,8.156816,125.13047,Barangay 11,2018-05-06
+368,Strong earthquake alarmed residents,Earthquake,High,8.157431,125.129351,Barangay 11,2017-06-09
+369,Floodwater already waist deep,Flood,High,8.158826,125.128845,Barangay 10,2015-11-13
+370,Strong earthquake alarmed residents,Earthquake,Critical,8.158325,125.131361,Barangay 11,2015-03-08
+371,House on fire please send help,Fire,Moderate,8.156848,125.128002,Barangay 10,2017-09-18
+372,Water rising quickly near our house,Flood,High,8.155481,125.128553,Barangay 9,2022-12-18
+373,Landslide blocking the road,Landslide,High,8.155393,125.127394,Barangay 10,2016-10-06
+374,Buildings shaking for several seconds,Earthquake,High,8.159878,125.127856,Casisang,2023-03-27
+375,Fire spreading to nearby houses,Fire,Low,8.156122,125.128425,Barangay 10,2020-06-10
+376,Strong earthquake alarmed residents,Earthquake,High,8.147372,125.117623,Aglayan,2019-06-02
+377,Smoke and flames seen in residential area,Fire,Moderate,8.156192,125.126305,Malaybalay Proper,2019-08-18
+378,Road covered by landslide debris,Landslide,Low,8.159085,125.129791,Malaybalay Proper,2016-08-19
+379,Road blocked due to floodwater,Flood,Low,8.147368,125.139441,Violeta,2022-04-15
+380,Heavy rain triggered landslide near homes,Landslide,Low,8.146975,125.140919,Violeta,2022-12-31
+381,Road covered by landslide debris,Landslide,Moderate,8.147312,125.139437,Violeta,2023-08-15
+382,Minor tremor felt in the barangay,Earthquake,High,8.155552,125.130757,San Jose,2017-02-12
+383,Minor tremor felt in the barangay,Earthquake,High,8.160145,125.127612,Casisang,2024-07-28
+384,Fire spreading to nearby houses,Fire,Moderate,8.159549,125.130283,Barangay 11,2024-02-10
+385,Electrical short circuit started a fire,Fire,Critical,8.151822,125.131556,Sumpong,2021-07-21
+386,Electrical short circuit started a fire,Fire,Moderate,8.156036,125.127094,Barangay 9,2023-10-25
+387,Minor tremor felt in the barangay,Earthquake,Low,8.155553,125.131532,San Jose,2018-10-28
+388,Road covered by landslide debris,Landslide,Low,8.157006,125.127789,Malaybalay Proper,2024-07-06
+389,Buildings shaking for several seconds,Earthquake,Low,8.155954,125.126194,Malaybalay Proper,2020-03-30
+390,Road covered by landslide debris,Landslide,Low,8.152679,125.128686,Sumpong,2018-04-13
+391,Heavy rain triggered landslide near homes,Landslide,Moderate,8.159252,125.128716,Barangay 11,2019-02-28
+392,Road blocked due to floodwater,Flood,Critical,8.157205,125.119322,Bangcud,2016-12-20
+393,Buildings shaking for several seconds,Earthquake,High,8.157225,125.122708,Bangcud,2021-05-26
+394,Buildings shaking for several seconds,Earthquake,Low,8.158788,125.125963,Barangay 10,2018-10-02
+395,Market stall caught fire,Fire,Critical,8.162878,125.127285,Casisang,2024-07-23
+396,Earthquake caused cracks in the wall,Earthquake,Low,8.150454,125.138696,Violeta,2016-04-18
+397,Water rising quickly near our house,Flood,Critical,8.158758,125.130813,Barangay 11,2018-12-21
+398,Landslide blocking the road,Landslide,Low,8.156771,125.128061,Malaybalay Proper,2015-02-01
+399,Strong shaking felt in our area,Earthquake,Low,8.161693,125.125418,Casisang,2016-09-04
+400,Strong earthquake alarmed residents,Earthquake,Critical,8.15567,125.126715,Barangay 9,2020-09-17
+401,Floodwater already waist deep,Flood,Low,8.156758,125.128739,Barangay 11,2017-03-03
+402,Minor tremor felt in the barangay,Earthquake,Critical,8.146942,125.116671,Aglayan,2023-04-17
+403,Road covered by landslide debris,Landslide,High,8.158846,125.129648,Malaybalay Proper,2020-03-15
+404,Fire spreading to nearby houses,Fire,High,8.157481,125.126421,Malaybalay Proper,2018-08-30
+405,River overflow causing flooding in the area,Flood,High,8.15445,125.130436,San Jose,2018-10-30
+406,Heavy rain triggered landslide near homes,Landslide,Moderate,8.155855,125.128304,Barangay 9,2022-07-02
+407,Fire spreading to nearby houses,Fire,Critical,8.148191,125.119877,Aglayan,2024-11-19
+408,Strong shaking felt in our area,Earthquake,Moderate,8.148922,125.1384,Violeta,2015-09-11
+409,Electrical short circuit started a fire,Fire,High,8.157513,125.128301,Barangay 9,2019-04-14
+410,Buildings shaking for several seconds,Earthquake,Moderate,8.160712,125.12522,Casisang,2020-11-17
+411,Buildings shaking for several seconds,Earthquake,Moderate,8.156574,125.12884,Malaybalay Proper,2020-03-29
+412,Smoke and flames seen in residential area,Fire,Critical,8.15457,125.130959,San Jose,2024-08-08
+413,Flood entering homes after heavy rain,Flood,Critical,8.156402,125.121188,Bangcud,2023-12-11
+414,Electrical short circuit started a fire,Fire,Low,8.147309,125.116127,Aglayan,2021-06-01
+415,Heavy rain triggered landslide near homes,Landslide,Moderate,8.160019,125.124756,Casisang,2024-10-20
+416,Earthquake caused cracks in the wall,Earthquake,Critical,8.157459,125.129783,Barangay 9,2016-12-01
+417,Earthquake caused cracks in the wall,Earthquake,Moderate,8.155748,125.129525,Barangay 9,2016-06-30
+418,Soil and rocks falling from hillside,Landslide,High,8.160087,125.126965,Casisang,2017-08-26
+419,Road covered by landslide debris,Landslide,High,8.153898,125.130374,San Jose,2022-01-13
+420,Flood entering homes after heavy rain,Flood,Low,8.162249,125.126926,Casisang,2024-09-27
+421,Strong shaking felt in our area,Earthquake,Low,8.158216,125.129563,Barangay 9,2015-01-25
+422,Road covered by landslide debris,Landslide,Critical,8.156407,125.13303,San Jose,2018-11-23
+423,Landslide blocking the road,Landslide,Moderate,8.157038,125.132735,San Jose,2020-05-10
+424,Road covered by landslide debris,Landslide,Low,8.147457,125.138543,Violeta,2019-09-19
+425,House on fire please send help,Fire,Low,8.157862,125.12179,Bangcud,2022-02-25
+426,Soil and rocks falling from hillside,Landslide,Critical,8.1499,125.14067,Violeta,2019-01-11
+427,Fire spreading to nearby houses,Fire,High,8.152469,125.132351,Sumpong,2018-02-14
+428,Minor tremor felt in the barangay,Earthquake,Moderate,8.157892,125.121026,Bangcud,2019-09-05
+429,Strong earthquake alarmed residents,Earthquake,Critical,8.158949,125.124481,Casisang,2015-09-07
+430,Buildings shaking for several seconds,Earthquake,Low,8.158528,125.130536,Barangay 11,2017-09-08
+431,Strong earthquake alarmed residents,Earthquake,Critical,8.146877,125.139213,Violeta,2021-05-16
+432,Strong earthquake alarmed residents,Earthquake,Critical,8.147112,125.116086,Aglayan,2020-07-12
+433,House on fire please send help,Fire,Low,8.157457,125.12972,Malaybalay Proper,2024-07-15
+434,Electrical short circuit started a fire,Fire,Low,8.157276,125.12247,Bangcud,2020-08-13
+435,Buildings shaking for several seconds,Earthquake,High,8.149193,125.119932,Aglayan,2016-11-29
+436,Road blocked due to floodwater,Flood,Moderate,8.158734,125.130957,Barangay 11,2019-01-13
+437,Road covered by landslide debris,Landslide,High,8.148243,125.118938,Aglayan,2017-10-03
+438,Road blocked due to floodwater,Flood,Critical,8.158469,125.121489,Bangcud,2024-09-16
+439,Earthquake caused cracks in the wall,Earthquake,Critical,8.154747,125.130687,San Jose,2015-04-23
+440,Water rising quickly near our house,Flood,Critical,8.155542,125.125815,Malaybalay Proper,2021-05-22
+441,Flood entering homes after heavy rain,Flood,High,8.156266,125.130975,Barangay 11,2016-09-21
+442,Market stall caught fire,Fire,Moderate,8.147556,125.119161,Aglayan,2019-07-13
+443,Earthquake caused cracks in the wall,Earthquake,Moderate,8.146635,125.140107,Violeta,2020-06-14
+444,River overflow causing flooding in the area,Flood,Low,8.156608,125.131586,San Jose,2018-06-13
+445,Strong shaking felt in our area,Earthquake,Low,8.158166,125.126692,Barangay 10,2019-03-25
+446,Strong shaking felt in our area,Earthquake,High,8.155833,125.133712,San Jose,2015-04-29
+447,House on fire please send help,Fire,Low,8.15842,125.12665,Malaybalay Proper,2018-11-01
+448,Earthquake caused cracks in the wall,Earthquake,Moderate,8.162294,125.124901,Casisang,2018-09-11
+449,Market stall caught fire,Fire,Moderate,8.158616,125.127657,Barangay 9,2016-02-05
+450,Road blocked due to floodwater,Flood,Moderate,8.147935,125.139422,Violeta,2018-09-28
+451,Smoke and flames seen in residential area,Fire,High,8.155672,125.128622,Barangay 10,2023-09-15
+452,House on fire please send help,Fire,Low,8.159344,125.120622,Bangcud,2015-03-24
+453,Fire spreading to nearby houses,Fire,Moderate,8.156037,125.128454,Malaybalay Proper,2024-08-21
+454,River overflow causing flooding in the area,Flood,High,8.15638,125.131281,Barangay 11,2018-04-16
+455,Earthquake caused cracks in the wall,Earthquake,Moderate,8.146377,125.116422,Aglayan,2019-07-30
+456,Strong shaking felt in our area,Earthquake,Critical,8.151394,125.131794,Sumpong,2023-12-31
+457,Minor tremor felt in the barangay,Earthquake,High,8.15939,125.120901,Bangcud,2020-07-09
+458,Buildings shaking for several seconds,Earthquake,Critical,8.156574,125.128119,Malaybalay Proper,2024-01-22
+459,Heavy rain triggered landslide near homes,Landslide,Moderate,8.16092,125.124943,Casisang,2024-11-20
+460,Electrical short circuit started a fire,Fire,Critical,8.156682,125.12712,Barangay 9,2017-11-14
+461,Flood entering homes after heavy rain,Flood,Critical,8.158521,125.121301,Bangcud,2024-06-29
+462,Heavy rain triggered landslide near homes,Landslide,Moderate,8.157016,125.129715,Malaybalay Proper,2017-09-12
+463,Smoke and flames seen in residential area,Fire,Critical,8.14794,125.141566,Violeta,2019-12-01
+464,Minor tremor felt in the barangay,Earthquake,Critical,8.160245,125.125332,Casisang,2018-08-03
+465,River overflow causing flooding in the area,Flood,Moderate,8.159595,125.121169,Bangcud,2024-01-31
+466,Electrical short circuit started a fire,Fire,Moderate,8.156253,125.125928,Barangay 10,2024-03-16
+467,Heavy rain triggered landslide near homes,Landslide,High,8.158679,125.121886,Bangcud,2024-08-29
+468,Strong earthquake alarmed residents,Earthquake,Critical,8.158099,125.129359,Barangay 11,2022-12-01
+469,Buildings shaking for several seconds,Earthquake,Low,8.162124,125.124947,Casisang,2021-10-25
+470,Landslide blocking the road,Landslide,Critical,8.150717,125.128529,Sumpong,2015-09-09
+471,Landslide damaged farm area,Landslide,High,8.154139,125.131425,San Jose,2015-11-26
+472,Landslide damaged farm area,Landslide,Moderate,8.159229,125.127028,Casisang,2022-12-11
+473,Market stall caught fire,Fire,High,8.150259,125.139519,Violeta,2022-08-01
+474,Landslide damaged farm area,Landslide,High,8.1569,125.128657,Barangay 11,2020-07-11
+475,House on fire please send help,Fire,Critical,8.157144,125.120021,Bangcud,2017-06-12
+476,Flood entering homes after heavy rain,Flood,Moderate,8.157618,125.126152,Malaybalay Proper,2024-04-02
+477,Electrical short circuit started a fire,Fire,Critical,8.152208,125.128571,Sumpong,2023-01-06
+478,Market stall caught fire,Fire,Critical,8.155621,125.130445,Barangay 9,2024-06-18
+479,Landslide damaged farm area,Landslide,Low,8.146991,125.117635,Aglayan,2022-02-08
+480,Road covered by landslide debris,Landslide,Low,8.159418,125.124879,Casisang,2015-02-28
+481,Water rising quickly near our house,Flood,Low,8.15839,125.126031,Barangay 10,2024-08-20
+482,Strong earthquake alarmed residents,Earthquake,High,8.152763,125.130719,Sumpong,2022-06-22
+483,Earthquake caused cracks in the wall,Earthquake,Moderate,8.157492,125.120244,Bangcud,2020-06-17
+484,Earthquake caused cracks in the wall,Earthquake,Moderate,8.161726,125.125548,Casisang,2019-06-28
+485,Heavy rain triggered landslide near homes,Landslide,Low,8.148923,125.141961,Violeta,2022-10-21
+486,Market stall caught fire,Fire,High,8.148083,125.119623,Aglayan,2018-08-27
+487,Soil and rocks falling from hillside,Landslide,High,8.162308,125.127434,Casisang,2017-04-03
+488,Strong shaking felt in our area,Earthquake,Critical,8.149445,125.140417,Violeta,2017-01-23
+489,Strong shaking felt in our area,Earthquake,High,8.159182,125.121679,Bangcud,2015-05-12
+490,Smoke and flames seen in residential area,Fire,Low,8.155587,125.132843,San Jose,2015-01-14
+491,Water rising quickly near our house,Flood,Low,8.159422,125.12031,Bangcud,2021-02-11
+492,Road covered by landslide debris,Landslide,High,8.157622,125.125069,Barangay 10,2023-08-29
+493,Road covered by landslide debris,Landslide,Low,8.159145,125.12227,Bangcud,2023-08-05
+494,Market stall caught fire,Fire,High,8.155149,125.130832,San Jose,2021-08-29
+495,Water rising quickly near our house,Flood,Critical,8.15285,125.129023,Sumpong,2018-02-03
+496,Fire spreading to nearby houses,Fire,High,8.157894,125.128846,Malaybalay Proper,2017-06-29
+497,Floodwater already waist deep,Flood,Moderate,8.157004,125.134166,San Jose,2018-09-03
+498,Flood entering homes after heavy rain,Flood,Low,8.147758,125.11845,Aglayan,2018-06-10
+499,Road covered by landslide debris,Landslide,High,8.155369,125.126712,Barangay 10,2024-08-20
+500,River overflow causing flooding in the area,Flood,High,8.149697,125.130113,Sumpong,2017-10-11
+501,Strong earthquake alarmed residents,Earthquake,Critical,8.156549,125.120175,Bangcud,2024-02-10
+502,Landslide damaged farm area,Landslide,Moderate,8.15444,125.130853,San Jose,2020-09-25
+503,House on fire please send help,Fire,Low,8.156777,125.119741,Bangcud,2024-11-11
+504,House on fire please send help,Fire,Moderate,8.156104,125.126892,Malaybalay Proper,2022-07-11
+505,Earthquake caused cracks in the wall,Earthquake,High,8.158539,125.121613,Bangcud,2018-12-15
+506,Road covered by landslide debris,Landslide,High,8.16075,125.127442,Casisang,2015-10-14
+507,Strong earthquake alarmed residents,Earthquake,Low,8.157647,125.126983,Barangay 10,2021-02-13
+508,Earthquake caused cracks in the wall,Earthquake,Low,8.148169,125.138314,Violeta,2017-03-23
+509,River overflow causing flooding in the area,Flood,High,8.151538,125.128861,Sumpong,2022-07-20
+510,Strong shaking felt in our area,Earthquake,Low,8.157281,125.127799,Malaybalay Proper,2020-12-30
+511,Buildings shaking for several seconds,Earthquake,High,8.157751,125.119633,Bangcud,2018-06-26
+512,Fire spreading to nearby houses,Fire,Moderate,8.158325,125.13112,Barangay 11,2016-03-19
+513,Smoke and flames seen in residential area,Fire,Moderate,8.157174,125.130341,Barangay 9,2022-03-08
+514,Soil and rocks falling from hillside,Landslide,Moderate,8.152313,125.129608,Sumpong,2017-11-16
+515,Road covered by landslide debris,Landslide,Critical,8.160371,125.124832,Casisang,2018-04-06
+516,Market stall caught fire,Fire,Low,8.157051,125.128948,Barangay 11,2023-06-26
+517,Road blocked due to floodwater,Flood,Moderate,8.155798,125.127564,Malaybalay Proper,2017-12-18
+518,Floodwater already waist deep,Flood,Moderate,8.153264,125.130578,Sumpong,2021-06-12
+519,Electrical short circuit started a fire,Fire,High,8.156363,125.12831,Barangay 10,2024-11-29
+520,Heavy rain triggered landslide near homes,Landslide,Low,8.156835,125.119977,Bangcud,2017-10-19
+521,Smoke and flames seen in residential area,Fire,Moderate,8.159191,125.126388,Casisang,2017-05-09
+522,Smoke and flames seen in residential area,Fire,Low,8.156706,125.127125,Barangay 10,2023-02-06
+523,Strong shaking felt in our area,Earthquake,Low,8.156215,125.129308,Barangay 9,2015-05-25
+524,River overflow causing flooding in the area,Flood,Critical,8.150354,125.132189,Sumpong,2015-06-10
+525,Strong shaking felt in our area,Earthquake,High,8.158984,125.126766,Malaybalay Proper,2019-03-11
+526,Heavy rain triggered landslide near homes,Landslide,High,8.15429,125.13202,San Jose,2023-08-30
+527,Earthquake caused cracks in the wall,Earthquake,High,8.154301,125.131351,San Jose,2021-06-27
+528,Soil and rocks falling from hillside,Landslide,High,8.150044,125.131746,Sumpong,2016-02-04
+529,Market stall caught fire,Fire,Moderate,8.158453,125.122352,Bangcud,2017-03-13
+530,Strong earthquake alarmed residents,Earthquake,Critical,8.154738,125.132523,San Jose,2021-09-10
+531,Market stall caught fire,Fire,High,8.156093,125.131759,San Jose,2019-01-26
+532,Heavy rain triggered landslide near homes,Landslide,Low,8.157699,125.128496,Malaybalay Proper,2021-07-25
+533,Landslide blocking the road,Landslide,Moderate,8.156711,125.120084,Bangcud,2021-03-13
+534,Road covered by landslide debris,Landslide,Critical,8.158691,125.122641,Bangcud,2021-06-03
+535,Smoke and flames seen in residential area,Fire,High,8.15853,125.128418,Barangay 11,2019-12-29
+536,Flood entering homes after heavy rain,Flood,High,8.161192,125.127146,Casisang,2016-11-21
+537,Fire spreading to nearby houses,Fire,Moderate,8.148367,125.139821,Violeta,2019-11-27
+538,River overflow causing flooding in the area,Flood,Moderate,8.156873,125.13325,San Jose,2020-02-17
+539,Heavy rain triggered landslide near homes,Landslide,Low,8.160649,125.127007,Casisang,2021-02-02
+540,Soil and rocks falling from hillside,Landslide,High,8.148052,125.140355,Violeta,2017-07-26
+541,Market stall caught fire,Fire,Low,8.156126,125.133518,San Jose,2016-01-20
+542,Strong shaking felt in our area,Earthquake,Critical,8.157451,125.128761,Barangay 10,2016-12-31
+543,Road blocked due to floodwater,Flood,Moderate,8.161696,125.12638,Casisang,2017-07-13
+544,Landslide blocking the road,Landslide,Moderate,8.153308,125.129186,Sumpong,2016-10-17
+545,Minor tremor felt in the barangay,Earthquake,High,8.161585,125.126501,Casisang,2015-08-31
+546,Soil and rocks falling from hillside,Landslide,Critical,8.148003,125.141987,Violeta,2019-02-16
+547,Smoke and flames seen in residential area,Fire,Moderate,8.157165,125.130498,San Jose,2024-06-03
+548,Water rising quickly near our house,Flood,High,8.156811,125.130351,San Jose,2024-03-29
+549,Market stall caught fire,Fire,Low,8.145856,125.118489,Aglayan,2016-04-01
+550,Strong earthquake alarmed residents,Earthquake,Moderate,8.148148,125.116275,Aglayan,2022-06-23
+551,Flood entering homes after heavy rain,Flood,Moderate,8.155211,125.130857,San Jose,2020-09-24
+552,Strong earthquake alarmed residents,Earthquake,High,8.157057,125.127817,Barangay 9,2019-09-25
+553,Fire spreading to nearby houses,Fire,High,8.155517,125.133303,San Jose,2024-07-14
+554,Buildings shaking for several seconds,Earthquake,Moderate,8.159172,125.121884,Bangcud,2016-12-19
+555,Market stall caught fire,Fire,Critical,8.155579,125.128216,Barangay 9,2022-06-20
+556,Road blocked due to floodwater,Flood,Low,8.154845,125.133256,San Jose,2024-07-31
+557,Strong earthquake alarmed residents,Earthquake,Critical,8.159513,125.125065,Casisang,2022-12-10
+558,Fire spreading to nearby houses,Fire,Critical,8.158241,125.130616,Barangay 11,2015-06-19
+559,Water rising quickly near our house,Flood,Moderate,8.157005,125.126374,Malaybalay Proper,2016-07-01
+560,Water rising quickly near our house,Flood,High,8.15631,125.133449,San Jose,2018-12-11
+561,Fire spreading to nearby houses,Fire,Moderate,8.157847,125.120884,Bangcud,2024-02-08
+562,Soil and rocks falling from hillside,Landslide,Low,8.157025,125.129765,Barangay 11,2024-07-04
+563,Soil and rocks falling from hillside,Landslide,Critical,8.149156,125.117691,Aglayan,2022-06-05
+564,Electrical short circuit started a fire,Fire,High,8.156691,125.129248,Barangay 9,2022-06-06
+565,Landslide damaged farm area,Landslide,Critical,8.155332,125.128278,Barangay 10,2017-11-02
+566,Strong shaking felt in our area,Earthquake,Moderate,8.146227,125.116082,Aglayan,2022-11-18
+567,Minor tremor felt in the barangay,Earthquake,Moderate,8.149162,125.14058,Violeta,2019-04-18
+568,Landslide damaged farm area,Landslide,High,8.147534,125.140639,Violeta,2020-09-14
+569,Fire spreading to nearby houses,Fire,Moderate,8.156725,125.127996,Barangay 9,2022-12-17
+570,Fire spreading to nearby houses,Fire,Critical,8.151315,125.129508,Sumpong,2015-11-14
+571,Road covered by landslide debris,Landslide,Low,8.157206,125.130351,Barangay 11,2024-06-04
+572,Strong shaking felt in our area,Earthquake,High,8.157566,125.128,Barangay 9,2023-05-01
+573,Floodwater already waist deep,Flood,Low,8.152453,125.129766,Sumpong,2024-10-24
+574,Road blocked due to floodwater,Flood,High,8.147387,125.119577,Aglayan,2015-11-14
+575,Fire spreading to nearby houses,Fire,Moderate,8.152843,125.131925,Sumpong,2018-10-14
+576,Market stall caught fire,Fire,Critical,8.158388,125.122553,Bangcud,2018-10-20
+577,Water rising quickly near our house,Flood,Low,8.1468,125.139223,Violeta,2021-12-17
+578,Buildings shaking for several seconds,Earthquake,Moderate,8.150014,125.131455,Sumpong,2024-01-06
+579,Smoke and flames seen in residential area,Fire,Critical,8.156154,125.128992,Barangay 10,2022-06-25
+580,Floodwater already waist deep,Flood,Moderate,8.156497,125.128791,Barangay 10,2019-08-26
+581,Earthquake caused cracks in the wall,Earthquake,Low,8.157074,125.12587,Barangay 10,2017-06-30
+582,Strong earthquake alarmed residents,Earthquake,Low,8.156488,125.121527,Bangcud,2023-08-21
+583,House on fire please send help,Fire,Moderate,8.156012,125.130899,Barangay 11,2020-12-23
+584,Electrical short circuit started a fire,Fire,High,8.155534,125.131733,San Jose,2015-01-07
+585,Water rising quickly near our house,Flood,Critical,8.154039,125.13043,San Jose,2021-03-06
+586,Minor tremor felt in the barangay,Earthquake,Moderate,8.159379,125.119822,Bangcud,2023-01-17
+587,Buildings shaking for several seconds,Earthquake,Moderate,8.158505,125.128056,Malaybalay Proper,2015-11-06
+588,Landslide damaged farm area,Landslide,Low,8.14878,125.140267,Violeta,2017-10-26
+589,Electrical short circuit started a fire,Fire,Critical,8.150674,125.131493,Sumpong,2020-09-28
+590,Electrical short circuit started a fire,Fire,Critical,8.150063,125.139352,Violeta,2016-03-03
+591,Flood entering homes after heavy rain,Flood,Moderate,8.159396,125.120989,Bangcud,2021-06-13
+592,Fire spreading to nearby houses,Fire,Moderate,8.154857,125.129821,Barangay 9,2024-07-06
+593,Landslide damaged farm area,Landslide,Critical,8.157339,125.129384,Barangay 11,2019-04-07
+594,Buildings shaking for several seconds,Earthquake,Moderate,8.155361,125.126536,Barangay 9,2018-07-01
+595,Flood entering homes after heavy rain,Flood,Moderate,8.158625,125.128175,Barangay 10,2022-06-06
+596,Heavy rain triggered landslide near homes,Landslide,High,8.155623,125.130425,Barangay 9,2022-03-08
+597,Minor tremor felt in the barangay,Earthquake,Critical,8.145897,125.119381,Aglayan,2017-06-29
+598,Market stall caught fire,Fire,Critical,8.157435,125.130674,Barangay 11,2024-11-18
+599,Water rising quickly near our house,Flood,Low,8.158733,125.128928,Barangay 11,2016-11-21
+600,Floodwater already waist deep,Flood,Moderate,8.15833,125.127828,Malaybalay Proper,2016-02-23
+601,Earthquake caused cracks in the wall,Earthquake,Critical,8.156632,125.131971,San Jose,2019-05-16
+602,Strong earthquake alarmed residents,Earthquake,Moderate,8.156533,125.125907,Malaybalay Proper,2019-09-11
+603,Soil and rocks falling from hillside,Landslide,Critical,8.153441,125.132164,San Jose,2021-09-12
+604,Market stall caught fire,Fire,High,8.159749,125.126841,Casisang,2022-12-22
+605,Electrical short circuit started a fire,Fire,Critical,8.145714,125.117164,Aglayan,2016-11-26
+606,Floodwater already waist deep,Flood,Low,8.148005,125.138873,Violeta,2024-05-20
+607,Landslide blocking the road,Landslide,Low,8.158377,125.127356,Barangay 10,2017-01-24
+608,House on fire please send help,Fire,Moderate,8.15917,125.124465,Casisang,2021-05-14
+609,Road blocked due to floodwater,Flood,High,8.153464,125.132725,San Jose,2022-12-01
+610,Strong shaking felt in our area,Earthquake,Moderate,8.145523,125.117591,Aglayan,2016-06-27
+611,Landslide blocking the road,Landslide,High,8.159937,125.119817,Bangcud,2021-05-11
+612,River overflow causing flooding in the area,Flood,Moderate,8.150226,125.140448,Violeta,2022-04-06
+613,Road covered by landslide debris,Landslide,Critical,8.152006,125.128483,Sumpong,2022-04-15
+614,Heavy rain triggered landslide near homes,Landslide,Low,8.157019,125.120641,Bangcud,2022-07-28
+615,Electrical short circuit started a fire,Fire,Moderate,8.156663,125.126582,Malaybalay Proper,2018-02-11
+616,Market stall caught fire,Fire,Low,8.157101,125.126774,Barangay 10,2015-06-22
+617,Smoke and flames seen in residential area,Fire,High,8.150009,125.140558,Violeta,2020-01-28
+618,Landslide damaged farm area,Landslide,High,8.15882,125.125561,Barangay 10,2019-11-13
+619,Soil and rocks falling from hillside,Landslide,Low,8.156586,125.131465,San Jose,2019-03-08
+620,Electrical short circuit started a fire,Fire,Moderate,8.155029,125.132991,San Jose,2017-09-05
+621,Landslide blocking the road,Landslide,Moderate,8.159705,125.121857,Bangcud,2019-01-24
+622,Soil and rocks falling from hillside,Landslide,Critical,8.151955,125.130649,Sumpong,2021-05-19
+623,Road blocked due to floodwater,Flood,Moderate,8.154558,125.132865,San Jose,2020-07-24
+624,Heavy rain triggered landslide near homes,Landslide,Critical,8.155571,125.129235,Malaybalay Proper,2023-07-01
+625,Minor tremor felt in the barangay,Earthquake,Low,8.149613,125.128464,Sumpong,2022-11-28
+626,Road blocked due to floodwater,Flood,Low,8.155343,125.127105,Barangay 9,2022-09-16
+627,Floodwater already waist deep,Flood,Critical,8.148515,125.140575,Violeta,2024-05-02
+628,Flood entering homes after heavy rain,Flood,Low,8.154745,125.134107,San Jose,2022-11-10
+629,Landslide damaged farm area,Landslide,Low,8.155944,125.127507,Barangay 10,2023-12-12
+630,Fire spreading to nearby houses,Fire,Critical,8.148567,125.138951,Violeta,2015-12-13
+631,Earthquake caused cracks in the wall,Earthquake,Moderate,8.161452,125.125393,Casisang,2021-03-16
+632,Strong earthquake alarmed residents,Earthquake,Critical,8.145355,125.116946,Aglayan,2023-03-25
+633,River overflow causing flooding in the area,Flood,High,8.156036,125.13356,San Jose,2015-11-09
+634,Fire spreading to nearby houses,Fire,Moderate,8.15883,125.127232,Barangay 10,2021-12-11
+635,Smoke and flames seen in residential area,Fire,Low,8.147032,125.117583,Aglayan,2020-04-21
+636,House on fire please send help,Fire,Critical,8.145302,125.116469,Aglayan,2015-04-01
+637,Water rising quickly near our house,Flood,Moderate,8.157228,125.128944,Barangay 10,2015-06-26
+638,Water rising quickly near our house,Flood,High,8.157155,125.127645,Barangay 11,2017-05-22
+639,Water rising quickly near our house,Flood,Critical,8.156769,125.128013,Barangay 11,2024-03-21
+640,Earthquake caused cracks in the wall,Earthquake,Critical,8.15751,125.129017,Malaybalay Proper,2019-12-01
+641,Market stall caught fire,Fire,High,8.155554,125.126829,Barangay 10,2019-08-02
+642,River overflow causing flooding in the area,Flood,Critical,8.153991,125.132058,San Jose,2021-08-25
+643,Earthquake caused cracks in the wall,Earthquake,Critical,8.151985,125.129648,Sumpong,2017-08-30
+644,Electrical short circuit started a fire,Fire,Low,8.160425,125.126108,Casisang,2017-05-13
+645,Smoke and flames seen in residential area,Fire,Low,8.162704,125.126866,Casisang,2016-12-28
+646,Floodwater already waist deep,Flood,Low,8.155255,125.126836,Barangay 10,2017-10-19
+647,Water rising quickly near our house,Flood,Critical,8.145233,125.117683,Aglayan,2015-03-12
+648,Strong shaking felt in our area,Earthquake,High,8.158455,125.129975,Barangay 9,2016-05-14
+649,Landslide damaged farm area,Landslide,Critical,8.146471,125.116454,Aglayan,2021-10-03
+650,Strong earthquake alarmed residents,Earthquake,Critical,8.15819,125.12273,Bangcud,2022-02-11
+651,Buildings shaking for several seconds,Earthquake,Low,8.162668,125.124812,Casisang,2021-01-06
+652,Road covered by landslide debris,Landslide,High,8.156026,125.128866,Barangay 11,2024-10-22
+653,Earthquake caused cracks in the wall,Earthquake,Low,8.155666,125.126234,Barangay 10,2021-01-17
+654,Strong shaking felt in our area,Earthquake,Low,8.157414,125.126262,Barangay 10,2021-09-03
+655,Road blocked due to floodwater,Flood,High,8.155612,125.128443,Barangay 9,2019-04-21
+656,Minor tremor felt in the barangay,Earthquake,High,8.1592,125.131451,Barangay 11,2020-02-23
+657,Strong earthquake alarmed residents,Earthquake,Moderate,8.148264,125.118509,Aglayan,2017-05-26
+658,Road blocked due to floodwater,Flood,Low,8.161655,125.125085,Casisang,2021-09-14
+659,Flood entering homes after heavy rain,Flood,Moderate,8.157271,125.128912,Barangay 11,2019-04-10
+660,Buildings shaking for several seconds,Earthquake,Low,8.147885,125.119505,Aglayan,2018-12-16
+661,Market stall caught fire,Fire,Low,8.159206,125.12593,Casisang,2023-03-05
+662,Road blocked due to floodwater,Flood,Critical,8.157777,125.12719,Barangay 10,2020-02-03
+663,Heavy rain triggered landslide near homes,Landslide,High,8.155229,125.133455,San Jose,2020-12-02
+664,Minor tremor felt in the barangay,Earthquake,High,8.157678,125.128247,Barangay 11,2015-08-06
+665,Buildings shaking for several seconds,Earthquake,High,8.149855,125.129789,Sumpong,2020-10-09
+666,Smoke and flames seen in residential area,Fire,Moderate,8.161426,125.125562,Casisang,2023-08-17
+667,Water rising quickly near our house,Flood,Critical,8.162771,125.125908,Casisang,2020-12-04
+668,Fire spreading to nearby houses,Fire,Moderate,8.160091,125.126266,Casisang,2020-11-05
+669,Soil and rocks falling from hillside,Landslide,Critical,8.156708,125.127539,Barangay 9,2018-12-19
+670,River overflow causing flooding in the area,Flood,Low,8.151978,125.128579,Sumpong,2018-10-28
+671,House on fire please send help,Fire,Moderate,8.160907,125.125191,Casisang,2017-04-02
+672,Road blocked due to floodwater,Flood,Low,8.159286,125.119242,Bangcud,2017-11-04
+673,House on fire please send help,Fire,Critical,8.154955,125.127758,Barangay 9,2016-06-17
+674,Road blocked due to floodwater,Flood,Low,8.156108,125.129352,Barangay 9,2015-08-15
+675,Market stall caught fire,Fire,Low,8.153053,125.132216,Sumpong,2015-12-03
+676,Smoke and flames seen in residential area,Fire,Low,8.149673,125.131459,Sumpong,2024-01-28
+677,Floodwater already waist deep,Flood,Moderate,8.156347,125.120017,Bangcud,2018-03-01
+678,Minor tremor felt in the barangay,Earthquake,Critical,8.158861,125.12794,Barangay 11,2016-05-25
+679,Minor tremor felt in the barangay,Earthquake,Critical,8.156176,125.130573,Barangay 11,2020-08-12
+680,River overflow causing flooding in the area,Flood,Critical,8.158751,125.128703,Barangay 11,2019-03-18
+681,Earthquake caused cracks in the wall,Earthquake,Critical,8.150357,125.141065,Violeta,2022-05-22
+682,Landslide blocking the road,Landslide,Critical,8.153156,125.132116,Sumpong,2021-06-21
+683,Road covered by landslide debris,Landslide,Low,8.15715,125.120841,Bangcud,2018-03-29
+684,Buildings shaking for several seconds,Earthquake,Low,8.15571,125.126151,Barangay 10,2018-09-06
+685,Strong shaking felt in our area,Earthquake,Critical,8.147259,125.139611,Violeta,2022-01-13
+686,Floodwater already waist deep,Flood,Critical,8.147129,125.138673,Violeta,2024-06-16
+687,Earthquake caused cracks in the wall,Earthquake,Critical,8.160743,125.12446,Casisang,2016-03-04
+688,River overflow causing flooding in the area,Flood,Low,8.156854,125.119801,Bangcud,2019-11-05
+689,Earthquake caused cracks in the wall,Earthquake,Critical,8.158295,125.130549,Barangay 11,2021-12-08
+690,Landslide damaged farm area,Landslide,Moderate,8.150024,125.130945,Sumpong,2015-02-12
+691,Water rising quickly near our house,Flood,High,8.159094,125.127255,Malaybalay Proper,2017-11-10
+692,Strong earthquake alarmed residents,Earthquake,Critical,8.148794,125.141462,Violeta,2017-07-07
+693,Flood entering homes after heavy rain,Flood,Critical,8.158673,125.12832,Barangay 9,2016-03-09
+694,Strong earthquake alarmed residents,Earthquake,High,8.150031,125.131633,Sumpong,2021-11-23
+695,Heavy rain triggered landslide near homes,Landslide,Moderate,8.157223,125.126537,Barangay 9,2023-08-16
+696,Road blocked due to floodwater,Flood,Low,8.153096,125.13124,Sumpong,2020-10-14
+697,Earthquake caused cracks in the wall,Earthquake,High,8.156374,125.129775,Barangay 11,2018-03-18
+698,Water rising quickly near our house,Flood,Critical,8.158607,125.129076,Malaybalay Proper,2020-11-09
+699,Buildings shaking for several seconds,Earthquake,Low,8.148134,125.141919,Violeta,2023-09-20
+700,Strong earthquake alarmed residents,Earthquake,Critical,8.159724,125.127965,Casisang,2019-03-08
+701,Soil and rocks falling from hillside,Landslide,Critical,8.149981,125.130828,Sumpong,2016-12-24
+702,Smoke and flames seen in residential area,Fire,High,8.158298,125.119497,Bangcud,2023-08-11
+703,Earthquake caused cracks in the wall,Earthquake,Critical,8.157943,125.129424,Barangay 9,2024-10-27
+704,House on fire please send help,Fire,High,8.148135,125.141595,Violeta,2023-11-11
+705,Buildings shaking for several seconds,Earthquake,High,8.155786,125.127437,Malaybalay Proper,2017-06-11
+706,Strong earthquake alarmed residents,Earthquake,Moderate,8.156332,125.133236,San Jose,2020-01-11
+707,Strong earthquake alarmed residents,Earthquake,Critical,8.155564,125.131923,San Jose,2022-09-15
+708,Smoke and flames seen in residential area,Fire,High,8.160347,125.126986,Casisang,2019-09-03
+709,Road covered by landslide debris,Landslide,Critical,8.155603,125.134041,San Jose,2015-01-09
+710,Flood entering homes after heavy rain,Flood,Moderate,8.158943,125.13039,Barangay 11,2019-02-16
+711,Minor tremor felt in the barangay,Earthquake,Critical,8.149898,125.140881,Violeta,2020-08-29
+712,Market stall caught fire,Fire,High,8.154671,125.131994,San Jose,2017-10-27
+713,Water rising quickly near our house,Flood,High,8.159253,125.128929,Barangay 11,2023-07-16
+714,Fire spreading to nearby houses,Fire,High,8.157931,125.121199,Bangcud,2021-05-11
+715,Buildings shaking for several seconds,Earthquake,Moderate,8.155872,125.12725,Malaybalay Proper,2024-06-08
+716,River overflow causing flooding in the area,Flood,High,8.158944,125.127514,Barangay 11,2023-03-10
+717,Smoke and flames seen in residential area,Fire,High,8.159591,125.128822,Barangay 11,2020-03-20
+718,Fire spreading to nearby houses,Fire,Low,8.157667,125.129303,Barangay 9,2023-04-20
+719,Floodwater already waist deep,Flood,Critical,8.156384,125.126183,Barangay 10,2016-12-22
+720,Strong shaking felt in our area,Earthquake,Critical,8.155114,125.127484,Barangay 9,2020-01-25
+721,River overflow causing flooding in the area,Flood,Critical,8.152747,125.129344,Sumpong,2015-08-05
+722,Strong earthquake alarmed residents,Earthquake,High,8.159116,125.129723,Malaybalay Proper,2016-10-10
+723,Electrical short circuit started a fire,Fire,High,8.15035,125.130094,Sumpong,2015-03-04
+724,Electrical short circuit started a fire,Fire,High,8.147748,125.142157,Violeta,2020-05-11
+725,Floodwater already waist deep,Flood,Moderate,8.148306,125.117842,Aglayan,2016-01-01
+726,Minor tremor felt in the barangay,Earthquake,Low,8.156383,125.133173,San Jose,2015-01-21
+727,Water rising quickly near our house,Flood,High,8.148607,125.117208,Aglayan,2024-01-21
+728,Landslide damaged farm area,Landslide,High,8.149717,125.139175,Violeta,2020-04-14
+729,Strong earthquake alarmed residents,Earthquake,High,8.158722,125.129728,Malaybalay Proper,2024-09-17
+730,Minor tremor felt in the barangay,Earthquake,Critical,8.158961,125.128681,Barangay 10,2016-06-19
+731,Road blocked due to floodwater,Flood,Moderate,8.157126,125.121606,Bangcud,2021-06-12
+732,River overflow causing flooding in the area,Flood,High,8.155161,125.133213,San Jose,2023-03-26
+733,Smoke and flames seen in residential area,Fire,Low,8.15955,125.127188,Casisang,2018-06-02
+734,Strong earthquake alarmed residents,Earthquake,High,8.152583,125.129938,Sumpong,2018-06-13
+735,Electrical short circuit started a fire,Fire,High,8.15932,125.122482,Bangcud,2021-11-03
+736,Landslide damaged farm area,Landslide,Critical,8.157471,125.123158,Bangcud,2015-03-25
+737,Landslide blocking the road,Landslide,Critical,8.156934,125.119657,Bangcud,2015-04-21
+738,House on fire please send help,Fire,Low,8.156428,125.128128,Barangay 10,2023-12-26
+739,House on fire please send help,Fire,Moderate,8.148864,125.116817,Aglayan,2017-06-16
+740,House on fire please send help,Fire,Moderate,8.15624,125.126386,Barangay 10,2018-08-21
+741,Earthquake caused cracks in the wall,Earthquake,Low,8.156145,125.132987,San Jose,2020-02-03
+742,Landslide blocking the road,Landslide,Critical,8.147729,125.141063,Violeta,2021-08-10
+743,Road covered by landslide debris,Landslide,Low,8.158687,125.127426,Malaybalay Proper,2022-12-27
+744,Earthquake caused cracks in the wall,Earthquake,Moderate,8.156818,125.119293,Bangcud,2022-05-27
+745,Electrical short circuit started a fire,Fire,Critical,8.159017,125.127624,Casisang,2016-05-08
+746,Water rising quickly near our house,Flood,Moderate,8.152047,125.129499,Sumpong,2022-12-20
+747,Road blocked due to floodwater,Flood,High,8.156752,125.130183,Barangay 11,2023-05-11
+748,Water rising quickly near our house,Flood,Critical,8.157308,125.130509,Barangay 11,2017-06-01
+749,Strong shaking felt in our area,Earthquake,Critical,8.15829,125.12844,Barangay 9,2023-03-27
+750,Landslide blocking the road,Landslide,Critical,8.156723,125.121741,Bangcud,2019-11-28
+751,Water rising quickly near our house,Flood,Moderate,8.152879,125.131014,Sumpong,2015-11-16
+752,Strong earthquake alarmed residents,Earthquake,Moderate,8.158779,125.127682,Barangay 10,2020-01-27
+753,River overflow causing flooding in the area,Flood,Moderate,8.158921,125.128439,Malaybalay Proper,2021-11-16
+754,Heavy rain triggered landslide near homes,Landslide,Critical,8.156957,125.128223,Barangay 11,2022-10-05
+755,Soil and rocks falling from hillside,Landslide,Critical,8.158603,125.122322,Bangcud,2015-11-03
+756,Landslide blocking the road,Landslide,Moderate,8.146638,125.118709,Aglayan,2015-10-12
+757,Soil and rocks falling from hillside,Landslide,Low,8.152428,125.130235,Sumpong,2017-09-30
+758,Landslide damaged farm area,Landslide,Moderate,8.156273,125.130696,San Jose,2021-07-08
+759,Road covered by landslide debris,Landslide,Critical,8.150809,125.129035,Sumpong,2015-07-13
+760,Minor tremor felt in the barangay,Earthquake,Critical,8.150129,125.131768,Sumpong,2019-12-24
+761,Flood entering homes after heavy rain,Flood,Critical,8.156336,125.127826,Malaybalay Proper,2017-10-01
+762,Strong shaking felt in our area,Earthquake,High,8.159561,125.122953,Bangcud,2017-11-07
+763,Buildings shaking for several seconds,Earthquake,Moderate,8.158634,125.127819,Barangay 11,2022-12-23
+764,Earthquake caused cracks in the wall,Earthquake,Low,8.160298,125.124565,Casisang,2020-01-16
+765,Earthquake caused cracks in the wall,Earthquake,Critical,8.147793,125.139693,Violeta,2017-10-31
+766,Landslide damaged farm area,Landslide,Moderate,8.149187,125.139496,Violeta,2016-06-12
+767,Strong shaking felt in our area,Earthquake,Moderate,8.160759,125.126481,Casisang,2019-12-30
+768,Flood entering homes after heavy rain,Flood,Low,8.159839,125.124735,Casisang,2020-09-14
+769,Road covered by landslide debris,Landslide,High,8.159074,125.122749,Bangcud,2022-08-07
+770,Floodwater already waist deep,Flood,Critical,8.159094,125.127243,Malaybalay Proper,2015-02-03
+771,Flood entering homes after heavy rain,Flood,Moderate,8.156992,125.127448,Barangay 10,2024-09-05
+772,Floodwater already waist deep,Flood,Moderate,8.14687,125.142036,Violeta,2016-04-07
+773,Heavy rain triggered landslide near homes,Landslide,Critical,8.156517,125.131905,San Jose,2024-07-21
+774,Smoke and flames seen in residential area,Fire,Moderate,8.15278,125.129483,Sumpong,2024-07-22
+775,Fire spreading to nearby houses,Fire,High,8.156938,125.131558,San Jose,2023-06-22
+776,Flood entering homes after heavy rain,Flood,Moderate,8.157858,125.127025,Barangay 10,2017-07-15
+777,Buildings shaking for several seconds,Earthquake,High,8.148343,125.141066,Violeta,2016-02-25
+778,Soil and rocks falling from hillside,Landslide,Critical,8.157352,125.12846,Barangay 9,2020-12-31
+779,Smoke and flames seen in residential area,Fire,Low,8.158616,125.131149,Barangay 11,2016-04-17
+780,Minor tremor felt in the barangay,Earthquake,Moderate,8.156278,125.129296,Barangay 9,2020-07-12
+781,Market stall caught fire,Fire,Low,8.148012,125.139538,Violeta,2021-06-08
+782,House on fire please send help,Fire,Critical,8.15976,125.128839,Barangay 11,2021-03-16
+783,Strong shaking felt in our area,Earthquake,Low,8.146615,125.117015,Aglayan,2021-02-15
+784,Electrical short circuit started a fire,Fire,High,8.157391,125.128711,Barangay 10,2022-05-18
+785,Strong shaking felt in our area,Earthquake,Critical,8.158152,125.128085,Barangay 10,2017-06-07
+786,Soil and rocks falling from hillside,Landslide,Low,8.156128,125.121001,Bangcud,2019-03-25
+787,Strong earthquake alarmed residents,Earthquake,High,8.157533,125.120293,Bangcud,2019-04-25
+788,Strong earthquake alarmed residents,Earthquake,Low,8.159788,125.130023,Barangay 11,2019-02-11
+789,Floodwater already waist deep,Flood,Critical,8.158903,125.120653,Bangcud,2018-11-05
+790,Landslide blocking the road,Landslide,Critical,8.15577,125.126718,Barangay 9,2018-11-11
+791,Smoke and flames seen in residential area,Fire,High,8.15619,125.119999,Bangcud,2022-06-20
+792,Road blocked due to floodwater,Flood,Critical,8.155517,125.129478,Barangay 9,2020-09-09
+793,Earthquake caused cracks in the wall,Earthquake,Moderate,8.16089,125.125438,Casisang,2015-04-15
+794,Smoke and flames seen in residential area,Fire,Moderate,8.159685,125.130168,Barangay 11,2021-01-02
+795,Heavy rain triggered landslide near homes,Landslide,Low,8.150022,125.138757,Violeta,2017-12-26
+796,Smoke and flames seen in residential area,Fire,High,8.16211,125.126077,Casisang,2022-03-08
+797,Electrical short circuit started a fire,Fire,High,8.150294,125.138362,Violeta,2016-06-11
+798,Floodwater already waist deep,Flood,High,8.159332,125.12941,Malaybalay Proper,2019-02-04
+799,Fire spreading to nearby houses,Fire,Critical,8.156113,125.130598,Barangay 11,2023-02-11
+800,Heavy rain triggered landslide near homes,Landslide,Critical,8.158029,125.126373,Malaybalay Proper,2017-11-02
+801,House on fire please send help,Fire,Critical,8.159955,125.121937,Bangcud,2020-09-16
+802,Floodwater already waist deep,Flood,High,8.158545,125.121431,Bangcud,2022-03-24
+803,Minor tremor felt in the barangay,Earthquake,Low,8.157836,125.129753,Barangay 11,2018-11-30
+804,House on fire please send help,Fire,Critical,8.155902,125.129479,Malaybalay Proper,2019-01-07
+805,Water rising quickly near our house,Flood,Critical,8.152719,125.130472,Sumpong,2015-07-01
+806,Earthquake caused cracks in the wall,Earthquake,High,8.161457,125.127593,Casisang,2022-01-09
+807,Minor tremor felt in the barangay,Earthquake,Moderate,8.145333,125.119307,Aglayan,2024-03-28
+808,Landslide damaged farm area,Landslide,High,8.150425,125.139601,Violeta,2018-10-11
+809,Fire spreading to nearby houses,Fire,Moderate,8.148321,125.119092,Aglayan,2021-05-31
+810,Buildings shaking for several seconds,Earthquake,High,8.15407,125.132947,San Jose,2020-12-05
+811,Minor tremor felt in the barangay,Earthquake,Critical,8.158444,125.128283,Malaybalay Proper,2024-07-11
+812,Market stall caught fire,Fire,Low,8.147578,125.14187,Violeta,2021-10-19
+813,Strong earthquake alarmed residents,Earthquake,Moderate,8.159616,125.126248,Casisang,2022-12-21
+814,Heavy rain triggered landslide near homes,Landslide,Low,8.1628,125.127097,Casisang,2016-10-18
+815,Strong shaking felt in our area,Earthquake,High,8.161239,125.124208,Casisang,2019-09-14
+816,Market stall caught fire,Fire,High,8.150216,125.131935,Sumpong,2019-07-14
+817,Minor tremor felt in the barangay,Earthquake,Moderate,8.15936,125.126241,Malaybalay Proper,2021-11-03
+818,Flood entering homes after heavy rain,Flood,Low,8.160855,125.12436,Casisang,2018-01-10
+819,Strong earthquake alarmed residents,Earthquake,High,8.149059,125.141695,Violeta,2015-05-05
+820,Soil and rocks falling from hillside,Landslide,Moderate,8.161724,125.127244,Casisang,2020-03-31
+821,Strong earthquake alarmed residents,Earthquake,Low,8.157139,125.119652,Bangcud,2020-04-19
+822,Electrical short circuit started a fire,Fire,Low,8.162871,125.124478,Casisang,2016-04-06
+823,River overflow causing flooding in the area,Flood,Low,8.150644,125.13196,Sumpong,2016-10-20
+824,Landslide damaged farm area,Landslide,High,8.15897,125.126301,Casisang,2015-08-21
+825,Landslide damaged farm area,Landslide,Low,8.161346,125.127268,Casisang,2015-11-18
+826,Soil and rocks falling from hillside,Landslide,Moderate,8.151497,125.129863,Sumpong,2024-02-29
+827,Buildings shaking for several seconds,Earthquake,Critical,8.14784,125.139641,Violeta,2019-06-20
+828,Heavy rain triggered landslide near homes,Landslide,Low,8.157247,125.132001,San Jose,2018-06-15
+829,Market stall caught fire,Fire,Critical,8.157356,125.130694,Barangay 11,2018-11-09
+830,Fire spreading to nearby houses,Fire,Moderate,8.154167,125.1321,San Jose,2024-07-05
+831,House on fire please send help,Fire,Low,8.159324,125.12811,Malaybalay Proper,2021-03-17
+832,Floodwater already waist deep,Flood,Low,8.156149,125.131333,San Jose,2015-02-24
+833,Minor tremor felt in the barangay,Earthquake,Moderate,8.152509,125.130886,Sumpong,2019-07-17
+834,River overflow causing flooding in the area,Flood,Moderate,8.157579,125.126225,Barangay 10,2024-03-18
+835,Smoke and flames seen in residential area,Fire,Critical,8.157717,125.119264,Bangcud,2023-12-06
+836,River overflow causing flooding in the area,Flood,High,8.15822,125.128284,Barangay 10,2016-04-02
+837,Floodwater already waist deep,Flood,Low,8.157031,125.129229,Barangay 11,2020-02-19
+838,Fire spreading to nearby houses,Fire,High,8.146738,125.117081,Aglayan,2021-06-07
+839,Water rising quickly near our house,Flood,Low,8.158661,125.125972,Barangay 10,2021-02-18
+840,Floodwater already waist deep,Flood,Low,8.159584,125.120571,Bangcud,2020-11-04
+841,Earthquake caused cracks in the wall,Earthquake,Low,8.150154,125.14079,Violeta,2022-08-30
+842,Floodwater already waist deep,Flood,High,8.155562,125.12958,Barangay 9,2021-07-17
+843,Market stall caught fire,Fire,Low,8.159358,125.131174,Barangay 11,2018-08-03
+844,Floodwater already waist deep,Flood,High,8.147283,125.117806,Aglayan,2023-02-11
+845,River overflow causing flooding in the area,Flood,Low,8.153576,125.133722,San Jose,2018-10-03
+846,Strong earthquake alarmed residents,Earthquake,Critical,8.147966,125.140607,Violeta,2020-02-29
+847,Strong earthquake alarmed residents,Earthquake,Low,8.155889,125.126368,Barangay 10,2018-12-22
+848,Landslide blocking the road,Landslide,Moderate,8.155975,125.125376,Barangay 10,2018-05-18
+849,Electrical short circuit started a fire,Fire,Low,8.147115,125.117343,Aglayan,2015-08-07
+850,Electrical short circuit started a fire,Fire,Critical,8.148753,125.118781,Aglayan,2015-03-19
+851,Electrical short circuit started a fire,Fire,Low,8.157581,125.126187,Barangay 10,2020-10-05
+852,Buildings shaking for several seconds,Earthquake,Low,8.155899,125.126582,Malaybalay Proper,2020-07-23
+853,Floodwater already waist deep,Flood,Low,8.157171,125.133545,San Jose,2018-03-08
+854,Soil and rocks falling from hillside,Landslide,High,8.158675,125.128005,Barangay 11,2016-11-27
+855,House on fire please send help,Fire,Moderate,8.157632,125.126842,Barangay 9,2020-10-19
+856,Landslide damaged farm area,Landslide,Critical,8.161445,125.127326,Casisang,2019-04-29
+857,Landslide blocking the road,Landslide,Moderate,8.156913,125.130362,San Jose,2018-02-12
+858,Water rising quickly near our house,Flood,High,8.157888,125.127495,Barangay 10,2018-01-29
+859,Water rising quickly near our house,Flood,High,8.156231,125.126825,Barangay 10,2015-08-31
+860,Road blocked due to floodwater,Flood,Moderate,8.162533,125.126192,Casisang,2017-01-28
+861,Smoke and flames seen in residential area,Fire,Moderate,8.159432,125.12318,Bangcud,2020-09-18
+862,Road blocked due to floodwater,Flood,Moderate,8.162346,125.125375,Casisang,2021-05-27
+863,House on fire please send help,Fire,High,8.147383,125.139587,Violeta,2018-04-15
+864,Soil and rocks falling from hillside,Landslide,High,8.147168,125.141655,Violeta,2020-09-29
+865,House on fire please send help,Fire,Critical,8.15013,125.128932,Sumpong,2016-04-17
+866,Minor tremor felt in the barangay,Earthquake,Moderate,8.154307,125.133171,San Jose,2015-02-16
+867,Buildings shaking for several seconds,Earthquake,Low,8.157311,125.122248,Bangcud,2022-06-08
+868,Landslide damaged farm area,Landslide,Critical,8.14819,125.117071,Aglayan,2020-07-30
+869,Water rising quickly near our house,Flood,High,8.156036,125.127556,Malaybalay Proper,2021-03-03
+870,Landslide damaged farm area,Landslide,High,8.150379,125.14147,Violeta,2024-07-31
+871,House on fire please send help,Fire,Critical,8.155908,125.129986,Barangay 11,2024-09-27
+872,Heavy rain triggered landslide near homes,Landslide,Critical,8.147081,125.14196,Violeta,2018-02-10
+873,Electrical short circuit started a fire,Fire,Critical,8.145385,125.116985,Aglayan,2015-01-10
+874,Electrical short circuit started a fire,Fire,High,8.156776,125.130954,San Jose,2020-05-17
+875,House on fire please send help,Fire,Low,8.149183,125.141692,Violeta,2021-05-05
+876,Market stall caught fire,Fire,Low,8.153863,125.134093,San Jose,2017-05-26
+877,Fire spreading to nearby houses,Fire,Critical,8.147911,125.119975,Aglayan,2019-02-19
+878,Road covered by landslide debris,Landslide,High,8.147734,125.138263,Violeta,2020-09-18
+879,Landslide damaged farm area,Landslide,Critical,8.147962,125.119144,Aglayan,2018-02-16
+880,Electrical short circuit started a fire,Fire,Critical,8.149706,125.139845,Violeta,2023-08-10
+881,Market stall caught fire,Fire,Low,8.159307,125.127821,Casisang,2016-08-28
+882,Strong shaking felt in our area,Earthquake,Critical,8.149687,125.129067,Sumpong,2023-04-13
+883,Heavy rain triggered landslide near homes,Landslide,Critical,8.157876,125.128108,Barangay 11,2019-12-28
+884,Road covered by landslide debris,Landslide,Low,8.149148,125.119562,Aglayan,2017-09-14
+885,Fire spreading to nearby houses,Fire,Moderate,8.157316,125.122086,Bangcud,2022-07-08
+886,Heavy rain triggered landslide near homes,Landslide,Moderate,8.150757,125.131154,Sumpong,2024-01-15
+887,Strong earthquake alarmed residents,Earthquake,Low,8.157575,125.128491,Barangay 10,2024-03-23
+888,Flood entering homes after heavy rain,Flood,Moderate,8.159608,125.126104,Casisang,2021-10-21
+889,Road blocked due to floodwater,Flood,Critical,8.156977,125.131095,Barangay 11,2022-07-31
+890,Landslide blocking the road,Landslide,Critical,8.14928,125.138478,Violeta,2019-09-05
+891,Strong earthquake alarmed residents,Earthquake,High,8.158446,125.126757,Barangay 10,2020-11-06
+892,Heavy rain triggered landslide near homes,Landslide,Moderate,8.161068,125.125381,Casisang,2022-07-04
+893,Floodwater already waist deep,Flood,Low,8.154147,125.130405,San Jose,2017-01-01
+894,Soil and rocks falling from hillside,Landslide,Moderate,8.158108,125.122837,Bangcud,2016-04-07
+895,Strong shaking felt in our area,Earthquake,High,8.159468,125.119535,Bangcud,2024-06-29
+896,House on fire please send help,Fire,Critical,8.155985,125.127221,Barangay 10,2022-10-07
+897,House on fire please send help,Fire,Moderate,8.149208,125.139393,Violeta,2016-04-12
+898,Buildings shaking for several seconds,Earthquake,High,8.162872,125.125435,Casisang,2021-09-03
+899,Soil and rocks falling from hillside,Landslide,Low,8.157354,125.119896,Bangcud,2015-04-11
+900,Earthquake caused cracks in the wall,Earthquake,Critical,8.146651,125.141972,Violeta,2022-06-03
+901,Strong shaking felt in our area,Earthquake,Critical,8.146703,125.118955,Aglayan,2019-05-04
+902,Smoke and flames seen in residential area,Fire,Moderate,8.156807,125.127761,Barangay 9,2017-01-19
+903,Floodwater already waist deep,Flood,High,8.148142,125.140608,Violeta,2018-05-27
+904,House on fire please send help,Fire,Low,8.157215,125.133764,San Jose,2021-12-24
+905,Minor tremor felt in the barangay,Earthquake,Moderate,8.150214,125.129084,Sumpong,2015-02-25
+906,Buildings shaking for several seconds,Earthquake,Critical,8.147473,125.118434,Aglayan,2018-02-13
+907,Soil and rocks falling from hillside,Landslide,Critical,8.161631,125.127637,Casisang,2023-06-15
+908,Fire spreading to nearby houses,Fire,Moderate,8.147411,125.117227,Aglayan,2023-03-04
+909,Road blocked due to floodwater,Flood,Moderate,8.155977,125.130187,Barangay 11,2023-02-08
+910,Floodwater already waist deep,Flood,Low,8.158591,125.12716,Malaybalay Proper,2018-03-20
+911,Floodwater already waist deep,Flood,High,8.156294,125.125179,Barangay 10,2020-03-13
+912,Floodwater already waist deep,Flood,Moderate,8.157248,125.128066,Malaybalay Proper,2020-01-10
+913,Heavy rain triggered landslide near homes,Landslide,High,8.157179,125.128471,Malaybalay Proper,2015-12-05
+914,Electrical short circuit started a fire,Fire,Low,8.150816,125.132029,Sumpong,2017-01-08
+915,Market stall caught fire,Fire,Moderate,8.162879,125.126188,Casisang,2020-09-10
+916,Landslide damaged farm area,Landslide,Moderate,8.161643,125.126526,Casisang,2016-06-25
+917,Buildings shaking for several seconds,Earthquake,High,8.148626,125.141136,Violeta,2017-03-04
+918,Minor tremor felt in the barangay,Earthquake,Critical,8.146427,125.117568,Aglayan,2021-08-24
+919,River overflow causing flooding in the area,Flood,Critical,8.162778,125.125619,Casisang,2024-05-25
+920,Road blocked due to floodwater,Flood,Critical,8.15511,125.127622,Barangay 9,2019-11-23
+921,Flood entering homes after heavy rain,Flood,Low,8.154481,125.134171,San Jose,2016-10-02
+922,Electrical short circuit started a fire,Fire,High,8.159119,125.12577,Casisang,2016-12-20
+923,Minor tremor felt in the barangay,Earthquake,Critical,8.1557,125.132589,San Jose,2022-11-06
+924,Minor tremor felt in the barangay,Earthquake,High,8.149527,125.139489,Violeta,2020-12-01
+925,Soil and rocks falling from hillside,Landslide,High,8.147471,125.117884,Aglayan,2018-04-18
+926,Road covered by landslide debris,Landslide,Critical,8.158681,125.125678,Barangay 10,2016-04-28
+927,Electrical short circuit started a fire,Fire,Low,8.157814,125.122674,Bangcud,2023-08-26
+928,Strong shaking felt in our area,Earthquake,Critical,8.156379,125.130902,Barangay 11,2019-11-14
+929,Strong earthquake alarmed residents,Earthquake,Critical,8.161003,125.125138,Casisang,2018-10-23
+930,Road blocked due to floodwater,Flood,Low,8.159092,125.127896,Barangay 10,2020-08-30
+931,Earthquake caused cracks in the wall,Earthquake,High,8.154513,125.130687,San Jose,2017-01-10
+932,Strong shaking felt in our area,Earthquake,Low,8.15597,125.12643,Barangay 10,2018-04-28
+933,House on fire please send help,Fire,High,8.158906,125.128237,Barangay 11,2017-09-10
+934,Soil and rocks falling from hillside,Landslide,Moderate,8.154573,125.130417,San Jose,2021-09-13
+935,Road blocked due to floodwater,Flood,Low,8.158486,125.128513,Barangay 10,2022-10-13
+936,Buildings shaking for several seconds,Earthquake,Low,8.15704,125.120921,Bangcud,2020-04-13
+937,Heavy rain triggered landslide near homes,Landslide,Moderate,8.154132,125.13103,San Jose,2016-10-27
+938,Minor tremor felt in the barangay,Earthquake,Low,8.14852,125.117637,Aglayan,2022-03-11
+939,Electrical short circuit started a fire,Fire,Moderate,8.16075,125.125178,Casisang,2024-07-10
+940,Strong earthquake alarmed residents,Earthquake,Moderate,8.159386,125.125346,Casisang,2022-09-05
+941,Earthquake caused cracks in the wall,Earthquake,Low,8.148062,125.11666,Aglayan,2022-12-05
+942,Electrical short circuit started a fire,Fire,High,8.15698,125.130783,San Jose,2017-05-21
+943,Soil and rocks falling from hillside,Landslide,High,8.157517,125.127973,Malaybalay Proper,2020-09-17
+944,Strong earthquake alarmed residents,Earthquake,Moderate,8.156926,125.129635,Barangay 9,2021-08-19
+945,Buildings shaking for several seconds,Earthquake,Moderate,8.149338,125.139069,Violeta,2018-10-03
+946,Market stall caught fire,Fire,Low,8.154183,125.13195,San Jose,2019-05-09
+947,Smoke and flames seen in residential area,Fire,High,8.155725,125.133007,San Jose,2024-09-04
+948,Road blocked due to floodwater,Flood,Critical,8.157696,125.128662,Malaybalay Proper,2016-11-21
+949,Strong shaking felt in our area,Earthquake,High,8.157999,125.127944,Barangay 10,2015-06-27
+950,Earthquake caused cracks in the wall,Earthquake,High,8.155597,125.131181,San Jose,2016-07-27
+951,Road blocked due to floodwater,Flood,Moderate,8.159241,125.119554,Bangcud,2017-04-29
+952,Water rising quickly near our house,Flood,Low,8.158561,125.121271,Bangcud,2024-03-29
+953,River overflow causing flooding in the area,Flood,Low,8.147448,125.140594,Violeta,2020-02-01
+954,Landslide damaged farm area,Landslide,High,8.156343,125.132714,San Jose,2017-11-23
+955,Smoke and flames seen in residential area,Fire,High,8.152394,125.130204,Sumpong,2015-09-01
+956,Landslide damaged farm area,Landslide,Critical,8.157079,125.130501,San Jose,2018-11-17
+957,Road blocked due to floodwater,Flood,Low,8.155538,125.131535,San Jose,2016-09-26
+958,Road covered by landslide debris,Landslide,Critical,8.15304,125.130299,Sumpong,2018-12-19
+959,Soil and rocks falling from hillside,Landslide,Low,8.157013,125.128526,Malaybalay Proper,2024-10-13
+960,Strong earthquake alarmed residents,Earthquake,Critical,8.155431,125.131801,San Jose,2023-09-05
+961,Strong shaking felt in our area,Earthquake,Critical,8.162084,125.125607,Casisang,2015-11-12
+962,Market stall caught fire,Fire,Low,8.157386,125.130898,Barangay 11,2024-03-11
+963,Smoke and flames seen in residential area,Fire,Critical,8.155399,125.128209,Barangay 10,2019-01-08
+964,Road covered by landslide debris,Landslide,Moderate,8.1475,125.118819,Aglayan,2020-05-08
+965,Minor tremor felt in the barangay,Earthquake,High,8.148284,125.139766,Violeta,2015-02-04
+966,Electrical short circuit started a fire,Fire,High,8.151179,125.132207,Sumpong,2017-12-22
+967,Buildings shaking for several seconds,Earthquake,High,8.155295,125.133672,San Jose,2016-06-02
+968,Electrical short circuit started a fire,Fire,Moderate,8.15642,125.131957,San Jose,2018-05-13
+969,Flood entering homes after heavy rain,Flood,Critical,8.15381,125.133964,San Jose,2021-07-19
+970,Strong shaking felt in our area,Earthquake,Moderate,8.156855,125.129707,Barangay 11,2024-10-24
+971,Market stall caught fire,Fire,Low,8.148096,125.119764,Aglayan,2022-11-17
+972,Landslide damaged farm area,Landslide,High,8.162461,125.125858,Casisang,2015-09-18
+973,Landslide blocking the road,Landslide,Critical,8.147579,125.139803,Violeta,2018-11-16
+974,Electrical short circuit started a fire,Fire,Critical,8.155836,125.130363,Barangay 9,2017-06-04
+975,House on fire please send help,Fire,High,8.156663,125.128624,Barangay 9,2021-02-06
+976,House on fire please send help,Fire,Critical,8.161831,125.125059,Casisang,2017-02-11
+977,Smoke and flames seen in residential area,Fire,High,8.151434,125.131605,Sumpong,2022-04-17
+978,Heavy rain triggered landslide near homes,Landslide,Moderate,8.156785,125.131666,San Jose,2020-01-11
+979,Landslide blocking the road,Landslide,Moderate,8.158279,125.120227,Bangcud,2019-04-26
+980,Soil and rocks falling from hillside,Landslide,High,8.156695,125.130321,Barangay 9,2022-07-22
+981,Floodwater already waist deep,Flood,High,8.159908,125.12433,Casisang,2023-12-01
+982,Floodwater already waist deep,Flood,Moderate,8.158315,125.129824,Barangay 11,2021-08-18
+983,Market stall caught fire,Fire,Low,8.15925,125.129735,Barangay 11,2021-01-30
+984,Strong earthquake alarmed residents,Earthquake,Low,8.156809,125.13248,San Jose,2016-05-04
+985,House on fire please send help,Fire,Moderate,8.156634,125.128345,Barangay 11,2017-04-21
+986,Strong shaking felt in our area,Earthquake,Critical,8.150031,125.139381,Violeta,2015-07-16
+987,Smoke and flames seen in residential area,Fire,Critical,8.160613,125.127795,Casisang,2021-05-29
+988,Market stall caught fire,Fire,High,8.159088,125.128096,Malaybalay Proper,2018-06-15
+989,Smoke and flames seen in residential area,Fire,Critical,8.162154,125.126074,Casisang,2017-03-28
+990,Smoke and flames seen in residential area,Fire,Moderate,8.156335,125.13148,San Jose,2020-09-06
+991,Electrical short circuit started a fire,Fire,High,8.158788,125.128599,Barangay 10,2020-12-10
+992,Landslide blocking the road,Landslide,Critical,8.146851,125.119554,Aglayan,2020-01-29
+993,Road blocked due to floodwater,Flood,Low,8.147474,125.11753,Aglayan,2022-09-12
+994,Strong shaking felt in our area,Earthquake,High,8.156185,125.127026,Barangay 10,2020-12-14
+995,Smoke and flames seen in residential area,Fire,Low,8.14771,125.118269,Aglayan,2016-10-27
+996,Water rising quickly near our house,Flood,Critical,8.146431,125.11959,Aglayan,2017-04-12
+997,Road covered by landslide debris,Landslide,Critical,8.161747,125.125496,Casisang,2019-08-23
+998,Landslide damaged farm area,Landslide,High,8.15267,125.131887,Sumpong,2018-02-27
+999,Earthquake caused cracks in the wall,Earthquake,High,8.15241,125.130725,Sumpong,2022-01-19
+1000,Smoke and flames seen in residential area,Fire,Moderate,8.154758,125.130586,San Jose,2023-06-08

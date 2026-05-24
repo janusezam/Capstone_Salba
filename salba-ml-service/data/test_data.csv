@@ -1,0 +1,21 @@
+description,disaster_type,severity,latitude,longitude,created_at,text_length,word_count,has_urgency_keywords,has_prank_keywords
+Major earthquake reported critical,Earthquake,high,8.108498449338835,125.02142781848002,2026-03-07T12:09:35.758001,34,4,1,0
+Strong typhoon winds reported,Typhoon,moderate,8.050345280379803,124.92702734357697,2026-02-27T04:09:35.758001,29,4,0,0
+prank Strong typhoon winds reported,Typhoon,moderate,8.226609274778204,125.22235249773789,2026-02-26T21:09:35.758001,35,5,0,1
+hoax Rivers overflowing banks urgent,Flood,moderate,8.140237428834494,125.10635860941697,2026-02-24T07:09:35.758001,36,5,1,1
+Strong quake building damage severe,Earthquake,critical,8.107901687279657,125.09292381141273,2026-02-27T20:09:35.758001,35,5,1,0
+Tremor with aftershocks,Earthquake,moderate,8.302766431167703,125.29681548893846,2026-02-20T17:09:35.758001,23,3,0,0
+House fire with multiple structures burning,Fire,high,8.052597141675086,124.97814919479862,2026-03-04T14:09:35.758001,43,6,0,0
+Uncontrolled fire outbreak severe,Fire,critical,8.257516448632366,125.26893482023807,2026-03-02T06:09:35.758001,33,4,1,0
+Hillside collapse reported,Landslide,high,8.036615660653498,124.95093436387558,2026-03-03T13:09:35.758001,26,3,0,0
+Large landslide blocking road,Landslide,moderate,8.257960980393376,125.20512135748277,2026-02-17T01:09:35.758001,29,4,0,0
+Typhoon approaching region critical,Typhoon,moderate,8.226074782266185,125.22592175158437,2026-02-10T01:09:35.758001,35,4,1,0
+Tremor with aftershocks emergency,Earthquake,moderate,8.017880261333412,124.9018136605669,2026-02-17T07:09:35.758001,33,4,1,0
+Severe flooding and landslides,Flood,critical,8.139461972643964,125.04864190313481,2026-02-08T18:09:35.758001,30,4,1,0
+prank Ground movement detected,Landslide,critical,8.274154865690042,125.33349893145926,2026-02-15T20:09:35.758001,30,4,0,1
+Serious landslide event,Landslide,high,8.202883856727706,125.24274757861829,2026-03-04T13:09:35.758001,23,3,0,0
+test Tremor with aftershocks,Earthquake,moderate,8.31973783250077,125.28300939865967,2026-02-10T20:09:35.758001,28,4,0,1
+prank Flash flood warning,Flood,low,8.27007131818634,125.29580139943991,2026-02-27T04:09:35.758001,25,4,0,1
+Strong quake building damage,Earthquake,critical,8.29831058978044,125.15921924374604,2026-02-24T10:09:35.758001,28,4,0,0
+prank Strong typhoon winds reported emergency,Typhoon,moderate,8.173095768681254,125.08359601815245,2026-03-11T04:09:35.758001,45,6,1,1
+Typhoon damage assessment,Typhoon,moderate,8.21647311090918,125.15248529843171,2026-03-02T15:09:35.758001,25,3,0,0

@@ -1,0 +1,133 @@
+/* General layout */
+.dashboard-container {
+  min-height: 100vh;
+  background-color: #f5f6f7;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+/* Dashboard card */
+.dashboard-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  margin-top: 40px;
+}
+
+/* Titles */
+.dashboard-title {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.reports-title {
+  margin-top: 25px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Buttons */
+.send-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #2e7d32;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.send-btn:hover {
+  background-color: #256428;
+}
+
+.send-btn.disabled {
+  background-color: #bbb;
+  cursor: not-allowed;
+}
+
+/* Reports list */
+.reports-list {
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Individual report card */
+.report-card {
+  background: #f9fafb;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Texts */
+.report-severity {
+  font-weight: 500;
+  color: #333;
+}
+
+.report-date {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 2px;
+}
+
+/* Severity colors */
+.severity-text.red {
+  color: #e53935;
+}
+
+.severity-text.orange {
+  color: #f9a825;
+}
+
+.severity-text.green {
+  color: #43a047;
+}
+
+/* View button */
+.view-btn {
+  background: none;
+  border: none;
+  color: #1e88e5;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.view-btn:hover {
+  color: #1565c0;
+}
+
+/* No reports */
+.no-reports {
+  text-align: center;
+  color: #777;
+  margin-top: 10px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .dashboard-card {
+    padding: 16px;
+  }
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+}

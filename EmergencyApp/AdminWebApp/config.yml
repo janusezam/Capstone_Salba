@@ -1,0 +1,33 @@
+server:
+  type: simple
+  connector:
+    type: http
+    port: 8989
+    bind_host: 0.0.0.0
+  applicationConnectors:
+    - type: http
+      port: 8989
+      bind_host: 0.0.0.0
+
+logging:
+  level: WARN
+  loggers:
+    com.graphhopper: INFO
+
+graphhopper:
+  datareader:
+    file: phils-latest.osm.pbf
+  graph:
+    location: graph-cache
+    remove_duplicates: true
+  web:
+    public: true
+  allowed:
+    algorithms:
+      - dijkstra
+      - dijkstrabi
+      - astar
+      - astarbi
+    models:
+      - car
+

@@ -1,0 +1,42 @@
+[
+  {
+    "purok": "Purok 1",
+    "latitude": 8.151805,
+    "longitude": 125.131422
+  },
+  {
+    "purok": "Purok 2",
+    "latitude": 8.151412,
+    "longitude": 125.133766
+  },
+  {
+    "purok": "Purok 3",
+    "latitude": 8.151666,
+    "longitude": 125.131891
+  },
+  {
+    "purok": "Purok 4",
+    "latitude": 8.152607,
+    "longitude": 125.134137
+  },
+  {
+    "purok": "Purok 5",
+    "latitude": 8.15149,
+    "longitude": 125.132617
+  },
+  {
+    "purok": "Purok 6",
+    "latitude": 8.153178,
+    "longitude": 125.13418
+  },
+  {
+    "purok": "Purok 7",
+    "latitude": 8.146571,
+    "longitude": 125.132502
+  },
+  {
+    "purok": "Purok 8",
+    "latitude": 8.147571,
+    "longitude": 125.133802
+  }
+]

@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  graphhopper:
+    image: graphhopper/graphhopper:latest
+    ports:
+      - "8989:8989"
+    environment:
+      - JAVA_OPTS=-Xmx1024m
+    volumes:
+      - graphhopper-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8989/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  graphhopper-data:

@@ -1,0 +1,1707 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Aglayan",
+        "barangay": "Aglayan",
+        "center_lat": 8.054428571428572,
+        "center_lng": 125.13323571428572,
+        "location_count": 14
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1275,
+              8.049000000000001
+            ],
+            [
+              125.1385,
+              8.049000000000001
+            ],
+            [
+              125.1385,
+              8.059999999999999
+            ],
+            [
+              125.1275,
+              8.059999999999999
+            ],
+            [
+              125.1275,
+              8.049000000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Apo Macote",
+        "barangay": "Apo Macote",
+        "center_lat": 8.102383333333334,
+        "center_lng": 125.26525,
+        "location_count": 6
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.2607,
+              8.098
+            ],
+            [
+              125.2705,
+              8.098
+            ],
+            [
+              125.2705,
+              8.107
+            ],
+            [
+              125.2607,
+              8.107
+            ],
+            [
+              125.2607,
+              8.098
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Bangcud",
+        "barangay": "Bangcud",
+        "center_lat": 7.993833333333333,
+        "center_lng": 125.13635555555555,
+        "location_count": 9
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1315,
+              7.989299999999999
+            ],
+            [
+              125.1415,
+              7.989299999999999
+            ],
+            [
+              125.1415,
+              7.998500000000001
+            ],
+            [
+              125.1315,
+              7.998500000000001
+            ],
+            [
+              125.1315,
+              7.989299999999999
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 1",
+        "barangay": "Barangay 1",
+        "center_lat": 8.161783333333334,
+        "center_lng": 125.12871666666666,
+        "location_count": 6
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.124,
+              8.158000000000001
+            ],
+            [
+              125.1335,
+              8.158000000000001
+            ],
+            [
+              125.1335,
+              8.1657
+            ],
+            [
+              125.124,
+              8.1657
+            ],
+            [
+              125.124,
+              8.158000000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 10",
+        "barangay": "Barangay 10",
+        "center_lat": 8.15186,
+        "center_lng": 125.12296,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1193,
+              8.148
+            ],
+            [
+              125.127,
+              8.148
+            ],
+            [
+              125.127,
+              8.155999999999999
+            ],
+            [
+              125.1193,
+              8.155999999999999
+            ],
+            [
+              125.1193,
+              8.148
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 11",
+        "barangay": "Barangay 11",
+        "center_lat": 8.14932,
+        "center_lng": 125.12296,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.119,
+              8.1457
+            ],
+            [
+              125.1267,
+              8.1457
+            ],
+            [
+              125.1267,
+              8.1533
+            ],
+            [
+              125.119,
+              8.1533
+            ],
+            [
+              125.119,
+              8.1457
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 2",
+        "barangay": "Barangay 2",
+        "center_lat": 8.158233333333333,
+        "center_lng": 125.12559999999999,
+        "location_count": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1223,
+              8.155000000000001
+            ],
+            [
+              125.1287,
+              8.155000000000001
+            ],
+            [
+              125.1287,
+              8.1615
+            ],
+            [
+              125.1223,
+              8.1615
+            ],
+            [
+              125.1223,
+              8.155000000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 3",
+        "barangay": "Barangay 3",
+        "center_lat": 8.156866666666668,
+        "center_lng": 125.12393333333333,
+        "location_count": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1205,
+              8.153500000000001
+            ],
+            [
+              125.12729999999999,
+              8.153500000000001
+            ],
+            [
+              125.12729999999999,
+              8.1603
+            ],
+            [
+              125.1205,
+              8.1603
+            ],
+            [
+              125.1205,
+              8.153500000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 4",
+        "barangay": "Barangay 4",
+        "center_lat": 8.1546,
+        "center_lng": 125.12633333333333,
+        "location_count": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1233,
+              8.1513
+            ],
+            [
+              125.1297,
+              8.1513
+            ],
+            [
+              125.1297,
+              8.158
+            ],
+            [
+              125.1233,
+              8.158
+            ],
+            [
+              125.1233,
+              8.1513
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 5",
+        "barangay": "Barangay 5",
+        "center_lat": 8.1553,
+        "center_lng": 125.128,
+        "location_count": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.125,
+              8.1523
+            ],
+            [
+              125.131,
+              8.1523
+            ],
+            [
+              125.131,
+              8.158299999999999
+            ],
+            [
+              125.125,
+              8.158299999999999
+            ],
+            [
+              125.125,
+              8.1523
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 6",
+        "barangay": "Barangay 6",
+        "center_lat": 8.1555,
+        "center_lng": 125.12956666666666,
+        "location_count": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.12650000000001,
+              8.1521
+            ],
+            [
+              125.1327,
+              8.1521
+            ],
+            [
+              125.1327,
+              8.1589
+            ],
+            [
+              125.12650000000001,
+              8.1589
+            ],
+            [
+              125.12650000000001,
+              8.1521
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 7",
+        "barangay": "Barangay 7",
+        "center_lat": 8.14952,
+        "center_lng": 125.13002,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.126,
+              8.146
+            ],
+            [
+              125.134,
+              8.146
+            ],
+            [
+              125.134,
+              8.1533
+            ],
+            [
+              125.126,
+              8.1533
+            ],
+            [
+              125.126,
+              8.146
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 8",
+        "barangay": "Barangay 8",
+        "center_lat": 8.151233333333334,
+        "center_lng": 125.13216666666666,
+        "location_count": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.129,
+              8.1478
+            ],
+            [
+              125.1353,
+              8.1478
+            ],
+            [
+              125.1353,
+              8.1547
+            ],
+            [
+              125.129,
+              8.1547
+            ],
+            [
+              125.129,
+              8.1478
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Barangay 9",
+        "barangay": "Barangay 9",
+        "center_lat": 8.1496125,
+        "center_lng": 125.1314625,
+        "location_count": 8
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1273,
+              8.1445
+            ],
+            [
+              125.1357,
+              8.1445
+            ],
+            [
+              125.1357,
+              8.154499999999999
+            ],
+            [
+              125.1273,
+              8.154499999999999
+            ],
+            [
+              125.1273,
+              8.1445
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Busdi",
+        "barangay": "Busdi",
+        "center_lat": 8.265266666666667,
+        "center_lng": 125.31038333333333,
+        "location_count": 6
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.30550000000001,
+              8.259500000000001
+            ],
+            [
+              125.316,
+              8.259500000000001
+            ],
+            [
+              125.316,
+              8.2715
+            ],
+            [
+              125.30550000000001,
+              8.2715
+            ],
+            [
+              125.30550000000001,
+              8.259500000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Cabangahan",
+        "barangay": "Cabangahan",
+        "center_lat": 8.02245,
+        "center_lng": 125.13633333333334,
+        "location_count": 6
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.132,
+              8.018500000000001
+            ],
+            [
+              125.1405,
+              8.018500000000001
+            ],
+            [
+              125.1405,
+              8.0267
+            ],
+            [
+              125.132,
+              8.0267
+            ],
+            [
+              125.132,
+              8.018500000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Caburacanan",
+        "barangay": "Caburacanan",
+        "center_lat": 8.21515,
+        "center_lng": 125.275375,
+        "location_count": 4
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.2717,
+              8.211
+            ],
+            [
+              125.279,
+              8.211
+            ],
+            [
+              125.279,
+              8.219299999999999
+            ],
+            [
+              125.2717,
+              8.219299999999999
+            ],
+            [
+              125.2717,
+              8.211
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Canayan (Can-ayan)",
+        "barangay": "Canayan (Can-ayan)",
+        "center_lat": 8.1867125,
+        "center_lng": 125.152475,
+        "location_count": 8
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.148,
+              8.1823
+            ],
+            [
+              125.157,
+              8.1823
+            ],
+            [
+              125.157,
+              8.1907
+            ],
+            [
+              125.148,
+              8.1907
+            ],
+            [
+              125.148,
+              8.1823
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Capitan Angel",
+        "barangay": "Capitan Angel",
+        "center_lat": 8.184442857142857,
+        "center_lng": 125.06371428571428,
+        "location_count": 7
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.059,
+              8.18
+            ],
+            [
+              125.0685,
+              8.18
+            ],
+            [
+              125.0685,
+              8.188699999999999
+            ],
+            [
+              125.059,
+              8.188699999999999
+            ],
+            [
+              125.059,
+              8.18
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Casisang",
+        "barangay": "Casisang",
+        "center_lat": 8.13494375,
+        "center_lng": 125.12553750000001,
+        "location_count": 16
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1195,
+              8.126000000000001
+            ],
+            [
+              125.1325,
+              8.126000000000001
+            ],
+            [
+              125.1325,
+              8.1425
+            ],
+            [
+              125.1195,
+              8.1425
+            ],
+            [
+              125.1195,
+              8.126000000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Dalwangan",
+        "barangay": "Dalwangan",
+        "center_lat": 8.20209,
+        "center_lng": 125.04031,
+        "location_count": 10
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.0353,
+              8.197000000000001
+            ],
+            [
+              125.0465,
+              8.197000000000001
+            ],
+            [
+              125.0465,
+              8.2075
+            ],
+            [
+              125.0353,
+              8.2075
+            ],
+            [
+              125.0353,
+              8.197000000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Imbayao",
+        "barangay": "Imbayao",
+        "center_lat": 8.1176,
+        "center_lng": 125.02958333333333,
+        "location_count": 6
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.0253,
+              8.1137
+            ],
+            [
+              125.0337,
+              8.1137
+            ],
+            [
+              125.0337,
+              8.121699999999999
+            ],
+            [
+              125.0253,
+              8.121699999999999
+            ],
+            [
+              125.0253,
+              8.1137
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Indalaza",
+        "barangay": "Indalaza",
+        "center_lat": 8.12292,
+        "center_lng": 125.23984,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.236,
+              8.119
+            ],
+            [
+              125.2437,
+              8.119
+            ],
+            [
+              125.2437,
+              8.1273
+            ],
+            [
+              125.236,
+              8.1273
+            ],
+            [
+              125.236,
+              8.119
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Kabalabag",
+        "barangay": "Kabalabag",
+        "center_lat": 8.224920000000001,
+        "center_lng": 125.18474,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1807,
+              8.221300000000001
+            ],
+            [
+              125.1887,
+              8.221300000000001
+            ],
+            [
+              125.1887,
+              8.229
+            ],
+            [
+              125.1807,
+              8.229
+            ],
+            [
+              125.1807,
+              8.221300000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Kalasungay",
+        "barangay": "Kalasungay",
+        "center_lat": 8.1727125,
+        "center_lng": 125.100225,
+        "location_count": 8
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.0955,
+              8.1685
+            ],
+            [
+              125.105,
+              8.1685
+            ],
+            [
+              125.105,
+              8.177
+            ],
+            [
+              125.0955,
+              8.177
+            ],
+            [
+              125.0955,
+              8.1685
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Kulaman",
+        "barangay": "Kulaman",
+        "center_lat": 8.24152,
+        "center_lng": 125.26256,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.258,
+              8.2367
+            ],
+            [
+              125.2667,
+              8.2367
+            ],
+            [
+              125.2667,
+              8.246699999999999
+            ],
+            [
+              125.258,
+              8.246699999999999
+            ],
+            [
+              125.258,
+              8.2367
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Laguitas",
+        "barangay": "Laguitas",
+        "center_lat": 8.06996,
+        "center_lng": 125.11284,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.10900000000001,
+              8.066
+            ],
+            [
+              125.1167,
+              8.066
+            ],
+            [
+              125.1167,
+              8.0743
+            ],
+            [
+              125.10900000000001,
+              8.0743
+            ],
+            [
+              125.10900000000001,
+              8.066
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Linabo",
+        "barangay": "Linabo",
+        "center_lat": 8.072414285714286,
+        "center_lng": 125.17765714285714,
+        "location_count": 7
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1727,
+              8.068
+            ],
+            [
+              125.1825,
+              8.068
+            ],
+            [
+              125.1825,
+              8.0773
+            ],
+            [
+              125.1727,
+              8.0773
+            ],
+            [
+              125.1727,
+              8.068
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Magsaysay",
+        "barangay": "Magsaysay",
+        "center_lat": 8.084016666666667,
+        "center_lng": 125.09858333333334,
+        "location_count": 6
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.0943,
+              8.08
+            ],
+            [
+              125.1027,
+              8.08
+            ],
+            [
+              125.1027,
+              8.0883
+            ],
+            [
+              125.0943,
+              8.0883
+            ],
+            [
+              125.0943,
+              8.08
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Maligaya",
+        "barangay": "Maligaya",
+        "center_lat": 8.04185,
+        "center_lng": 125.2037,
+        "location_count": 4
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.2,
+              8.037700000000001
+            ],
+            [
+              125.2073,
+              8.037700000000001
+            ],
+            [
+              125.2073,
+              8.046
+            ],
+            [
+              125.2,
+              8.046
+            ],
+            [
+              125.2,
+              8.037700000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Managok",
+        "barangay": "Managok",
+        "center_lat": 8.1583375,
+        "center_lng": 125.2196,
+        "location_count": 8
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.2145,
+              8.154
+            ],
+            [
+              125.2247,
+              8.154
+            ],
+            [
+              125.2247,
+              8.163
+            ],
+            [
+              125.2145,
+              8.163
+            ],
+            [
+              125.2145,
+              8.154
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Manalog",
+        "barangay": "Manalog",
+        "center_lat": 8.25096,
+        "center_lng": 125.16890000000001,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.165,
+              8.247
+            ],
+            [
+              125.173,
+              8.247
+            ],
+            [
+              125.173,
+              8.2553
+            ],
+            [
+              125.165,
+              8.2553
+            ],
+            [
+              125.165,
+              8.247
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Mapayag",
+        "barangay": "Mapayag",
+        "center_lat": 8.08584,
+        "center_lng": 125.04096,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.037,
+              8.082
+            ],
+            [
+              125.045,
+              8.082
+            ],
+            [
+              125.045,
+              8.0903
+            ],
+            [
+              125.037,
+              8.0903
+            ],
+            [
+              125.037,
+              8.082
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Mapulo",
+        "barangay": "Mapulo",
+        "center_lat": 8.16272,
+        "center_lng": 125.23666,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.2325,
+              8.158000000000001
+            ],
+            [
+              125.2413,
+              8.158000000000001
+            ],
+            [
+              125.2413,
+              8.167499999999999
+            ],
+            [
+              125.2325,
+              8.167499999999999
+            ],
+            [
+              125.2325,
+              8.158000000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Miglamin",
+        "barangay": "Miglamin",
+        "center_lat": 8.23866,
+        "center_lng": 125.0946,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.09,
+              8.234300000000001
+            ],
+            [
+              125.0987,
+              8.234300000000001
+            ],
+            [
+              125.0987,
+              8.2435
+            ],
+            [
+              125.09,
+              8.2435
+            ],
+            [
+              125.09,
+              8.234300000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Patpat",
+        "barangay": "Patpat",
+        "center_lat": 8.21135,
+        "center_lng": 125.07745,
+        "location_count": 6
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.0727,
+              8.207
+            ],
+            [
+              125.082,
+              8.207
+            ],
+            [
+              125.082,
+              8.216
+            ],
+            [
+              125.0727,
+              8.216
+            ],
+            [
+              125.0727,
+              8.207
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Saint Peter",
+        "barangay": "Saint Peter",
+        "center_lat": 8.295573333333333,
+        "center_lng": 125.34043333333334,
+        "location_count": 15
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.33370000000001,
+              8.2893
+            ],
+            [
+              125.3483,
+              8.2893
+            ],
+            [
+              125.3483,
+              8.302999999999999
+            ],
+            [
+              125.33370000000001,
+              8.302999999999999
+            ],
+            [
+              125.33370000000001,
+              8.2893
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "San Jose",
+        "barangay": "San Jose",
+        "center_lat": 8.105211111111112,
+        "center_lng": 125.12686666666666,
+        "location_count": 9
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.122,
+              8.1003
+            ],
+            [
+              125.13199999999999,
+              8.1003
+            ],
+            [
+              125.13199999999999,
+              8.11
+            ],
+            [
+              125.122,
+              8.11
+            ],
+            [
+              125.122,
+              8.1003
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "San Martin",
+        "barangay": "San Martin",
+        "center_lat": 8.03672,
+        "center_lng": 125.18154,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.17750000000001,
+              8.032
+            ],
+            [
+              125.1855,
+              8.032
+            ],
+            [
+              125.1855,
+              8.0415
+            ],
+            [
+              125.17750000000001,
+              8.0415
+            ],
+            [
+              125.17750000000001,
+              8.032
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Santo Ni\u00c3\u00b1o",
+        "barangay": "Santo Ni\u00c3\u00b1o",
+        "center_lat": 8.01996,
+        "center_lng": 125.15984,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.156,
+              8.016
+            ],
+            [
+              125.16369999999999,
+              8.016
+            ],
+            [
+              125.16369999999999,
+              8.0243
+            ],
+            [
+              125.156,
+              8.0243
+            ],
+            [
+              125.156,
+              8.016
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Silae",
+        "barangay": "Silae",
+        "center_lat": 8.187149999999999,
+        "center_lng": 125.218125,
+        "location_count": 4
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.2145,
+              8.183
+            ],
+            [
+              125.2217,
+              8.183
+            ],
+            [
+              125.2217,
+              8.1913
+            ],
+            [
+              125.2145,
+              8.1913
+            ],
+            [
+              125.2145,
+              8.183
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Simaya",
+        "barangay": "Simaya",
+        "center_lat": 8.04515,
+        "center_lng": 125.194175,
+        "location_count": 4
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1905,
+              8.041
+            ],
+            [
+              125.1977,
+              8.041
+            ],
+            [
+              125.1977,
+              8.049299999999999
+            ],
+            [
+              125.1905,
+              8.049299999999999
+            ],
+            [
+              125.1905,
+              8.041
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Sinanglanan",
+        "barangay": "Sinanglanan",
+        "center_lat": 8.06196,
+        "center_lng": 125.20994,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.206,
+              8.058
+            ],
+            [
+              125.214,
+              8.058
+            ],
+            [
+              125.214,
+              8.0663
+            ],
+            [
+              125.206,
+              8.0663
+            ],
+            [
+              125.206,
+              8.058
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Sumpong",
+        "barangay": "Sumpong",
+        "center_lat": 8.16313,
+        "center_lng": 125.11886,
+        "location_count": 10
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.113,
+              8.158000000000001
+            ],
+            [
+              125.124,
+              8.158000000000001
+            ],
+            [
+              125.124,
+              8.1685
+            ],
+            [
+              125.113,
+              8.1685
+            ],
+            [
+              125.113,
+              8.158000000000001
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Violeta",
+        "barangay": "Violeta",
+        "center_lat": 8.062149999999999,
+        "center_lng": 125.161175,
+        "location_count": 4
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.1575,
+              8.058
+            ],
+            [
+              125.1647,
+              8.058
+            ],
+            [
+              125.1647,
+              8.0663
+            ],
+            [
+              125.1575,
+              8.0663
+            ],
+            [
+              125.1575,
+              8.058
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "NAME": "Zamboanguita",
+        "barangay": "Zamboanguita",
+        "center_lat": 8.22082,
+        "center_lng": 125.30546,
+        "location_count": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              125.3015,
+              8.216000000000001
+            ],
+            [
+              125.3093,
+              8.216000000000001
+            ],
+            [
+              125.3093,
+              8.225999999999999
+            ],
+            [
+              125.3015,
+              8.225999999999999
+            ],
+            [
+              125.3015,
+              8.216000000000001
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
