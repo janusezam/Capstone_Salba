@@ -1,6 +1,6 @@
 import React from "react";
 
-export function Tabs({ value, onValueChange, className = "" }) {
+export function Tabs({ value, onValueChange, children, className = "" }) {
   return (
     <div className={`w-full ${className}`}>
       {React.Children.map(children, (child) =>
@@ -13,7 +13,7 @@ export function Tabs({ value, onValueChange, className = "" }) {
 export function TabsList({ children, className = "" }) {
   return (
     <div
-      className={`flex gap-1 border-b border-slate-200 bg-white rounded-t-lg ${className}`}
+      className={`flex gap-1 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-t-lg ${className}`}
     >
       {children}
     </div>
@@ -34,8 +34,8 @@ export function TabsTrigger({
       onClick={() => onValueChange?.(value)}
       className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
         isActive
-          ? "text-blue-600 border-blue-600"
-          : "text-slate-600 border-transparent hover:text-slate-900"
+          ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
+          : "text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-white"
       } ${className}`}
     >
       {children}
@@ -48,3 +48,4 @@ export function TabsContent({ value, activeValue, children, className = "" }) {
 
   return <div className={`w-full ${className}`}>{children}</div>;
 }
+

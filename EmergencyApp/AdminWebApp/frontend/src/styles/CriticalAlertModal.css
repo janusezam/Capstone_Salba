@@ -336,3 +336,79 @@
 .btn-primary:active {
   transform: translateY(0);
 }
+
+/* Dark Mode Overrides */
+.dark .critical-alert-modal {
+  background: #1e293b;
+  color: #f8fafc;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+.dark .report-details {
+  background: #0f172a;
+  border-left-color: #ef4444;
+}
+
+.dark .report-details h3 {
+  color: #f8fafc;
+}
+
+.dark .report-details p {
+  color: #cbd5e1;
+}
+
+.dark .ai-analysis {
+  background: #451a03;
+  border-left-color: #f59e0b;
+}
+
+.dark .ai-analysis h4 {
+  color: #fde68a;
+}
+
+.dark .metric,
+.dark .ai-issues {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.dark .metric span,
+.dark .ai-issues ul {
+  color: #cbd5e1;
+}
+
+.dark .dispatch-recommendations {
+  background: #0c4a6e;
+  border-left-color: #38bdf8;
+}
+
+.dark .dispatch-recommendations h4 {
+  color: #e0f2fe;
+}
+
+.dark .team-option {
+  background: #1e293b;
+  border-color: #0284c7;
+}
+
+.dark .team-option:hover {
+  background: #0f172a;
+}
+
+.dark .team-name {
+  color: #f8fafc;
+}
+
+.dark .team-distance,
+.dark .team-members {
+  color: #94a3b8;
+}
+
+.dark .btn-secondary {
+  background: #334155;
+  color: #f8fafc;
+}
+
+.dark .btn-secondary:hover {
+  background: #475569;
+}
+

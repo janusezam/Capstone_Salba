@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import Report from "../models/Alert.js";
 import Team from "../models/Team.js";
 import User from "../models/User.js";
@@ -254,11 +255,38 @@ router.get("/grouped", requireAuth, requireAdmin, async (req, res) => {
 router.get("/my-reports", requireAuth, async (req, res) => {
   try {
     const userId = req.user._id;
-    const reports = await Report.find({ userId }).sort({ createdAt: -1 });
+    const reports = await Report.find({ userId }).sort({ createdAt: -1 }).lean();
+    
+    // Auto-sync status with capstoneDB on the same MongoDB connection
+    const adminDb = mongoose.connection.useDb('capstoneDB');
+    const AdminReportModel = adminDb.model('Report', Report.schema);
+
+    const syncedReports = await Promise.all(reports.map(async (report) => {
+      try {
+        const match = await AdminReportModel.findOne({
+          lat: report.lat,
+          lng: report.lng,
+          disasterType: report.disasterType,
+          createdAt: {
+            $gte: new Date(report.createdAt.getTime() - 30000), // +/- 30 seconds
+            $lte: new Date(report.createdAt.getTime() + 30000)
+          }
+        }).lean();
+
+        if (match && match.status !== report.status) {
+          console.log(`[STATUS SYNC] Updating local report ${report._id} status to ${match.status}`);
+          await Report.updateOne({ _id: report._id }, { $set: { status: match.status } });
+          report.status = match.status;
+        }
+      } catch (syncErr) {
+        console.warn(`[STATUS SYNC] Failed to sync report ${report._id}:`, syncErr.message);
+      }
+      return report;
+    }));
     
     res.json({
-      count: reports.length,
-      reports: reports,
+      count: syncedReports.length,
+      reports: syncedReports,
     });
   } catch (err) {
     console.error("Error fetching user reports:", err);

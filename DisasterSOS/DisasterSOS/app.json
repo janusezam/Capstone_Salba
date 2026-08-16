@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": false,
     "scheme": "disastersos",
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -21,18 +20,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
-      "usesCleartextTraffic": true,
-      "networkSecurityConfig": {
-        "domainConfig": {
-          "domain": [
-            "*"
-          ],
-          "config": {
-            "cleartextTrafficPermitted": true
-          }
-        }
-      }
+      "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"

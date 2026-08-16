@@ -1,5 +1,13 @@
+import Constants from 'expo-constants';
 
-const API_BASE_URL = 'http://10.40.31.211:5000'; // Your machine IP - Backend runs on this machine 
+const getApiBaseUrl = () => {
+  // Extract host IP (e.g., "10.0.0.46") from the Expo packager's address
+  const hostUri = Constants.expoConfig?.hostUri || Constants.manifest?.debuggerHost || '';
+  const ip = hostUri ? hostUri.split(':')[0] : '10.0.0.46'; // fallback to last known IP
+  return `http://${ip}:5000`;
+};
+
+const API_BASE_URL = getApiBaseUrl(); 
 
 export const API_URL = `${API_BASE_URL}/api`;
 export const SOCKET_URL = API_BASE_URL;

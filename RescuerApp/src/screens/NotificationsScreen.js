@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Modal,
+  ScrollView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNotifications } from '../context/NotificationContext';
@@ -15,6 +18,8 @@ export default function NotificationsScreen({ navigation }) {
   const { notifications, unreadCount, fetchNotifications, markAsRead, markAllAsRead } = useNotifications();
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     loadNotifications();
@@ -35,11 +40,8 @@ export default function NotificationsScreen({ navigation }) {
     if (!notification.isRead) {
       markAsRead(notification._id);
     }
-
-    // Navigate based on notification type
-    if (notification.type === 'dispatch' && notification.data?.lat) {
-      navigation.navigate('Map');
-    }
+    setSelectedNotification(notification);
+    setModalVisible(true);
   };
 
   const getIcon = (type) => {
@@ -167,6 +169,95 @@ export default function NotificationsScreen({ navigation }) {
         ListEmptyComponent={renderEmptyList}
         showsVerticalScrollIndicator={false}
       />
+
+      {/* Notification Detail Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+          setSelectedNotification(null);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {selectedNotification && (() => {
+              const icon = getIcon(selectedNotification.type);
+              return (
+                <>
+                  <View style={styles.modalHeader}>
+                    <View style={[styles.modalIconContainer, { backgroundColor: icon.bg }]}>
+                      <Ionicons name={icon.name} size={32} color={icon.color} />
+                    </View>
+                    <Text style={styles.modalType}>
+                      {String(selectedNotification.type || 'Alert').toUpperCase().replace('_', ' ')}
+                    </Text>
+                  </View>
+
+                  <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+                    <Text style={styles.modalTitle}>{selectedNotification.title}</Text>
+                    <Text style={styles.modalTime}>
+                      {new Date(selectedNotification.createdAt).toLocaleString()}
+                    </Text>
+                    
+                    <Text style={styles.modalMessage}>{selectedNotification.message}</Text>
+
+                    {selectedNotification.data?.address && (
+                      <View style={styles.modalMetadataContainer}>
+                        <Text style={styles.modalMetadataLabel}>Location / Address:</Text>
+                        <View style={styles.modalMetadataValueRow}>
+                          <Ionicons name="location" size={16} color="#DC2626" />
+                          <Text style={styles.modalMetadataValue}>
+                            {selectedNotification.data.address}
+                          </Text>
+                        </View>
+                      </View>
+                    )}
+
+                    {selectedNotification.data?.reportId && (
+                      <View style={styles.modalMetadataContainer}>
+                        <Text style={styles.modalMetadataLabel}>Report ID:</Text>
+                        <Text style={styles.modalMetadataValueCode}>
+                          {typeof selectedNotification.data.reportId === 'object'
+                            ? selectedNotification.data.reportId._id
+                            : selectedNotification.data.reportId}
+                        </Text>
+                      </View>
+                    )}
+                  </ScrollView>
+
+                  <View style={styles.modalActions}>
+                    <TouchableOpacity
+                      style={styles.modalCloseButton}
+                      onPress={() => {
+                        setModalVisible(false);
+                        setSelectedNotification(null);
+                      }}
+                    >
+                      <Text style={styles.modalCloseButtonText}>Close</Text>
+                    </TouchableOpacity>
+
+                    {selectedNotification.type === 'dispatch' && selectedNotification.data?.lat && (
+                      <TouchableOpacity
+                        style={styles.modalMapButton}
+                        onPress={() => {
+                          setModalVisible(false);
+                          setSelectedNotification(null);
+                          navigation.navigate('Map');
+                        }}
+                      >
+                        <Ionicons name="map" size={18} color="#fff" style={{ marginRight: 6 }} />
+                        <Text style={styles.modalMapButtonText}>View Map</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </>
+              );
+            })()}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -311,5 +402,123 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     lineHeight: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  modalHeader: {
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  modalIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  modalType: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#888',
+    letterSpacing: 1.5,
+  },
+  modalBody: {
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#111',
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  modalTime: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  modalMessage: {
+    fontSize: 15,
+    color: '#444',
+    lineHeight: 22,
+    marginBottom: 15,
+  },
+  modalMetadataContainer: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 10,
+  },
+  modalMetadataLabel: {
+    fontSize: 11,
+    color: '#888',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  modalMetadataValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  modalMetadataValue: {
+    fontSize: 13,
+    color: '#333',
+    fontWeight: '500',
+    marginLeft: 6,
+    flex: 1,
+  },
+  modalMetadataValueCode: {
+    fontSize: 12,
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+    color: '#555',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  modalCloseButton: {
+    flex: 1,
+    backgroundColor: '#E5E7EB',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalCloseButtonText: {
+    color: '#4B5563',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  modalMapButton: {
+    flex: 1.5,
+    backgroundColor: '#DC2626',
+    paddingVertical: 12,
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalMapButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 15,
   },
 });

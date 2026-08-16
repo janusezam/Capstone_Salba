@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import API from "../api";
 import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-import { Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, CheckCircle, Sun, Moon } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
 function Login() {
   const [form, setForm] = useState({ identifier: "", password: "" });
@@ -10,6 +11,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -68,7 +70,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white overflow-hidden">
+    <div className="min-h-screen flex bg-white dark:bg-slate-900 transition-colors duration-200 overflow-hidden">
       {/* Left Panel - Branding */}
       <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 flex-col justify-between p-12">
         {/* Logo */}
@@ -128,7 +130,23 @@ function Login() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12">
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 relative">
+        {/* Top Right Theme Switcher */}
+        <div className="absolute top-6 right-6">
+          <button
+            onClick={toggleTheme}
+            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            aria-label="Toggle Theme"
+            className="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm"
+          >
+            {isDarkMode ? (
+              <Sun className="w-5 h-5 text-amber-400" />
+            ) : (
+              <Moon className="w-5 h-5 text-slate-600" />
+            )}
+          </button>
+        </div>
+
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden mb-10">
@@ -138,21 +156,21 @@ function Login() {
                 alt="SALBA Logo"
                 className="w-8 h-8 rounded-lg object-contain"
               />
-              <h1 className="text-xl font-bold text-slate-900">DisasterSOS</h1>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">DisasterSOS</h1>
             </div>
           </div>
 
           {/* Heading */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h2>
-            <p className="text-slate-600">Sign in to your emergency management account</p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h2>
+            <p className="text-slate-600 dark:text-slate-400">Sign in to your emergency management account</p>
           </div>
 
           {/* Error Alert */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700 font-medium">{error}</p>
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-700 dark:text-red-300 font-medium">{error}</p>
             </div>
           )}
 
@@ -160,33 +178,33 @@ function Login() {
           <form onSubmit={handleLogin} className="space-y-5 mb-8">
             {/* Username or Email Input */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">Username or Email</label>
+              <label className="block text-sm font-semibold text-slate-900 dark:text-slate-200 mb-2">Username or Email</label>
               <input
                 type="text"
                 placeholder="juan.dela.cruz or juan@example.com"
                 value={form.identifier}
                 onChange={(e) => setForm({ ...form, identifier: e.target.value })}
-                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 required
               />
             </div>
 
             {/* Password Input */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">Password</label>
+              <label className="block text-sm font-semibold text-slate-900 dark:text-slate-200 mb-2">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full px-4 py-3 pr-10 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 pr-10 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -196,10 +214,10 @@ function Login() {
             {/* Remember & Forgot */}
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500" />
-                <span className="text-slate-700">Remember me</span>
+                <input type="checkbox" className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:bg-slate-800" />
+                <span className="text-slate-700 dark:text-slate-300">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link to="/forgot-password" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
                 Forgot password?
               </Link>
             </div>
@@ -217,10 +235,10 @@ function Login() {
           {/* Divider */}
           <div className="relative mb-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-300"></div>
+              <div className="w-full border-t border-slate-300 dark:border-slate-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-slate-600">Or continue with</span>
+              <span className="px-2 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400">Or continue with</span>
             </div>
           </div>
 
@@ -229,7 +247,7 @@ function Login() {
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
-              theme="outline"
+              theme={isDarkMode ? "filled_black" : "outline"}
               size="large"
               text="signin"
               width="350"
@@ -238,12 +256,12 @@ function Login() {
 
           {/* Sign Up Link */}
           <div className="text-center">
-            <p className="text-slate-600">
+            <p className="text-slate-600 dark:text-slate-400">
               Admin accounts are created only by existing admins in User Management.
             </p>
-            <p className="text-xs text-slate-500 mt-3">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">
               By continuing, you acknowledge our{" "}
-              <Link to="/terms-and-conditions" className="text-blue-600 hover:text-blue-700 font-medium underline underline-offset-2">
+              <Link to="/terms-and-conditions" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium underline underline-offset-2">
                 Terms and Conditions
               </Link>
               .
@@ -256,3 +274,4 @@ function Login() {
 }
 
 export default Login;
+

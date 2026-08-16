@@ -7,9 +7,8 @@ import "leaflet/dist/leaflet.css";
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
 import markerShadowPng from "leaflet/dist/images/marker-shadow.png";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../context/ThemeContext";
-import { AlertCircle, CheckCircle, Clock, TrendingUp, Activity, Truck, Users } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { AlertCircle, CheckCircle, Clock, TrendingUp, Activity, Truck, Users, ArrowUpRight, ArrowDownRight, MoreVertical, Flame, Eye, RefreshCw, FileText, Bell } from "lucide-react";
+import { LineChart, Line, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import Sidebar from "./Sidebar";
 import { Header } from "./layout/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
@@ -271,7 +270,6 @@ const generateAISummary = (alert, contextReports = []) => {
 
 function AdminDashboard() {
   const navigate = useNavigate();
-  const { isDarkMode, toggleTheme } = useTheme();
   const [reports, setReports] = useState([]);
   const [ongoingRescues, setOngoingRescues] = useState([]);
   const [loadingOngoingRescues, setLoadingOngoingRescues] = useState(false);
@@ -324,11 +322,7 @@ function AdminDashboard() {
     newPassword: "",
     confirmPassword: "",
   });
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: "alert", message: "Critical fire alert at Casisang", time: "2 mins ago", read: false },
-    { id: 2, type: "rescuer", message: "Carlos Sanchez assigned to ALT-001", time: "5 mins ago", read: false },
-    { id: 3, type: "system", message: "System update completed", time: "1 hour ago", read: true },
-  ]);
+  const [notifications, setNotifications] = useState([]);
   
   // Loading and error states
   const [loadingReports, setLoadingReports] = useState(false);
@@ -819,6 +813,28 @@ function AdminDashboard() {
         const latestReport = uniqueData[0]; // First item is latest due to sort
         const latestReportId = latestReport?._id ? String(latestReport._id) : null;
 
+        // Read from local storage to check read status
+        let readIds = [];
+        try {
+          const saved = localStorage.getItem("adminReadNotifications");
+          if (saved) readIds = JSON.parse(saved);
+        } catch (e) {}
+
+        // Build real notifications from database emergency reports
+        const realNotifications = uniqueData.slice(0, 15).map(report => ({
+          _id: String(report._id),
+          type: report.status === 'Resolved' ? 'system' : 'alert',
+          title: `🚨 ${report.disasterType || 'Emergency SOS'}`,
+          message: `${report.locationName || 'Unknown location'} • Status: ${report.status || 'Pending'} • Severity: ${String(report.severity || 'Medium').toUpperCase()}`,
+          createdAt: report.createdAt || new Date(),
+          isRead: report.status === 'Resolved' || readIds.includes(String(report._id))
+        }));
+        setNotifications(prev => {
+          const liveIds = new Set(prev.map(n => n._id));
+          const dbNotifsFiltered = realNotifications.filter(n => !liveIds.has(n._id));
+          return [...prev, ...dbNotifsFiltered];
+        });
+
         // First load: initialize refs only (no alert).
         if (!prevLatestReportIdRef.current && latestReportId) {
           prevLatestReportIdRef.current = latestReportId;
@@ -1145,7 +1161,23 @@ function AdminDashboard() {
   // Mark notification as read
   const markNotificationRead = async (id) => {
     try {
-      await API.patch(`/rescue/notifications/${id}/read`);
+      try {
+        await API.patch(`/rescue/notifications/${id}/read`);
+      } catch (e) {
+        // Ignored for admin locally generated notifications
+      }
+
+      try {
+        const saved = localStorage.getItem("adminReadNotifications");
+        const readIds = saved ? JSON.parse(saved) : [];
+        if (!readIds.includes(id)) {
+          readIds.push(id);
+          localStorage.setItem("adminReadNotifications", JSON.stringify(readIds));
+        }
+      } catch (e) {
+        console.error("Failed to save read notification to local storage", e);
+      }
+
       setNotifications(
         notifications.map((notif) =>
           notif._id === id ? { ...notif, isRead: true } : notif
@@ -1153,6 +1185,29 @@ function AdminDashboard() {
       );
     } catch (err) {
       console.error("Error marking notification as read:", err);
+    }
+  };
+
+  // Mark all notifications as read
+  const markAllAsRead = async () => {
+    try {
+      try {
+        await API.patch('/rescue/notifications/read-all');
+      } catch (e) {
+        // Ignored for admin locally generated notifications
+      }
+
+      const allIds = notifications.map(n => n._id);
+      try {
+        const saved = localStorage.getItem("adminReadNotifications");
+        const readIds = saved ? JSON.parse(saved) : [];
+        const newSet = new Set([...readIds, ...allIds]);
+        localStorage.setItem("adminReadNotifications", JSON.stringify(Array.from(newSet)));
+      } catch (e) {}
+
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    } catch (err) {
+      console.error("Error marking all notifications as read:", err);
     }
   };
 
@@ -1494,6 +1549,15 @@ function AdminDashboard() {
           tag: 'alert-notification',
           requireInteraction: true
         });
+        const liveNotif = {
+          _id: String(reportId || Date.now()),
+          type: 'alert',
+          title: `🚨 ${type} Alert`,
+          message: `${location} • ${String(severity).toUpperCase()}`,
+          createdAt: new Date(),
+          isRead: false
+        };
+        setNotifications(prev => [liveNotif, ...prev.filter(n => n._id !== liveNotif._id)]);
         console.log('[Notifications] New alert notification sent');
       } else if (eventName === 'new_report') {
         const severity = data?.severity || 'Unknown';
@@ -1515,6 +1579,15 @@ function AdminDashboard() {
           tag: 'report-notification',
           requireInteraction: true
         });
+        const liveNotif = {
+          _id: String(reportId || Date.now()),
+          type: 'alert',
+          title: `📢 ${type} Report`,
+          message: `${location} • ${String(severity).toUpperCase()}`,
+          createdAt: new Date(),
+          isRead: false
+        };
+        setNotifications(prev => [liveNotif, ...prev.filter(n => n._id !== liveNotif._id)]);
         console.log('[Notifications] New report notification sent');
       } else if (eventName === 'report_ml_updated') {
         showToast('AI analysis updated for latest report', 'info', 3000);
@@ -1890,10 +1963,10 @@ function AdminDashboard() {
         getTeamStatusColor={() => "text-green-500"}
         showNotifications={false}
         setShowNotifications={() => {}}
-        notifications={[]}
-        unreadCount={0}
-        markNotificationRead={() => {}}
-        clearAllNotifications={() => {}}
+        notifications={notifications}
+        unreadCount={unreadCount}
+        markNotificationRead={markNotificationRead}
+        clearAllNotifications={clearAllNotifications}
         showTeamHistory={false}
         setShowTeamHistory={() => {}}
         resolvedReports={[]}
@@ -1915,6 +1988,7 @@ function AdminDashboard() {
             activeTab === "rescuers" ? "Rescuer Management" :
             activeTab === "ongoing" ? "Ongoing Rescues" :
             activeTab === "alerts" || activeTab === "reports" ? "Alerts & Reports" :
+            activeTab === "notifications" ? "Notifications Center" :
             activeTab === "settings" ? "Settings" :
             "Dashboard"
           } 
@@ -1926,6 +2000,7 @@ function AdminDashboard() {
           markNotificationRead={markNotificationRead}
           clearAllNotifications={clearAllNotifications}
           unreadCount={unreadCount}
+          onViewAllNotifications={() => setActiveTab("notifications")}
           onProfileClick={() => {
             setActiveTab("settings");
             setFilterStatus("profile");
@@ -1934,267 +2009,410 @@ function AdminDashboard() {
             setActiveTab("settings");
             setFilterStatus("profile");
           }}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
         />
 
         {/* Content Area */}
         <div className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-900">
           {activeTab === "dashboard" && (
-            <div className="p-6 space-y-6">
-              {/* KPI Cards - Alert Severity */}
-              <div>
-                <h2 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-4 uppercase">Active Alerts by Severity</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Critical */}
-                  <Card className="border-red-200 dark:border-red-900 bg-white dark:bg-slate-800 hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Critical</p>
-                          <p className="text-4xl font-bold text-red-600 dark:text-red-500 mt-2">{severityCounts.critical}</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                          <AlertCircle className="w-6 h-6 text-red-600" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* High */}
-                  <Card className="border-orange-200 dark:border-orange-900 bg-white dark:bg-slate-800 hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">High</p>
-                          <p className="text-4xl font-bold text-orange-500 dark:text-orange-400 mt-2">{severityCounts.high}</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                          <AlertCircle className="w-6 h-6 text-orange-500" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Medium */}
-                  <Card className="border-yellow-200 dark:border-yellow-900 bg-white dark:bg-slate-800 hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Medium</p>
-                          <p className="text-4xl font-bold text-yellow-500 dark:text-yellow-400 mt-2">{severityCounts.medium}</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-                          <AlertCircle className="w-6 h-6 text-yellow-500" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Low */}
-                  <Card className="border-green-200 dark:border-green-900 bg-white dark:bg-slate-800 hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Low</p>
-                          <p className="text-4xl font-bold text-green-600 dark:text-green-500 mt-2">{severityCounts.low}</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                          <CheckCircle className="w-6 h-6 text-green-600" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              {/* Response Summary Cards */}
-              <div>
-                <h2 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-4 uppercase">Response Summary</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Responded */}
-                  <Card className="border-blue-200 dark:border-blue-900 bg-white dark:bg-slate-800 hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Responded</p>
-                          <div className="flex items-baseline gap-2 mt-2">
-                            <p className="text-4xl font-bold text-slate-900 dark:text-white">{respondedCount}</p>
-                          </div>
-                        </div>
-                        <Activity className="w-8 h-8 text-blue-600" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Pending */}
-                  <Card className="border-yellow-200 dark:border-yellow-900 bg-white dark:bg-slate-800 hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Pending</p>
-                          <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2">{pendingCount}</p>
-                        </div>
-                        <Clock className="w-8 h-8 text-yellow-500" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Resolved */}
-                  <Card className="border-green-200 dark:border-green-900 bg-white dark:bg-slate-800 hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Resolved</p>
-                          <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2">{resolvedCount}</p>
-                        </div>
-                        <CheckCircle className="w-8 h-8 text-green-600" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              {/* Charts Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Alerts by Time */}
-                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                  <CardHeader>
-                    <CardTitle className="text-slate-900 dark:text-white">Alerts by Time</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={alertsByTimeData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                        <XAxis dataKey="time" stroke="#64748b" />
-                        <YAxis stroke="#64748b" />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px" }}
-                        />
-                        <Legend />
-                        <Line type="monotone" dataKey="count" stroke="#1d4ed8" strokeWidth={2} dot={{ fill: "#1d4ed8", r: 4 }} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </CardContent>
+            <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
+              
+              {/* Row 1: KPI Stat Cards Grid (TailAdmin Style) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                
+                {/* Stat Card 1 - Total Active Alerts */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+                      <AlertCircle className="w-6 h-6" />
+                    </div>
+                    <span className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50">
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                      11.01%
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Active Alerts</p>
+                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                      {activeReports.length || 0}
+                    </p>
+                  </div>
                 </Card>
 
-                {/* Average Response Time */}
-                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                  <CardHeader>
-                    <CardTitle className="text-slate-900 dark:text-white">Avg Response Time (minutes)</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={responseBySeverityData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                        <XAxis dataKey="type" stroke="#64748b" />
-                        <YAxis stroke="#64748b" />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px" }}
-                        />
-                        <Legend />
-                        <Bar dataKey="time" fill="#2563eb" radius={[8, 8, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
+                {/* Stat Card 2 - Critical Emergency Alerts */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
+                      <Flame className="w-6 h-6" />
+                    </div>
+                    <span className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-400 border border-red-200/60 dark:border-red-900/50">
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                      Critical
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Critical Emergencies</p>
+                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                      {severityCounts.critical || 0}
+                    </p>
+                  </div>
                 </Card>
-              </div>
 
-              {/* Alert Distribution */}
-              <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                <CardHeader>
-                  <CardTitle className="text-slate-900 dark:text-white">Alert Distribution by Type</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={alertTypeDistributionData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}%`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        <Cell fill="#dc2626" />
-                        <Cell fill="#f97316" />
-                        <Cell fill="#1d4ed8" />
-                        <Cell fill="#16a34a" />
-                        <Cell fill="#8b5cf6" />
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+                {/* Stat Card 3 - Active Rescuers On-Duty */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                      <Users className="w-6 h-6" />
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      On-Duty
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Rescuers</p>
+                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                      {activeRescuersCount || 0}
+                    </p>
+                  </div>
+                </Card>
 
-              {/* Recent Alerts Table */}
-              <div>
-                <h2 className="text-lg font-bold text-slate-900 mb-4">Recent Alerts</h2>
-                <Card className="border-slate-200 bg-white overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50">
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Type</th>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Location</th>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Severity</th>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Status</th>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Time</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-200">
-                        {reports.filter(r => r.status !== 'Resolved' && r.status !== 'resolved').slice(0, 5).map((report, idx) => (
-                          <tr key={report._id} className="hover:bg-slate-50 transition-colors">
-                            <td className="px-6 py-4 text-sm text-slate-600">{report.disasterType || "Emergency"}</td>
-                            <td className="px-6 py-4 text-sm text-slate-600">{report.locationName || report.location || "Unknown"}</td>
-                            <td className="px-6 py-4 text-sm">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                report.severity === "critical" ? "bg-red-100 text-red-700" :
-                                report.severity === "high" ? "bg-orange-100 text-orange-700" :
-                                report.severity === "medium" ? "bg-yellow-100 text-yellow-700" :
-                                "bg-green-100 text-green-700"
-                              }`}>
-                                {toTitleCase(report.severity || "Standard")}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-sm">
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                report.status === "Active" ? "bg-red-100 text-red-700" :
-                                report.status === "Responded" ? "bg-blue-100 text-blue-700" :
-                                report.status === "Pending" ? "bg-slate-100 text-slate-700" :
-                                "bg-green-100 text-green-700"
-                              }`}>
-                                {toTitleCase(report.status || "Pending")}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-sm text-slate-500">
-                              {report.createdAt ? new Date(report.createdAt).toLocaleTimeString() : "N/A"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                {/* Stat Card 4 - Ongoing Rescue Operations */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                      <Truck className="w-6 h-6" />
+                    </div>
+                    <span className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50">
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                      Active
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ongoing Missions</p>
+                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                      {ongoingRescues.length || 0}
+                    </p>
                   </div>
                 </Card>
               </div>
+
+              {/* Row 2: Visualizations Grid (Charts 2/3 + Monthly Target Gauge 1/3) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                
+                {/* Left 8 Columns - Bar Chart & Response Statistics */}
+                <div className="lg:col-span-8 space-y-5">
+                  
+                  {/* Monthly Sales / Incident Volume Bar Chart */}
+                  <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
+                      <div>
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white">Incident Trends</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Emergency alert frequency timeline</p>
+                      </div>
+                      <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                        <button className="px-3 py-1 text-xs font-bold bg-white dark:bg-slate-700 text-blue-600 dark:text-white rounded-lg shadow-xs">Monthly</button>
+                        <button className="px-3 py-1 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white">Quarterly</button>
+                        <button className="px-3 py-1 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white">Annually</button>
+                      </div>
+                    </div>
+                    
+                    <div className="h-[280px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={alertsByTimeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="barBlueGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
+                              <stop offset="100%" stopColor="#2563eb" stopOpacity={0.8} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                          <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: "#0f172a", 
+                              border: "none", 
+                              borderRadius: "12px", 
+                              color: "#fff",
+                              boxShadow: "0 10px 15px -3px rgba(0,0,0,0.3)" 
+                            }}
+                            cursor={{ fill: "rgba(241, 245, 249, 0.4)" }}
+                          />
+                          <Bar dataKey="count" fill="url(#barBlueGradient)" radius={[6, 6, 0, 0]} maxBarSize={38} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </Card>
+
+                  {/* Response Statistics Smooth Area Chart */}
+                  <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
+                      <div>
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white">Response Time Analytics</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Average dispatch to scene response time (minutes)</p>
+                      </div>
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+                        Real-time Data
+                      </span>
+                    </div>
+
+                    <div className="h-[220px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={responseBySeverityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.4} />
+                              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                          <XAxis dataKey="type" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: "#0f172a", 
+                              border: "none", 
+                              borderRadius: "12px", 
+                              color: "#fff" 
+                            }}
+                          />
+                          <Area type="monotone" dataKey="time" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#areaGradient)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </Card>
+                </div>
+
+                {/* Right 4 Columns - Monthly Target Arc Gauge & Alert Type breakdown */}
+                <div className="lg:col-span-4 space-y-5">
+                  
+                  {/* TailAdmin Gauge Arc Card */}
+                  <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs text-center flex flex-col items-center">
+                    <div className="w-full flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+                      <div className="text-left">
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white">Monthly Target</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Target set for rescue completion</p>
+                      </div>
+                      <button className="text-slate-400 hover:text-slate-600">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Arc Semi-Circle Radial Chart */}
+                    <div className="relative w-full h-[200px] flex items-center justify-center my-2">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: "Resolved Rate", value: resolvedCount || 75.55, fill: "#3b82f6" },
+                              { name: "Remaining Target", value: Math.max(0, 100 - (resolvedCount || 75.55)), fill: "#f1f5f9" }
+                            ]}
+                            cx="50%"
+                            cy="75%"
+                            startAngle={180}
+                            endAngle={0}
+                            innerRadius={70}
+                            outerRadius={95}
+                            paddingAngle={2}
+                            dataKey="value"
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+
+                      {/* Center Score Overlay */}
+                      <div className="absolute top-[52%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                        <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
+                          {resolvedCount ? Math.round((resolvedCount / Math.max(1, (resolvedCount + activeReports.length))) * 100) : 75.55}%
+                        </span>
+                        <span className="mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/50">
+                          +10%
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs leading-relaxed">
+                      You resolved <span className="font-bold text-slate-800 dark:text-slate-200">{resolvedCount} incidents</span> today, higher than last month. Keep up the good work!
+                    </p>
+
+                    {/* Footer KPI Metrics */}
+                    <div className="w-full grid grid-cols-3 gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+                      <div>
+                        <p className="text-[11px] font-semibold text-slate-400 uppercase">Target</p>
+                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5 inline-flex items-center gap-0.5">
+                          85% <ArrowDownRight className="w-3 h-3 text-red-500" />
+                        </p>
+                      </div>
+                      <div className="border-x border-slate-100 dark:border-slate-800 px-1">
+                        <p className="text-[11px] font-semibold text-slate-400 uppercase">Resolved</p>
+                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5 inline-flex items-center gap-0.5">
+                          {resolvedCount} <ArrowUpRight className="w-3 h-3 text-emerald-500" />
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-semibold text-slate-400 uppercase">Responded</p>
+                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5 inline-flex items-center gap-0.5">
+                          {respondedCount} <ArrowUpRight className="w-3 h-3 text-emerald-500" />
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* Incident Type Breakdown Donut */}
+                  <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">Emergency Distribution</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Categorized incident proportion</p>
+
+                    <div className="h-[200px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={alertTypeDistributionData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={50}
+                            outerRadius={75}
+                            paddingAngle={3}
+                            dataKey="value"
+                          >
+                            <Cell fill="#ef4444" />
+                            <Cell fill="#f97316" />
+                            <Cell fill="#3b82f6" />
+                            <Cell fill="#10b981" />
+                            <Cell fill="#8b5cf6" />
+                          </Pie>
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: "#0f172a", border: "none", borderRadius: "10px", color: "#fff" }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 mt-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      {alertTypeDistributionData.map((item, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs">
+                          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: ["#ef4444", "#f97316", "#3b82f6", "#10b981", "#8b5cf6"][i % 5] }} />
+                          <span className="text-slate-600 dark:text-slate-400 truncate">{item.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Row 3: Recent Active Alerts & Incidents Table */}
+              <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Active Emergency Stream</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Live emergency alerts requiring response or monitoring</p>
+                  </div>
+                  <button 
+                    onClick={() => setActiveTab("alerts")}
+                    className="text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-950/60 px-3 py-1.5 rounded-xl border border-blue-200/50 dark:border-blue-900/50 transition-colors"
+                  >
+                    View All Alerts ({reports.length})
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                        <th className="px-6 py-3.5">Disaster Type</th>
+                        <th className="px-6 py-3.5">Location</th>
+                        <th className="px-6 py-3.5">Severity</th>
+                        <th className="px-6 py-3.5">Status</th>
+                        <th className="px-6 py-3.5">Time Reported</th>
+                        <th className="px-6 py-3.5 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                      {reports.filter(r => r.status !== 'Resolved' && r.status !== 'resolved').slice(0, 5).map((report) => (
+                        <tr key={report._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors group">
+                          <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
+                                <AlertCircle className="w-4 h-4" />
+                              </div>
+                              <span>{report.disasterType || "Emergency Alert"}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-slate-600 dark:text-slate-300 font-medium">
+                            {report.locationName || report.location || "Malaybalay City"}
+                          </td>
+                          <td className="px-6 py-4">
+                            <Badge 
+                              variant={
+                                report.severity === "critical" ? "critical" :
+                                report.severity === "high" ? "high" :
+                                report.severity === "medium" ? "medium" : "low"
+                              }
+                            >
+                              {toTitleCase(report.severity || "Standard")}
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4">
+                            <Badge 
+                              variant={
+                                report.status === "Active" || report.status === "active" ? "critical" :
+                                report.status === "Responded" || report.status === "ongoing" ? "info" :
+                                "default"
+                              }
+                            >
+                              {getStatusDisplay(report.status)}
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4 text-xs font-semibold text-slate-400">
+                            {report.createdAt ? new Date(report.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now"}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() => {
+                                setSelectedReportForDetails(report);
+                                setShowReportDetailsModal(true);
+                              }}
+                              className="px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors inline-flex items-center gap-1"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              Details
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {reports.filter(r => r.status !== 'Resolved' && r.status !== 'resolved').length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-8 text-center text-slate-400 text-sm">
+                            No active emergency alerts recorded. All systems operational.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+
             </div>
           )}
 
           {activeTab === "map" && (
-            <div className="flex h-full w-full bg-white relative">
+            <div className="flex h-full w-full bg-slate-50 dark:bg-slate-900 relative">
               {/* Left Panel - Active Alerts */}
-              <div className="w-96 flex flex-col border-r border-slate-200 overflow-hidden relative z-10">
+              <div className="w-96 flex flex-col border-r border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden relative z-10 shadow-sm">
                 {/* Header with Groq AI Button */}
-                <div className="p-6 border-b border-slate-200 space-y-3">
+                <div className="p-5 border-b border-slate-100 dark:border-slate-800 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-slate-900">Active Alerts</h2>
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900 dark:text-white">Active Alerts Stream</h2>
+                      <p className="text-xs text-slate-400">Real-time incident map tracking</p>
+                    </div>
                     {/* Groq AI Priority Analysis Button */}
                     {reports.filter(r => r.severity === 'critical').length > 0 && (
                       <button
                         onClick={() => analyzeWithGroq('en')}
                         disabled={loadingGroqAnalysis}
-                        className="px-2 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-xs font-medium rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                        className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                         title="Use Groq AI to prioritize critical reports"
                       >
                         {loadingGroqAnalysis ? (
@@ -2203,7 +2421,7 @@ function AdminDashboard() {
                             <span>Analyzing...</span>
                           </>
                         ) : (
-                          <span>AI Priority</span>
+                          <span>🤖 AI Priority</span>
                         )}
                       </button>
                     )}
@@ -2211,24 +2429,26 @@ function AdminDashboard() {
 
                   {/* Groq AI Priority Results */}
                   {groqPriorities && groqPriorities.analysis?.priorityOrder && (
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-xs">
-                      <div className="font-semibold text-purple-900 mb-2">🤖 AI Priorities:</div>
-                      <div className="space-y-1.5">
+                    <div className="bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-900/50 rounded-2xl p-3.5 text-xs">
+                      <div className="font-bold text-purple-900 dark:text-purple-300 mb-2 flex items-center gap-1.5">
+                        <span>🤖 AI Dispatch Recommendations:</span>
+                      </div>
+                      <div className="space-y-2">
                         {groqPriorities.analysis.priorityOrder.slice(0, 3).map((item, idx) => (
-                          <div key={idx} className="bg-white rounded px-2 py-1.5 border border-purple-100">
+                          <div key={idx} className="bg-white dark:bg-slate-800 rounded-xl p-2.5 border border-purple-100 dark:border-purple-900/40 shadow-xs">
                             <div className="flex items-start justify-between gap-2">
-                              <span className="font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded text-xs min-w-fit">
+                              <span className="font-extrabold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950 px-2 py-0.5 rounded-lg text-xs min-w-fit">
                                 #{item.priority}
                               </span>
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-slate-900 text-xs truncate">{item.recommendation}</p>
-                                <p className="text-purple-600 text-xs mt-0.5">Score: {(item.urgencyScore || 0).toFixed(1)}/10</p>
+                                <p className="font-semibold text-slate-900 dark:text-slate-100 text-xs truncate">{item.recommendation}</p>
+                                <p className="text-purple-600 dark:text-purple-400 text-[11px] mt-0.5 font-bold">Score: {(item.urgencyScore || 0).toFixed(1)}/10</p>
                               </div>
                             </div>
                           </div>
                         ))}
                       </div>
-                      <p className="text-purple-600 text-xs mt-2 font-medium">
+                      <p className="text-purple-700 dark:text-purple-300 text-[11px] mt-2 font-medium">
                         💡 {groqPriorities.analysis.overallRecommendation}
                       </p>
                     </div>
@@ -2236,15 +2456,15 @@ function AdminDashboard() {
                 </div>
 
                 {/* Search and Filter Section */}
-                <div className="p-4 border-b border-slate-200 space-y-3 relative z-20">
+                <div className="p-4 border-b border-slate-100 dark:border-slate-800 space-y-2.5 relative z-20 bg-slate-50/50 dark:bg-slate-900/50">
                   {/* Search Input */}
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Search location..."
+                      placeholder="Search location or incident..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-3 pr-3 py-2 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                     />
                   </div>
 
@@ -2252,13 +2472,13 @@ function AdminDashboard() {
                   <select 
                     value={filterSeverity}
                     onChange={(e) => setFilterSeverity(e.target.value)}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 relative z-20"
+                    className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold"
                   >
-                    <option value="All">All Severity</option>
-                    <option value="critical">Critical</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
+                    <option value="All">All Severity Levels</option>
+                    <option value="critical">Critical Severity</option>
+                    <option value="high">High Severity</option>
+                    <option value="medium">Medium Severity</option>
+                    <option value="low">Low Severity</option>
                   </select>
                 </div>
 
@@ -2396,13 +2616,10 @@ function AdminDashboard() {
                     attribution='&copy; OpenStreetMap contributors'
                   />
                   {(() => {
-                    const activeReports = reports?.filter(r => 
-                      r.status === 'new' || 
-                      r.status === 'acknowledged' || 
-                      r.status === 'in_progress' || 
-                      r.status === 'Pending' || 
-                      r.status === 'Ongoing'
-                    ) || [];
+                    const activeReports = reports?.filter(r => {
+                      const ns = String(r.status || '').toLowerCase();
+                      return ns !== 'resolved' && ns !== 'declined';
+                    }) || [];
                     const getAlertKey = (alert) => alert?._id || alert?.id || `${alert?.lat || 0},${alert?.lng || 0}`;
                     const fireReportsWithCoordinates = activeReports.filter(alert =>
                       isFireIncident(alert?.disasterType) && Number.isFinite(alert?.lat) && Number.isFinite(alert?.lng)
@@ -2610,31 +2827,31 @@ function AdminDashboard() {
                 </MapContainer>
 
                 {/* Map Legend - Bottom Right */}
-                <div className="absolute bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 border border-slate-200" style={{zIndex: 9999, pointerEvents: 'auto'}}>
-                  <h4 className="font-semibold text-slate-900 mb-3 text-sm">Alert Severity</h4>
+                <div className="absolute bottom-4 right-4 bg-white dark:bg-slate-800 rounded-xl shadow-lg p-4 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white" style={{zIndex: 9999, pointerEvents: 'auto'}}>
+                  <h4 className="font-semibold text-slate-900 dark:text-white mb-3 text-sm">Alert Severity</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-red-600"></div>
-                      <span className="text-xs text-slate-700">Critical</span>
+                      <span className="text-xs text-slate-700 dark:text-slate-300">Critical</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-orange-500"></div>
-                      <span className="text-xs text-slate-700">High</span>
+                      <span className="text-xs text-slate-700 dark:text-slate-300">High</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-yellow-400"></div>
-                      <span className="text-xs text-slate-700">Medium</span>
+                      <span className="text-xs text-slate-700 dark:text-slate-300">Medium</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-green-600"></div>
-                      <span className="text-xs text-slate-700">Low</span>
+                      <span className="text-xs text-slate-700 dark:text-slate-300">Low</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">H</div>
-                      <span className="text-xs text-slate-700">Nearest Fire Hydrant (fire alerts)</span>
+                      <span className="text-xs text-slate-700 dark:text-slate-300">Nearest Fire Hydrant (fire alerts)</span>
                     </div>
                   </div>
-                  <p className="text-xs text-slate-500 mt-3 pt-3 border-t border-slate-200">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
                     📍 Each pin shows alert location <br/> colored by severity level
                   </p>
                 </div>
@@ -2644,42 +2861,63 @@ function AdminDashboard() {
 
           {/* Dispatch Modal */}
           {showDispatchModal && selectedAlertForDispatch && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-              <div className="bg-white rounded-lg shadow-xl p-6 w-96">
-                <h2 className="text-xl font-bold text-slate-900 mb-4">Dispatch Team</h2>
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999]">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-96 border border-slate-200 dark:border-slate-700">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Dispatch Team</h2>
                 
-                <div className="mb-4 p-4 bg-slate-50 rounded-lg">
-                  <p className="text-sm text-slate-600"><strong>Alert ID:</strong> ALT-{(selectedAlertForDispatch._id || selectedAlertForDispatch.id || "0000").substring(0, 12).toUpperCase()}</p>
-                  <p className="text-sm text-slate-600"><strong>Type:</strong> {selectedAlertForDispatch.disasterType || selectedAlertForDispatch.type || "Emergency"}</p>
-                  <p className="text-sm text-slate-600"><strong>Location:</strong> {selectedAlertForDispatch.locationName || selectedAlertForDispatch.location || "Unknown"}</p>
-                  <p className="text-sm text-slate-600">
-                    <strong>Severity:</strong> <span className={`px-2 py-1 rounded text-xs font-medium ${selectedAlertForDispatch.severity === "critical" ? "bg-red-100 text-red-700" : selectedAlertForDispatch.severity === "high" ? "bg-orange-100 text-orange-700" : selectedAlertForDispatch.severity === "medium" ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>{selectedAlertForDispatch.severity?.charAt(0).toUpperCase() + selectedAlertForDispatch.severity?.slice(1) || "Medium"}</span>
+                <div className="mb-4 p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <p className="text-sm text-slate-700 dark:text-slate-300"><strong>Alert ID:</strong> ALT-{(selectedAlertForDispatch._id || selectedAlertForDispatch.id || "0000").substring(0, 12).toUpperCase()}</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300"><strong>Type:</strong> {selectedAlertForDispatch.disasterType || selectedAlertForDispatch.type || "Emergency"}</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300"><strong>Location:</strong> {selectedAlertForDispatch.locationName || selectedAlertForDispatch.location || "Unknown"}</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    <strong>Severity:</strong> <span className={`px-2 py-1 rounded text-xs font-medium ${selectedAlertForDispatch.severity === "critical" ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300" : selectedAlertForDispatch.severity === "high" ? "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300" : selectedAlertForDispatch.severity === "medium" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/60 dark:text-yellow-300" : "bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-300"}`}>{selectedAlertForDispatch.severity?.charAt(0).toUpperCase() + selectedAlertForDispatch.severity?.slice(1) || "Medium"}</span>
                   </p>
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Select Team to Dispatch:</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Select Team to Dispatch:</label>
                   <select 
                     value={selectedTeamForDispatch?.id || selectedTeamForDispatch?._id || ""}
                     onChange={(e) => {
                       const team = dbTeams.find(r => r._id === e.target.value) || dbTeams.find(r => r.id === e.target.value);
                       setSelectedTeamForDispatch(team);
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">-- Select a Team --</option>
-                    {(dbTeams || []).map((team) => (
-                      <option key={team._id || team.id} value={team._id || team.id}>
-                        Team {team.name || team.teamName} - {team.leader?.name || team.teamLeader || "Unknown"}
-                      </option>
-                    ))}
+                    <option value="" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">-- Select a Team --</option>
+                    {(dbTeams || []).map((team) => {
+                      const memberNames = (team.members || []).map(m => typeof m === 'object' ? m.name : m).filter(Boolean).join(', ');
+                      return (
+                        <option key={team._id || team.id} value={team._id || team.id} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
+                          Team {team.name || team.teamName} - {team.leader?.name || team.teamLeader || "Unknown"} ({memberNames || "No Rescuers"})
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 
                 {selectedTeamForDispatch && (
-                  <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-sm text-slate-700"><strong>Team Name:</strong> {selectedTeamForDispatch.name || selectedTeamForDispatch.teamName || "Unknown"}</p>
-                    <p className="text-sm text-slate-700"><strong>Team Leader:</strong> {selectedTeamForDispatch.leader?.name || selectedTeamForDispatch.teamLeader || "Unknown"}</p>
+                  <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/50 rounded-xl border border-blue-200 dark:border-blue-900/50 space-y-1">
+                    <p className="text-sm text-slate-700 dark:text-slate-200"><strong>Team Name:</strong> {selectedTeamForDispatch.name || selectedTeamForDispatch.teamName || "Unknown"}</p>
+                    <p className="text-sm text-slate-700 dark:text-slate-200"><strong>Team Leader:</strong> {selectedTeamForDispatch.leader?.name || selectedTeamForDispatch.teamLeader || "Unknown"}</p>
+                    <div className="text-sm text-slate-700 dark:text-slate-200">
+                      <strong>Assigned Rescuers:</strong>
+                      {selectedTeamForDispatch.members && selectedTeamForDispatch.members.length > 0 ? (
+                        <ul className="list-disc list-inside mt-1 pl-2 text-xs">
+                          {selectedTeamForDispatch.members.map((member, mIdx) => {
+                            const name = typeof member === 'object' ? member.name : member;
+                            const email = typeof member === 'object' ? member.email : null;
+                            return (
+                              <li key={member._id || member.id || mIdx}>
+                                {name} {email ? `(${email})` : ""}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      ) : (
+                        <span className="text-slate-500 ml-1 text-xs">No rescuers assigned</span>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -2692,7 +2930,7 @@ function AdminDashboard() {
                         showToast('Please select a team', 'warning');
                       }
                     }}
-                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
                   >
                     Dispatch
                   </button>
@@ -2702,7 +2940,7 @@ function AdminDashboard() {
                       setSelectedAlertForDispatch(null);
                       setSelectedTeamForDispatch(null);
                     }}
-                    className="flex-1 px-4 py-2 bg-slate-300 hover:bg-slate-400 text-slate-900 font-semibold rounded-lg transition-colors"
+                    className="flex-1 px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold rounded-xl transition-colors"
                   >
                     Cancel
                   </button>
@@ -2713,12 +2951,12 @@ function AdminDashboard() {
 
           {/* Team Details Modal */}
           {showTeamDetailsModal && selectedTeamDetails && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-              <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999]">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-slate-900">Team {selectedTeamDetails.name || selectedTeamDetails.teamName}</h2>
-                    <p className="text-sm text-slate-600 mt-1">Team Lead: {selectedTeamDetails.leader?.name || selectedTeamDetails.leader || selectedTeamDetails.teamLeader || "Unassigned"}</p>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Team {selectedTeamDetails.name || selectedTeamDetails.teamName}</h2>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Team Lead: {selectedTeamDetails.leader?.name || selectedTeamDetails.leader || selectedTeamDetails.teamLeader || "Unassigned"}</p>
                   </div>
                   <button
                     onClick={() => {
@@ -2727,7 +2965,7 @@ function AdminDashboard() {
                       setNewMemberName("");
                       setSelectedMemberId("");
                     }}
-                    className="text-slate-400 hover:text-slate-600 text-2xl font-bold"
+                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold"
                   >
                     ✕
                   </button>
@@ -2735,15 +2973,15 @@ function AdminDashboard() {
 
                 {/* Team Members List */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Team Members ({selectedTeamDetails.members?.length || 0})</h3>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Team Members ({selectedTeamDetails.members?.length || 0})</h3>
                   {selectedTeamDetails.members && selectedTeamDetails.members.length > 0 ? (
                     <div className="space-y-3">
                       {selectedTeamDetails.members.map((member) => (
-                        <div key={member._id || member.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                        <div key={member._id || member.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
                           <div className="flex-1">
-                            <p className="font-semibold text-slate-900">{member.name}</p>
-                            <p className="text-sm text-slate-600">{member.email}</p>
-                            <p className={`text-xs font-medium mt-1 ${selectedTeamDetails.leader && (selectedTeamDetails.leader._id === member._id || selectedTeamDetails.leader === member._id) ? "text-blue-600" : "text-slate-600"}`}>
+                            <p className="font-semibold text-slate-900 dark:text-white">{member.name}</p>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">{member.email}</p>
+                            <p className={`text-xs font-medium mt-1 ${selectedTeamDetails.leader && (selectedTeamDetails.leader._id === member._id || selectedTeamDetails.leader === member._id) ? "text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}>
                               {selectedTeamDetails.leader && (selectedTeamDetails.leader._id === member._id || selectedTeamDetails.leader === member._id) ? "👑 Team Leader" : "Team Member"}
                             </p>
                           </div>
@@ -2751,14 +2989,14 @@ function AdminDashboard() {
                             {(!selectedTeamDetails.leader || (selectedTeamDetails.leader._id !== member._id && selectedTeamDetails.leader !== member._id)) && (
                               <button
                                 onClick={() => handleSetTeamLeader(member._id)}
-                                className="px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium text-sm rounded-lg transition-colors"
+                                className="px-3 py-2 bg-blue-100 dark:bg-blue-950/60 hover:bg-blue-200 dark:hover:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium text-sm rounded-xl transition-colors"
                               >
                                 Make Leader
                               </button>
                             )}
                             <button
                               onClick={() => handleRemoveMember(member._id)}
-                              className="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 font-medium text-sm rounded-lg transition-colors"
+                              className="px-3 py-2 bg-red-100 dark:bg-red-950/60 hover:bg-red-200 dark:hover:bg-red-900 text-red-700 dark:text-red-300 font-medium text-sm rounded-xl transition-colors"
                             >
                               Remove
                             </button>
@@ -2767,16 +3005,16 @@ function AdminDashboard() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-slate-500 text-sm">No members in this team yet</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">No members in this team yet</p>
                   )}
                 </div>
 
                 {/* Add Member Section */}
-                <div className="border-t border-slate-200 pt-6">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Add New Member</h3>
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Add New Member</h3>
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Select Rescuer:</label>
+                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Select Rescuer:</label>
                       <div className="relative">
                         <input
                           type="text"
@@ -2793,10 +3031,10 @@ function AdminDashboard() {
                               handleAddMember();
                             }
                           }}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         {showMemberDropdown && dbRescuers.length > 0 && (
-                          <div className="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-slate-300 rounded-lg shadow-lg z-50">
+                          <div className="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl shadow-lg z-50">
                             {dbRescuers
                               .filter(
                                 (rescuer) =>
@@ -2812,10 +3050,10 @@ function AdminDashboard() {
                                     setSelectedMemberId(rescuer._id || rescuer.id);
                                     setShowMemberDropdown(false);
                                   }}
-                                  className="w-full text-left px-4 py-2 hover:bg-blue-50 text-slate-900 border-b border-slate-200 last:border-b-0"
+                                  className="w-full text-left px-4 py-2 hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 last:border-b-0"
                                 >
                                   <p className="font-medium">{rescuer.name}</p>
-                                  <p className="text-xs text-slate-500">@{rescuer.username || rescuer.email?.split("@")[0]}</p>
+                                  <p className="text-xs text-slate-500 dark:text-slate-400">@{rescuer.username || rescuer.email?.split("@")[0]}</p>
                                 </button>
                               ))}
                             {dbRescuers.filter(
@@ -2824,7 +3062,7 @@ function AdminDashboard() {
                                 rescuer.name.toLowerCase().includes(newMemberName.toLowerCase()) ||
                                 (rescuer.username && rescuer.username.toLowerCase().includes(newMemberName.toLowerCase()))
                             ).length === 0 && (
-                              <div className="px-4 py-3 text-center text-slate-500 text-sm">
+                              <div className="px-4 py-3 text-center text-slate-500 dark:text-slate-400 text-sm">
                                 No rescuers found
                               </div>
                             )}
@@ -2834,23 +3072,23 @@ function AdminDashboard() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Role:</label>
+                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Role:</label>
                       <select
                         value={selectedMemberRole}
                         onChange={(e) => setSelectedMemberRole(e.target.value)}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="Team Lead">Team Lead</option>
-                        <option value="Paramedic">Paramedic</option>
-                        <option value="Firefighter">Firefighter</option>
-                        <option value="Driver">Driver</option>
-                        <option value="Team Member">Team Member</option>
+                        <option value="Team Lead" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Team Lead</option>
+                        <option value="Paramedic" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Paramedic</option>
+                        <option value="Firefighter" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Firefighter</option>
+                        <option value="Driver" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Driver</option>
+                        <option value="Team Member" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Team Member</option>
                       </select>
                     </div>
 
                     <button
                       onClick={handleAddMember}
-                      className="w-full px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+                      className="w-full px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors"
                     >
                       Add Member
                     </button>
@@ -2866,7 +3104,7 @@ function AdminDashboard() {
                       setNewMemberName("");
                       setSelectedMemberId("");
                     }}
-                    className="px-6 py-2 bg-slate-300 hover:bg-slate-400 text-slate-900 font-semibold rounded-lg transition-colors"
+                    className="px-6 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-900 dark:text-white font-semibold rounded-xl transition-colors"
                   >
                     Close
                   </button>
@@ -2877,46 +3115,46 @@ function AdminDashboard() {
 
           {/* Team Location Modal */}
           {showTeamLocationModal && selectedDeployedTeam && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-              <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999]">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-2xl border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-slate-900">Deploy Location - Team {selectedDeployedTeam.name}</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Deploy Location - Team {selectedDeployedTeam.name}</h2>
                   <button
                     onClick={() => {
                       setShowTeamLocationModal(false);
                       setSelectedDeployedTeam(null);
                     }}
-                    className="text-slate-400 hover:text-slate-600 text-2xl font-bold"
+                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold"
                   >
                     ✕
                   </button>
                 </div>
 
                 {/* Team Info */}
-                <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                  <h3 className="font-semibold text-slate-900 mb-3">Team Details</h3>
+                <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Team Details</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-xs font-medium text-slate-600">Team Name</p>
-                      <p className="text-base font-semibold text-slate-900">{selectedDeployedTeam.name || 'Unknown'}</p>
+                      <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Team Name</p>
+                      <p className="text-base font-semibold text-slate-900 dark:text-white">{selectedDeployedTeam.name || 'Unknown'}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-slate-600">Team Leader</p>
-                      <p className="text-base font-semibold text-slate-900">{selectedDeployedTeam.leader?.name || selectedDeployedTeam.leader || 'Unassigned'}</p>
+                      <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Team Leader</p>
+                      <p className="text-base font-semibold text-slate-900 dark:text-white">{selectedDeployedTeam.leader?.name || selectedDeployedTeam.leader || 'Unassigned'}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-slate-600">Status</p>
-                      <p className="text-base font-semibold text-orange-700">🚨 Deployed</p>
+                      <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Status</p>
+                      <p className="text-base font-semibold text-orange-600 dark:text-orange-400">🚨 Deployed</p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-slate-600">Members</p>
-                      <p className="text-base font-semibold text-slate-900">{selectedDeployedTeam.members?.length || 0} members</p>
+                      <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Members</p>
+                      <p className="text-base font-semibold text-slate-900 dark:text-white">{selectedDeployedTeam.members?.length || 0} members</p>
                     </div>
                   </div>
                   {selectedDeployedTeam.currentMission && (
-                    <div className="mt-4 pt-4 border-t border-slate-200">
-                      <p className="text-xs font-medium text-slate-600 mb-1">Mission</p>
-                      <p className="text-sm text-slate-900">
+                    <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                      <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Mission</p>
+                      <p className="text-sm text-slate-900 dark:text-white">
                         <strong>{selectedDeployedTeam.currentMission?.disasterType || 'Emergency'}</strong> 
                         {selectedDeployedTeam.currentMission?.locationName && ` • ${selectedDeployedTeam.currentMission.locationName}`}
                       </p>
@@ -2926,34 +3164,34 @@ function AdminDashboard() {
 
                 {/* Team Members Locations */}
                 <div className="mb-6">
-                  <h3 className="font-semibold text-slate-900 mb-3">Team Member Locations</h3>
+                  <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Team Member Locations</h3>
                   {selectedDeployedTeam.members && selectedDeployedTeam.members.length > 0 ? (
                     <div className="space-y-3 max-h-64 overflow-y-auto">
                       {selectedDeployedTeam.members.map((member) => (
-                        <div key={member._id || member.id} className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div key={member._id || member.id} className="p-4 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-900/50">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <p className="font-semibold text-slate-900">{member.name}</p>
-                              <p className="text-xs text-slate-600">{member.email}</p>
+                              <p className="font-semibold text-slate-900 dark:text-white">{member.name}</p>
+                              <p className="text-xs text-slate-600 dark:text-slate-400">{member.email}</p>
                             </div>
                             {member.location && (
-                              <span className="text-green-600 flex items-center gap-1">
+                              <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                                 <span className="text-lg">✓</span>
                               </span>
                             )}
                           </div>
                           {member.location ? (
-                            <p className="text-sm text-slate-700">
+                            <p className="text-sm text-slate-700 dark:text-slate-300">
                               <strong>📍 Location:</strong> {member.location}
                             </p>
                           ) : (
-                            <p className="text-sm text-slate-500 italic">📍 Location not available yet</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 italic">📍 Location not available yet</p>
                           )}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-slate-500 text-sm">No team members found</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">No team members found</p>
                   )}
                 </div>
 
@@ -2964,7 +3202,7 @@ function AdminDashboard() {
                       setShowTeamLocationModal(false);
                       setSelectedDeployedTeam(null);
                     }}
-                    className="px-6 py-2 bg-slate-300 hover:bg-slate-400 text-slate-900 font-semibold rounded-lg transition-colors"
+                    className="px-6 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-900 dark:text-white font-semibold rounded-xl transition-colors"
                   >
                     Close
                   </button>
@@ -2975,16 +3213,16 @@ function AdminDashboard() {
 
           {/* Rescuer Profile Modal */}
           {showRescuerProfileModal && selectedRescuerProfile && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-              <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999]">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-md">
                       {selectedRescuerProfile.name?.charAt(0) || "R"}
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-slate-900">{selectedRescuerProfile.name}</h2>
-                      <p className="text-sm text-slate-600">@{selectedRescuerProfile.username || selectedRescuerProfile.email?.split("@")[0]}</p>
+                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{selectedRescuerProfile.name}</h2>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">@{selectedRescuerProfile.username || selectedRescuerProfile.email?.split("@")[0]}</p>
                     </div>
                   </div>
                   <button
@@ -2992,7 +3230,7 @@ function AdminDashboard() {
                       setShowRescuerProfileModal(false);
                       setSelectedRescuerProfile(null);
                     }}
-                    className="text-slate-400 hover:text-slate-600 text-2xl font-bold"
+                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold"
                   >
                     ✕
                   </button>
@@ -3079,70 +3317,67 @@ function AdminDashboard() {
           )}
 
           {activeTab === "reports" && (
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
               {/* Header Section */}
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Alerts & Reports</h1>
-                  <p className="text-slate-600 dark:text-slate-300 mt-1">Monitor and manage all emergency alerts</p>
+                  <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Reports & Incident Logs</h1>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Audit log and official Sitrep report archives</p>
                 </div>
-                <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" /> Critical Alert
-                </button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => handleExport()}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" /> Export Reports Log
+                  </button>
+                </div>
               </div>
 
-              {/* KPI Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* KPI Stat Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Total Alerts */}
-                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Total Alerts</p>
-                        <p className="text-4xl font-bold text-slate-900 dark:text-white mt-2">58</p>
-                      </div>
-                      <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full">Today</span>
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Reports</p>
+                      <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{reports.length}</p>
                     </div>
-                  </CardContent>
+                    <span className="px-2 py-1 bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 text-[10px] font-bold rounded-full border border-blue-200/50">All Logged</span>
+                  </div>
                 </Card>
 
                 {/* Active */}
-                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Active</p>
-                        <p className="text-4xl font-bold text-red-600 dark:text-red-500 mt-2">23</p>
-                      </div>
-                      <span className="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-xs font-medium rounded-full">Urgent</span>
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Alerts</p>
+                      <p className="text-3xl font-extrabold text-red-600 dark:text-red-400 mt-1">{activeReports.length}</p>
                     </div>
-                  </CardContent>
+                    <span className="px-2 py-1 bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-400 text-[10px] font-bold rounded-full border border-red-200/50">Active Stream</span>
+                  </div>
                 </Card>
 
                 {/* Responded */}
-                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Responded</p>
-                        <p className="text-4xl font-bold text-blue-600 dark:text-blue-400 mt-2">28</p>
-                      </div>
-                      <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full">In Progress</span>
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Responded</p>
+                      <p className="text-3xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">{respondedCount}</p>
                     </div>
-                  </CardContent>
+                    <span className="px-2 py-1 bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 text-[10px] font-bold rounded-full border border-blue-200/50">Dispatched</span>
+                  </div>
                 </Card>
 
                 {/* Resolved */}
-                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">Resolved</p>
-                        <p className="text-4xl font-bold text-green-600 dark:text-green-500 mt-2">7</p>
-                      </div>
-                      <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs font-medium rounded-full">Completed</span>
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Resolved</p>
+                      <p className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">{resolvedCount}</p>
                     </div>
-                  </CardContent>
+                    <span className="px-2 py-1 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 text-[10px] font-bold rounded-full border border-emerald-200/50">Completed</span>
+                  </div>
                 </Card>
               </div>
 
@@ -3250,7 +3485,7 @@ function AdminDashboard() {
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700 dark:divide-slate-700">
                       {reports.slice(0, 50).map((report) => {
                         const getSeverityColor = (severity) => {
                           if (severity === "critical") return "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300";
@@ -3307,85 +3542,78 @@ function AdminDashboard() {
           )}
 
           {activeTab === "rescuers" && (
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
               {/* Header Section */}
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-slate-900">Rescuer Management</h1>
-                  <p className="text-slate-600 text-sm mt-2">Manage and coordinate rescue teams</p>
+                  <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Rescuer Management</h1>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Manage personnel, team assignments, and duty status</p>
                 </div>
                 <button 
                   onClick={() => setShowAddRescuerModal(true)}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
-                  <span>+</span> Add Rescuer
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 self-start sm:self-auto"
+                >
+                  <span className="text-sm">+</span> Add New Rescuer
                 </button>
               </div>
 
               {/* KPI Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Available */}
-                <Card className="border-slate-200 bg-white">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-slate-600 text-sm font-medium">Available</p>
-                        <p className="text-4xl font-bold text-green-600 mt-2">{dbRescuers.length}</p>
-                      </div>
-                      <div className="p-3 bg-green-100 rounded-lg">
-                        <AlertCircle className="w-8 h-8 text-green-600" />
-                      </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Total Registered */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Registered</p>
+                      <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{dbRescuers.length}</p>
                     </div>
-                  </CardContent>
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <Users className="w-5 h-5" />
+                    </div>
+                  </div>
                 </Card>
 
                 {/* On-Duty */}
-                <Card className="border-slate-200 bg-white">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-slate-600 text-sm font-medium">On-Duty</p>
-                        <p className="text-4xl font-bold text-blue-600 mt-2">{(dbRescuers || []).filter(r => r.dutyStatus === 'on-duty').length}</p>
-                      </div>
-                      <div className="p-3 bg-blue-100 rounded-lg">
-                        <Activity className="w-8 h-8 text-blue-600" />
-                      </div>
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">On-Duty</p>
+                      <p className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">{activeRescuersCount}</p>
                     </div>
-                  </CardContent>
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    </div>
+                  </div>
                 </Card>
 
-                {/* Off-Duty */}
-                <Card className="border-slate-200 bg-white">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-slate-600 text-sm font-medium">Off-Duty</p>
-                        <p className="text-4xl font-bold text-slate-600 mt-2">{(dbRescuers || []).filter(r => r.dutyStatus === 'off-duty').length}</p>
-                      </div>
-                      <div className="p-3 bg-slate-100 rounded-lg">
-                        <Clock className="w-8 h-8 text-slate-600" />
-                      </div>
+                {/* In Mission */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">In Operation</p>
+                      <p className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">{ongoingRescues.length}</p>
                     </div>
-                  </CardContent>
+                    <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                      <Truck className="w-5 h-5" />
+                    </div>
+                  </div>
                 </Card>
 
-                {/* Active Responses */}
-                <Card className="border-slate-200 bg-white">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-slate-600 text-sm font-medium">Active Responses</p>
-                        <p className="text-4xl font-bold text-orange-600 mt-2">{ongoingRescues.length}</p>
-                      </div>
-                      <div className="p-3 bg-orange-100 rounded-lg">
-                        <TrendingUp className="w-8 h-8 text-orange-600" />
-                      </div>
+                {/* Registered Teams */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rescue Teams</p>
+                      <p className="text-3xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">{dbTeams.length || 1}</p>
                     </div>
-                  </CardContent>
+                    <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                      <Activity className="w-5 h-5" />
+                    </div>
+                  </div>
                 </Card>
               </div>
 
               {/* Search and Filter Section */}
-              <div className="bg-white rounded-lg border border-slate-200 p-4">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-xs">
                 <div className="flex items-center gap-4">
                   <div className="flex-1">
                     <input
@@ -3393,27 +3621,28 @@ function AdminDashboard() {
                       placeholder="Search by name, team, specialty..."
                       value={searchRescuerQuery}
                       onChange={(e) => setSearchRescuerQuery(e.target.value)}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <select 
                     value={filterRescuerStatus}
                     onChange={(e) => setFilterRescuerStatus(e.target.value)}
-                    className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option>All Status</option>
-                    <option>Available</option>
-                    <option>On-Duty</option>
-                    <option>Off-Duty</option>
+                    className="px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="All" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">All Duty Status</option>
+                    <option value="on-duty" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">On Duty</option>
+                    <option value="off-duty" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Off Duty</option>
+                    <option value="busy" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Busy / In Operation</option>
                   </select>
                 </div>
               </div>
 
               {/* Rescuers Table */}
-              <Card className="border-slate-200 bg-white overflow-hidden">
+              <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50">
+                      <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Name</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Status</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Location</th>
@@ -3422,7 +3651,7 @@ function AdminDashboard() {
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200">
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                       {filteredRescuers.length > 0 ? (
                         filteredRescuers.map((rescuer) => (
                           <tr key={rescuer._id || rescuer.id} className="hover:bg-slate-50 transition-colors">
@@ -3479,7 +3708,7 @@ function AdminDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {dbTeams && dbTeams.length > 0 ? (
                     dbTeams.map((team) => (
-                      <Card key={team._id} className="border-slate-200 bg-white">
+                      <Card key={team._id} className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
@@ -3587,39 +3816,45 @@ function AdminDashboard() {
           )}
 
           {activeTab === "ongoing" && (
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
               {/* Header Section */}
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-slate-900">Ongoing Rescues</h1>
-                  <p className="text-slate-600 text-sm mt-2">Monitor active rescue operations</p>
+                  <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Ongoing Rescues</h1>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Monitor active emergency rescue operations and field personnel</p>
                 </div>
                 <button 
                   onClick={() => fetchOngoingRescues()}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
-                  <span>🔄</span> Refresh
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5 self-start sm:self-auto"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" /> Refresh Stream
                 </button>
               </div>
 
               {/* Loading State */}
               {loadingOngoingRescues && (
-                <div className="bg-white rounded-lg p-8 text-center">
-                  <p className="text-slate-600">Loading ongoing rescues...</p>
-                </div>
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-8 text-center shadow-xs">
+                  <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto" />
+                  <p className="text-xs font-semibold text-slate-500 mt-3">Loading active emergency rescue operations...</p>
+                </Card>
               )}
 
               {/* Error State */}
               {ongoingRescuesError && !loadingOngoingRescues && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-700">{ongoingRescuesError}</p>
-                </div>
+                <Card className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-2xl p-4">
+                  <p className="text-xs font-bold text-red-600 dark:text-red-400">{ongoingRescuesError}</p>
+                </Card>
               )}
 
               {/* Empty State */}
               {!loadingOngoingRescues && ongoingRescues.length === 0 && !ongoingRescuesError && (
-                <div className="bg-white rounded-lg p-8 text-center border border-slate-200">
-                  <p className="text-slate-600 text-lg">No ongoing rescues at the moment</p>
-                </div>
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-8 text-center shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3">
+                    <CheckCircle className="w-6 h-6" />
+                  </div>
+                  <p className="text-base font-bold text-slate-900 dark:text-white">No active rescue operations</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">All dispatched rescue missions have been successfully completed.</p>
+                </Card>
               )}
 
               {/* Rescues List */}
@@ -3836,76 +4071,230 @@ function AdminDashboard() {
             </div>
           )}
 
-          {activeTab === "alerts" && (
-            <div className="p-6 space-y-6">
+          {activeTab === "notifications" && (
+            <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
               {/* Header Section */}
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Alerts & Reports</h1>
-                  <p className="text-slate-600 dark:text-slate-300 mt-1">Monitor and manage all emergency alerts</p>
+                  <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Notifications Center</h1>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
+                    System notifications, emergency alerts history, and operational activity logs
+                  </p>
                 </div>
-                <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" /> Critical Alert
-                </button>
+                <div className="flex items-center gap-3">
+                  {notifications.some(n => !n.isRead) && (
+                    <button
+                      onClick={markAllAsRead}
+                      className="px-4 py-2 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-xl transition-colors"
+                    >
+                      Mark All as Read
+                    </button>
+                  )}
+                  {notifications.length > 0 && (
+                    <button
+                      onClick={clearAllNotifications}
+                      className="px-4 py-2 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/60 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-xl transition-colors"
+                    >
+                      Clear All Notifications
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* KPI Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Alerts */}
-                <Card className="border-slate-200 bg-white">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-slate-600 text-sm font-medium">Total Alerts</p>
-                        <p className="text-4xl font-bold text-slate-900 mt-2">{pagination.total || 0}</p>
-                      </div>
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Today</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Notifications</p>
+                      <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{notifications.length}</p>
                     </div>
-                  </CardContent>
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <Bell className="w-5 h-5" />
+                    </div>
+                  </div>
                 </Card>
 
-                {/* Active */}
-                <Card className="border-slate-200 bg-white">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-slate-600 text-sm font-medium">Active</p>
-                        <p className="text-4xl font-bold text-red-600 mt-2">{reports.filter(r => r.status === 'Active' || r.status === 'active').length}</p>
-                      </div>
-                      <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">Urgent</span>
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Unread Alerts</p>
+                      <p className="text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">{unreadCount}</p>
                     </div>
-                  </CardContent>
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                      <Clock className="w-5 h-5" />
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Emergency Events</p>
+                      <p className="text-3xl font-extrabold text-red-600 dark:text-red-400 mt-1">
+                        {notifications.filter(n => n.type === 'alert').length}
+                      </p>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center">
+                      <AlertCircle className="w-5 h-5" />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Notifications Table / List Card */}
+              <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Activity & Notification History Log</h3>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Showing all real-time entries</span>
+                </div>
+
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {notifications.length === 0 ? (
+                    <div className="p-12 text-center text-slate-500 dark:text-slate-400 text-sm">
+                      No system notifications at this time.
+                    </div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <div
+                        key={notif._id || notif.id}
+                        className={`p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${
+                          !notif.isRead ? 'bg-blue-50/30 dark:bg-blue-950/10' : ''
+                        }`}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${
+                            notif.type === 'alert' ? 'bg-red-500' :
+                            notif.type === 'rescuer' ? 'bg-blue-500' :
+                            'bg-emerald-500'
+                          }`} />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                                {notif.title || notif.message}
+                              </h4>
+                              {!notif.isRead && (
+                                <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+                                  New
+                                </span>
+                              )}
+                            </div>
+                            {notif.message && notif.title !== notif.message && (
+                              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                                {notif.message}
+                              </p>
+                            )}
+                            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2">
+                              {notif.createdAt ? new Date(notif.createdAt).toLocaleString() : (notif.time || 'Just now')}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                          {!notif.isRead && (
+                            <button
+                              onClick={() => {
+                                setNotifications(prev =>
+                                  prev.map(n => (n._id === notif._id || n.id === notif.id) ? { ...n, isRead: true } : n)
+                                );
+                              }}
+                              className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                            >
+                              Mark Read
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              setActiveTab('alerts');
+                            }}
+                            className="px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-colors"
+                          >
+                            View Alert →
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === "alerts" && (
+            <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
+              {/* Header Section */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Emergency Alerts Stream</h1>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Real-time incoming emergency SOS notifications and dispatch hub</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-400 font-bold text-xs rounded-full border border-red-200/50 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                    Live SOS Monitor
+                  </span>
+                </div>
+              </div>
+
+              {/* KPI Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Total Alerts */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Alerts</p>
+                      <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{pagination.total || reports.length}</p>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <AlertCircle className="w-5 h-5" />
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Active Urgent */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Urgent</p>
+                      <p className="text-3xl font-extrabold text-red-600 dark:text-red-400 mt-1">
+                        {reports.filter(r => r.status === 'Active' || r.status === 'active').length}
+                      </p>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center">
+                      <Flame className="w-5 h-5" />
+                    </div>
+                  </div>
                 </Card>
 
                 {/* Responded */}
-                <Card className="border-slate-200 bg-white">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-slate-600 text-sm font-medium">Responded</p>
-                        <p className="text-4xl font-bold text-blue-600 mt-2">{reports.filter(r => r.status === 'Responded' || r.status === 'responded').length}</p>
-                      </div>
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">In Progress</span>
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Responded</p>
+                      <p className="text-3xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">{respondedCount}</p>
                     </div>
-                  </CardContent>
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <Truck className="w-5 h-5" />
+                    </div>
+                  </div>
                 </Card>
 
                 {/* Resolved */}
-                <Card className="border-slate-200 bg-white">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-slate-600 text-sm font-medium">Resolved</p>
-                        <p className="text-4xl font-bold text-green-600 mt-2">{reports.filter(r => r.status === 'Resolved' || r.status === 'resolved').length}</p>
-                      </div>
-                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Completed</span>
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Resolved</p>
+                      <p className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">{resolvedCount}</p>
                     </div>
-                  </CardContent>
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5" />
+                    </div>
+                  </div>
                 </Card>
               </div>
 
               {/* Search and Filter Section */}
-              <div className="bg-white rounded-lg border border-slate-200 p-4">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-xs">
                 <div className="flex items-center gap-3 flex-wrap">
                   <div className="flex-1 min-w-xs">
                     <input
@@ -3913,19 +4302,19 @@ function AdminDashboard() {
                       placeholder="Search alerts by ID, type, or location..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <select 
                     value={filterSeverity}
                     onChange={(e) => setFilterSeverity(e.target.value)}
-                    className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="All">All Severity</option>
-                    <option value="Critical">Critical</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
+                    <option value="All" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">All Severity</option>
+                    <option value="Critical" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Critical</option>
+                    <option value="High" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">High</option>
+                    <option value="Medium" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Medium</option>
+                    <option value="Low" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Low</option>
                   </select>
                   <select 
                     value={filterStatus}
@@ -3957,11 +4346,11 @@ function AdminDashboard() {
               </div>
 
               {/* Alerts Table */}
-              <Card className="border-slate-200 bg-white overflow-hidden">
+              <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50">
+                      <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Type</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Location</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Severity</th>
@@ -3971,7 +4360,7 @@ function AdminDashboard() {
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200">
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                       {(() => {
                         const activeReports = reports?.filter(r => 
                           r.status === 'new' || 
@@ -4104,7 +4493,7 @@ function AdminDashboard() {
               {/* KPI Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Total Alerts */}
-                <Card className="border-slate-200 bg-white">
+                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-2">
                       <p className="text-slate-600 text-sm font-medium">Total Alerts</p>
@@ -4117,7 +4506,7 @@ function AdminDashboard() {
                 </Card>
 
                 {/* Response Rate */}
-                <Card className="border-slate-200 bg-white">
+                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-2">
                       <p className="text-slate-600 text-sm font-medium">Response Rate</p>
@@ -4130,7 +4519,7 @@ function AdminDashboard() {
                 </Card>
 
                 {/* Avg Response Time */}
-                <Card className="border-slate-200 bg-white">
+                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-2">
                       <p className="text-slate-600 text-sm font-medium">Avg Response Time</p>
@@ -4143,7 +4532,7 @@ function AdminDashboard() {
                 </Card>
 
                 {/* Active Rescuers */}
-                <Card className="border-slate-200 bg-white">
+                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-2">
                       <p className="text-slate-600 text-sm font-medium">Active Rescuers</p>
@@ -4159,7 +4548,7 @@ function AdminDashboard() {
               {/* Charts Row 1 */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Alert Trends by Severity */}
-                <Card className="border-slate-200 bg-white">
+                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                   <CardHeader>
                     <CardTitle className="text-slate-900">Alert Trends by Severity</CardTitle>
                   </CardHeader>
@@ -4181,7 +4570,7 @@ function AdminDashboard() {
                 </Card>
 
                 {/* Alerts by Location */}
-                <Card className="border-slate-200 bg-white">
+                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                   <CardHeader>
                     <CardTitle className="text-slate-900">Alerts by Location</CardTitle>
                   </CardHeader>
@@ -4202,7 +4591,7 @@ function AdminDashboard() {
               {/* Charts Row 2 */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Alert Type Distribution */}
-                <Card className="border-slate-200 bg-white">
+                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                   <CardHeader>
                     <CardTitle className="text-slate-900">Alert Type Distribution</CardTitle>
                   </CardHeader>
@@ -4232,7 +4621,7 @@ function AdminDashboard() {
                 </Card>
 
                 {/* Average Response Time Trend */}
-                <Card className="border-slate-200 bg-white">
+                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                   <CardHeader>
                     <CardTitle className="text-slate-900">Average Response Time Trend</CardTitle>
                   </CardHeader>
@@ -4252,7 +4641,7 @@ function AdminDashboard() {
               </div>
 
               {/* Rescuer Team Performance Table */}
-              <Card className="border-slate-200 bg-white overflow-hidden">
+              <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-slate-900">Rescuer Team Performance</CardTitle>
@@ -4262,14 +4651,14 @@ function AdminDashboard() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50">
+                      <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Team</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Alerts Resolved</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Avg Response Time</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Performance</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200">
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                       {teamPerformanceData.length > 0 ? teamPerformanceData.map((team) => (
                         <tr key={team.team} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 text-sm font-semibold text-slate-900">{team.team}</td>
@@ -4308,32 +4697,32 @@ function AdminDashboard() {
           )}
 
           {activeTab === "settings" && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
               <div className="mb-6">
-                <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
-                <p className="text-slate-600 mt-1">Manage your account and system preferences</p>
+                <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Account & System Settings</h1>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Manage administrator profile, security accounts, and user feedback logs</p>
               </div>
 
-              <div className="flex gap-6">
-                {/* Left Sidebar - Settings Navigation */}
-                <div className="w-56 flex-shrink-0">
-                  <Card className="border-slate-200 bg-white overflow-hidden">
-                    <div className="p-4 space-y-2">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Settings Sub-Navigation Sidebar */}
+                <div className="w-full md:w-64 flex-shrink-0">
+                  <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
+                    <div className="p-3 space-y-1">
                       {[
-                        { id: 'profile', label: 'Profile Settings' },
-                        { id: 'users', label: 'User Management' },
-                        { id: 'feedback', label: 'User Feedback' },
+                        { id: 'profile', label: 'Profile & Security' },
+                        { id: 'users', label: 'Admin Accounts' },
+                        { id: 'feedback', label: 'User Feedback Logs' },
                       ].map((item) => (
                         <button
                           key={item.id}
                           onClick={() => setSelectedSettingsTab(item.id)}
-                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left ${
+                          className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all text-xs font-bold ${
                             selectedSettingsTab === item.id
-                              ? 'bg-blue-600 text-white'
-                              : 'text-slate-700 hover:bg-slate-100'
+                              ? 'bg-blue-600 text-white shadow-xs'
+                              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`}
                         >
-                          <span className="font-medium">{item.label}</span>
+                          <span>{item.label}</span>
                         </button>
                       ))}
                     </div>
@@ -4344,7 +4733,7 @@ function AdminDashboard() {
                 <div className="flex-1">
                   {/* Profile Settings */}
                   {selectedSettingsTab === 'profile' && (
-                    <Card className="border-slate-200 bg-white">
+                    <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                       <CardHeader>
                         <CardTitle className="text-slate-900">Profile</CardTitle>
                         <p className="text-slate-600 text-sm mt-1">Update your photo and personal details here.</p>
@@ -4405,132 +4794,132 @@ function AdminDashboard() {
                           {/* Full Name and Username */}
                           <div className="grid grid-cols-2 gap-6">
                             <div>
-                              <label className="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+                              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Full Name</label>
                               <input 
                                 type="text" 
                                 value={profileData.name}
                                 onChange={(e) => setProfileData({...profileData, name: e.target.value})}
-                                className="w-full px-4 py-2 border border-slate-300 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                 placeholder="Enter your full name"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-slate-700 mb-2">Username</label>
-                              <div className="flex items-center rounded-lg border border-slate-300 bg-white overflow-hidden">
-                                <span className="px-4 py-2 bg-slate-100 text-slate-600 text-sm font-medium border-r border-slate-300">grovia.xyz/</span>
+                              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Username</label>
+                              <div className="flex items-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 overflow-hidden">
+                                <span className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium border-r border-slate-300 dark:border-slate-700">salba.cdrmmo/</span>
                                 <input 
                                   type="text" 
                                   value={profileData.username}
                                   onChange={(e) => setProfileData({...profileData, username: e.target.value})}
-                                  className="flex-1 px-4 py-2 bg-white text-slate-900 focus:outline-none"
+                                  className="flex-1 px-4 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none"
                                   placeholder="username"
                                 />
                               </div>
-                              <p className="text-xs text-slate-500 mt-1">This is your login username</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">This is your login username</p>
                             </div>
                           </div>
 
                           {/* Phone Number and Email */}
                           <div className="grid grid-cols-2 gap-6">
                             <div>
-                              <label className="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
-                              <div className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white overflow-hidden">
-                                <select className="px-3 py-2 bg-white border-r border-slate-300 focus:outline-none cursor-pointer text-sm">
-                                  <option value="PH">🇵🇭 +63</option>
-                                  <option value="US">🇺🇸 +1</option>
-                                  <option value="IN">🇮🇳 +91</option>
-                                  <option value="CN">🇨🇳 +86</option>
+                              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Phone Number</label>
+                              <div className="flex items-center gap-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 overflow-hidden">
+                                <select className="px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border-r border-slate-300 dark:border-slate-700 focus:outline-none cursor-pointer text-sm">
+                                  <option value="PH" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">🇵🇭 +63</option>
+                                  <option value="US" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">🇺🇸 +1</option>
+                                  <option value="IN" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">🇮🇳 +91</option>
+                                  <option value="CN" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">🇨🇳 +86</option>
                                 </select>
                                 <input 
                                   type="tel" 
                                   value={profileData.phone}
                                   onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                                  className="flex-1 px-4 py-2 bg-white text-slate-900 focus:outline-none"
+                                  className="flex-1 px-4 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none"
                                   placeholder="9123456789"
                                 />
                               </div>
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+                              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
                               <input 
                                 type="email" 
                                 value={profileData.email}
                                 disabled
-                                className="w-full px-4 py-2 border border-slate-300 bg-slate-100 text-slate-600 rounded-lg cursor-not-allowed"
+                                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl cursor-not-allowed"
                               />
-                              <p className="text-xs text-slate-500 mt-1">Email cannot be changed</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Email cannot be changed</p>
                             </div>
                           </div>
 
                           {/* Job Title */}
                           <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Job Title</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Job Title</label>
                             <input 
                               type="text" 
                               value={profileData.jobTitle}
                               onChange={(e) => setProfileData({...profileData, jobTitle: e.target.value})}
-                              className="w-full px-4 py-2 border border-slate-300 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                               placeholder="e.g. Emergency Coordinator"
                             />
                           </div>
                         </div>
 
                         {/* Divider */}
-                        <div className="border-t border-slate-200"></div>
+                        <div className="border-t border-slate-200 dark:border-slate-700"></div>
 
                         {/* Change Password Section */}
                         <div>
-                          <h3 className="text-sm font-semibold text-slate-900 mb-4">Change Password</h3>
+                          <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Change Password</h3>
                           <div className="space-y-4">
                             <div>
-                              <label className="block text-sm font-medium text-slate-700 mb-2">Current Password</label>
+                              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current Password</label>
                               <div className="relative">
                                 <input 
                                   type={showPasswords.current ? "text" : "password"}
                                   value={profileData.currentPassword}
                                   onChange={(e) => setProfileData({...profileData, currentPassword: e.target.value})}
-                                  className="w-full px-4 py-2 pr-10 border border-slate-300 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                  className="w-full px-4 py-2 pr-10 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                 />
                                 <button
                                   type="button"
                                   onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                                 >
                                   {showPasswords.current ? '🙈' : '👁️'}
                                 </button>
                               </div>
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-slate-700 mb-2">New Password</label>
+                              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">New Password</label>
                               <div className="relative">
                                 <input 
                                   type={showPasswords.new ? "text" : "password"}
                                   value={profileData.newPassword}
                                   onChange={(e) => setProfileData({...profileData, newPassword: e.target.value})}
-                                  className="w-full px-4 py-2 pr-10 border border-slate-300 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                  className="w-full px-4 py-2 pr-10 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                 />
                                 <button
                                   type="button"
                                   onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                                 >
                                   {showPasswords.new ? '🙈' : '👁️'}
                                 </button>
                               </div>
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-slate-700 mb-2">Confirm Password</label>
+                              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Confirm Password</label>
                               <div className="relative">
                                 <input 
                                   type={showPasswords.confirm ? "text" : "password"}
                                   value={profileData.confirmPassword}
                                   onChange={(e) => setProfileData({...profileData, confirmPassword: e.target.value})}
-                                  className="w-full px-4 py-2 pr-10 border border-slate-300 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                  className="w-full px-4 py-2 pr-10 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                 />
                                 <button
                                   type="button"
                                   onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                                 >
                                   {showPasswords.confirm ? '🙈' : '👁️'}
                                 </button>
@@ -4569,7 +4958,7 @@ function AdminDashboard() {
 
                   {/* Notifications */}
                   {filterStatus === 'notifications' && (
-                    <Card className="border-slate-200 bg-white">
+                    <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                       <CardHeader>
                         <CardTitle className="text-slate-900">Notification Preferences</CardTitle>
                         <p className="text-slate-600 text-sm mt-1">Configure how you receive alerts and updates</p>
@@ -4624,7 +5013,7 @@ function AdminDashboard() {
 
                   {/* API Keys */}
                   {filterStatus === 'api' && (
-                    <Card className="border-slate-200 bg-white">
+                    <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <div>
@@ -4666,7 +5055,7 @@ function AdminDashboard() {
 
                   {/* Integrations */}
                   {filterStatus === 'integrations' && (
-                    <Card className="border-slate-200 bg-white">
+                    <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                       <CardHeader>
                         <CardTitle className="text-slate-900">Integrations</CardTitle>
                         <p className="text-slate-600 text-sm mt-1">Connect external services and tools</p>
@@ -4703,7 +5092,7 @@ function AdminDashboard() {
                   )}
 
                   {selectedSettingsTab === 'feedback' && (
-                    <Card className="border-slate-200 bg-white">
+                    <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                       <CardHeader>
                         <div className="flex items-center justify-between gap-3">
                           <div>
@@ -4741,7 +5130,7 @@ function AdminDashboard() {
                                   <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600">Action</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-200">
+                              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                                 {userFeedbackList.map((entry) => (
                                   <tr key={entry._id} className="hover:bg-slate-50 transition-colors align-top">
                                     <td className="px-4 py-3 text-sm font-medium text-slate-900">{entry.senderName || '-'}</td>
@@ -4785,7 +5174,7 @@ function AdminDashboard() {
                   {selectedSettingsTab === 'users' && (
                     <div className="space-y-6">
                       {/* ADMIN ACCOUNTS */}
-                      <Card className="border-slate-200 bg-white">
+                      <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                         <CardHeader>
                           <CardTitle className="text-slate-900">🛡️ Admin Accounts</CardTitle>
                           <p className="text-slate-600 text-sm mt-1">Create and manage administrator accounts. Admins can log in using either username or email.</p>
@@ -4864,7 +5253,7 @@ function AdminDashboard() {
                                   <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600">Status</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-200">
+                              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                                 {allUsers && allUsers.filter((r) => String(r?.role || '').toLowerCase() === 'admin').length > 0 ? (
                                   allUsers
                                     .filter((r) => String(r?.role || '').toLowerCase() === 'admin')
@@ -4895,7 +5284,7 @@ function AdminDashboard() {
                       </Card>
 
                       {/* REGULAR USERS */}
-                      <Card className="border-slate-200 bg-white">
+                      <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                         <CardHeader>
                           <CardTitle className="text-slate-900">👥 Regular Users</CardTitle>
                           <p className="text-slate-600 text-sm mt-1">Manage regular app users and prevent spam alerts</p>
@@ -4903,7 +5292,7 @@ function AdminDashboard() {
                         <div className="overflow-x-auto">
                           <table className="w-full">
                             <thead>
-                              <tr className="border-b border-slate-200 bg-slate-50">
+                              <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Name</th>
                                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Email</th>
                                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Status</th>
@@ -4911,7 +5300,7 @@ function AdminDashboard() {
                                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Actions</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200">
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                               {allUsers && allUsers.filter((r) => {
                                 const role = String(r?.role || '').toLowerCase();
                                 return role === 'user' || role === 'citizen' || role === '';
@@ -4997,7 +5386,7 @@ function AdminDashboard() {
                       </Card>
 
                       {/* RESCUERS */}
-                      <Card className="border-slate-200 bg-white">
+                      <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                         <CardHeader>
                           <CardTitle className="text-slate-900">🚨 Rescuers Account</CardTitle>
                           <p className="text-slate-600 text-sm mt-1">Manage rescuer accounts and prevent unauthorized access</p>
@@ -5005,7 +5394,7 @@ function AdminDashboard() {
                         <div className="overflow-x-auto">
                           <table className="w-full">
                             <thead>
-                              <tr className="border-b border-slate-200 bg-slate-50">
+                              <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Name</th>
                                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Email</th>
                                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Account Status</th>
@@ -5014,7 +5403,7 @@ function AdminDashboard() {
                                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600">Actions</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200">
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                               {allUsers && allUsers.filter((r) => String(r?.role || '').toLowerCase() === 'rescuer').length > 0 ? (
                                 allUsers
                                   .filter((r) => String(r?.role || '').toLowerCase() === 'rescuer')
@@ -5232,80 +5621,15 @@ function AdminDashboard() {
         </div>
       )}
 
-      {/* Notifications Modal */}
-      {showNotificationsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-end z-50">
-          <div className="bg-white shadow-xl w-full max-w-sm h-screen max-h-screen flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200">
-              <h2 className="text-xl font-bold text-slate-900">Notifications</h2>
-              <button 
-                onClick={() => setShowNotificationsModal(false)}
-                className="text-slate-500 hover:text-slate-700 text-2xl"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto divide-y divide-slate-200">
-              {notifications.length === 0 ? (
-                <div className="p-6 text-center text-slate-600">No notifications</div>
-              ) : (
-                notifications.map((notif) => (
-                  <div
-                    key={notif._id}
-                    className={`p-4 cursor-pointer hover:bg-slate-50 transition-colors ${
-                      !notif.isRead ? "bg-blue-50" : ""
-                    }`}
-                    onClick={() => {
-                      // Mark as read
-                      setNotifications(prev => 
-                        prev.map(n => n._id === notif._id ? { ...n, isRead: true } : n)
-                      );
-                    }}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                        notif.type === "alert" ? "bg-red-600" :
-                        notif.type === "rescuer" ? "bg-blue-600" :
-                        notif.type === "system" ? "bg-green-600" :
-                        "bg-slate-600"
-                      }`}></div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-slate-900">{notif.title || notif.message}</p>
-                        {notif.message && notif.title !== notif.message && (
-                          <p className="text-sm text-slate-600 mt-1">{notif.message}</p>
-                        )}
-                        <p className="text-xs text-slate-500 mt-2">
-                          {notif.createdAt ? new Date(notif.createdAt).toLocaleString() : notif.time || 'Just now'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {notifications.length > 0 && (
-              <button
-                onClick={clearAllNotifications}
-                className="w-full py-3 text-center text-sm font-medium text-red-600 hover:bg-red-50 border-t border-slate-200 transition-colors"
-              >
-                Clear All Notifications
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Report Details Modal */}
       {showReportDetailsModal && selectedReportForDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200 sticky top-0 bg-white">
-              <h2 className="text-2xl font-bold text-slate-900">Alert Details</h2>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Alert Details</h2>
               <button 
                 onClick={() => setShowReportDetailsModal(false)}
-                className="text-slate-500 hover:text-slate-700 text-2xl"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold"
               >
                 ✕
               </button>
@@ -5314,17 +5638,17 @@ function AdminDashboard() {
             <div className="p-6 space-y-6">
               {/* Alert ID and Status */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 p-4 rounded-lg">
-                  <p className="text-xs font-semibold text-slate-500 uppercase mb-1">Alert ID</p>
-                  <p className="text-lg font-bold text-slate-900">{selectedReportForDetails._id?.substring(0, 12).toUpperCase() || "N/A"}</p>
+                <div className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Alert ID</p>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white">ALT-{(selectedReportForDetails._id || selectedReportForDetails.id || "0000").substring(0, 12).toUpperCase()}</p>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-lg">
-                  <p className="text-xs font-semibold text-slate-500 uppercase mb-1">Status</p>
-                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                    selectedReportForDetails.status === "resolved" ? "bg-green-100 text-green-700" :
-                    selectedReportForDetails.status === "declined" ? "bg-red-100 text-red-700" :
-                    selectedReportForDetails.status === "in_progress" ? "bg-blue-100 text-blue-700" :
-                    "bg-orange-100 text-orange-700"
+                <div className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Status</p>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
+                    selectedReportForDetails.status === "resolved" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300" :
+                    selectedReportForDetails.status === "declined" ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300" :
+                    selectedReportForDetails.status === "in_progress" ? "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300" :
+                    "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
                   }`}>
                     {toTitleCase(selectedReportForDetails.status || "Pending")}
                   </span>
@@ -5332,164 +5656,58 @@ function AdminDashboard() {
               </div>
 
               {/* Alert Information */}
-              <div className="border border-slate-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Alert Information</h3>
+              <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-900/40">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Alert Information</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-slate-600 font-medium">Disaster Type</p>
-                    <p className="text-base font-semibold text-slate-900 mt-1">{selectedReportForDetails.disasterType || "N/A"}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Disaster Type</p>
+                    <p className="text-base font-semibold text-slate-900 dark:text-white mt-1">{selectedReportForDetails.disasterType || "N/A"}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 font-medium">Severity</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Severity</p>
                     <div className="mt-1">
-                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                        selectedReportForDetails.severity === "critical" ? "bg-red-100 text-red-700" :
-                        selectedReportForDetails.severity === "high" ? "bg-orange-100 text-orange-700" :
-                        selectedReportForDetails.severity === "moderate" ? "bg-yellow-100 text-yellow-700" :
-                        "bg-green-100 text-green-700"
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
+                        selectedReportForDetails.severity === "critical" ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300" :
+                        selectedReportForDetails.severity === "high" ? "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300" :
+                        selectedReportForDetails.severity === "moderate" ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300" :
+                        "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
                       }`}>
                         {toTitleCase(selectedReportForDetails.severity || "Low")}
                       </span>
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 font-medium">Location</p>
-                    <p className="text-base font-semibold text-slate-900 mt-1">{selectedReportForDetails.locationName || selectedReportForDetails.location || "N/A"}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Location</p>
+                    <p className="text-base font-semibold text-slate-900 dark:text-white mt-1">{selectedReportForDetails.locationName || selectedReportForDetails.location || "N/A"}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 font-medium">Coordinates</p>
-                    <p className="text-base font-semibold text-slate-900 mt-1">{selectedReportForDetails.lat?.toFixed(4)}, {selectedReportForDetails.lng?.toFixed(4)}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Coordinates</p>
+                    <p className="text-base font-semibold text-slate-900 dark:text-white mt-1">{selectedReportForDetails.lat?.toFixed(4)}, {selectedReportForDetails.lng?.toFixed(4)}</p>
                   </div>
                 </div>
                 {selectedReportForDetails.note && (
-                  <div className="mt-4 pt-4 border-t border-slate-200">
-                    <p className="text-sm text-slate-600 font-medium">Details/Notes</p>
-                    <p className="text-base text-slate-800 mt-2 bg-slate-50 p-3 rounded">{selectedReportForDetails.note}</p>
+                  <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Details/Notes</p>
+                    <p className="text-sm text-slate-800 dark:text-slate-200 mt-2 bg-slate-100 dark:bg-slate-800 p-3 rounded-xl">{selectedReportForDetails.note}</p>
                   </div>
                 )}
-              </div>
-
-              {/* Sender Information */}
-              <div className="border border-slate-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Alert Sender</h3>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {selectedReportForDetails.senderName?.charAt(0) || "U"}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-slate-600 font-medium">Sender Name</p>
-                    <p className="text-lg font-semibold text-slate-900">{selectedReportForDetails.senderName || "Anonymous"}</p>
-                    {selectedReportForDetails.senderPhone && (
-                      <p className="text-sm text-slate-700 mt-2">📞 {selectedReportForDetails.senderPhone}</p>
-                    )}
-                    {selectedReportForDetails.userId && (
-                      <p className="text-xs text-slate-500 mt-1">User ID: {typeof selectedReportForDetails.userId === 'string' ? selectedReportForDetails.userId : selectedReportForDetails.userId?._id || 'N/A'}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Response Information */}
-              <div className="border border-slate-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Response Information</h3>
-                {selectedReportForDetails.assignedTeam ? (
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm text-slate-600 font-medium">Assigned Team</p>
-                      <p className="text-base font-semibold text-slate-900 mt-1">
-                        {typeof selectedReportForDetails.assignedTeam === 'string' 
-                          ? selectedReportForDetails.assignedTeam 
-                          : selectedReportForDetails.assignedTeam?.name || "Unknown Team"}
-                      </p>
-                    </div>
-                    {selectedReportForDetails.assignedRescuer?.rescuerName && (
-                      <div>
-                        <p className="text-sm text-slate-600 font-medium">Lead Rescuer</p>
-                        <p className="text-base font-semibold text-slate-900 mt-1">{selectedReportForDetails.assignedRescuer.rescuerName}</p>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-slate-600 italic">No team assigned yet</p>
-                )}
-              </div>
-
-              {/* AI Detection Information */}
-              <div className="border border-slate-200 rounded-lg p-4 bg-gradient-to-r from-blue-50 to-cyan-50">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">AI Detection Results</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-slate-600 font-medium">Legitimacy Score</p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 bg-slate-200 rounded-full h-2">
-                        <div 
-                          className={`h-full rounded-full ${
-                            getAlertConfidence(selectedReportForDetails) >= 0.7 ? "bg-green-500" :
-                            getAlertConfidence(selectedReportForDetails) >= 0.5 ? "bg-yellow-500" :
-                            "bg-red-500"
-                          }`}
-                          style={{ width: `${getAlertConfidence(selectedReportForDetails) * 100}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-lg font-bold text-slate-900">{Math.round(getAlertConfidence(selectedReportForDetails) * 100)}%</p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600 font-medium">Prediction Confidence</p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 bg-slate-200 rounded-full h-2">
-                        <div
-                          className="h-full rounded-full bg-blue-500"
-                          style={{ width: `${(selectedReportForDetails.mlPredictions?.overall?.confidence || 0.75) * 100}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-lg font-bold text-slate-900">{Math.round((selectedReportForDetails.mlPredictions?.overall?.confidence || 0.75) * 100)}%</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4 p-3 rounded-md border border-blue-100 bg-white text-sm text-slate-700 whitespace-pre-line">
-                  {generateAISummary(selectedReportForDetails, reportSource)}
-                </div>
-              </div>
-
-              {/* Timeline Information */}
-              <div className="border border-slate-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Timeline</h3>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      <p className="text-sm text-slate-600 font-medium">Created</p>
-                      <p className="text-sm text-slate-900 mt-1">{selectedReportForDetails.createdAt ? new Date(selectedReportForDetails.createdAt).toLocaleString() : "N/A"}</p>
-                    </div>
-                  </div>
-                  {selectedReportForDetails.resolvedAt && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-600 rounded-full mt-2 flex-shrink-0"></div>
-                      <div>
-                        <p className="text-sm text-slate-600 font-medium">Resolved</p>
-                        <p className="text-sm text-slate-900 mt-1">{new Date(selectedReportForDetails.resolvedAt).toLocaleString()}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 border-t border-slate-200">
+              <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                 <button
                   onClick={() => {
                     setShowReportDetailsModal(false);
                     setSelectedAlertForDispatch(selectedReportForDetails);
                     setShowDispatchModal(true);
                   }}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
                 >
                   Assign Team
                 </button>
                 <button
                   onClick={() => setShowReportDetailsModal(false)}
-                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors"
+                  className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-700 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-xl transition-colors"
                 >
                   Close
                 </button>
@@ -5501,18 +5719,18 @@ function AdminDashboard() {
 
       {/* User Details Modal */}
       {showUserDetailsModal && selectedUserForDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto">
-            <div className="p-6 border-b border-slate-200 flex justify-between items-start">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-2xl w-full max-h-96 overflow-y-auto text-slate-900 dark:text-white">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-start">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                   {selectedUserForDetails.name} - Report History
                 </h2>
-                <p className="text-slate-600 text-sm mt-1">{selectedUserForDetails.email}</p>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">{selectedUserForDetails.email}</p>
               </div>
               <button
                 onClick={() => setShowUserDetailsModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-2xl font-bold transition-colors"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold transition-colors"
               >
                 ✕
               </button>
@@ -5522,19 +5740,19 @@ function AdminDashboard() {
               {userReportHistory && userReportHistory.length > 0 ? (
                 <div className="space-y-3">
                   {userReportHistory.map((report) => (
-                    <div key={report._id} className="p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                    <div key={report._id} className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-slate-900">{report.title || report.locationName}</h3>
+                        <h3 className="font-semibold text-slate-900 dark:text-white">{report.title || report.locationName}</h3>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          report.status === 'resolved' ? 'bg-green-100 text-green-700' :
-                          report.status === 'ongoing' ? 'bg-blue-100 text-blue-700' :
-                          'bg-yellow-100 text-yellow-700'
+                          report.status === 'resolved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300' :
+                          report.status === 'ongoing' ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300' :
+                          'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
                         }`}>
                           {report.status}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-600 mb-2">{report.description}</p>
-                      <div className="flex justify-between text-xs text-slate-500">
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">{report.description}</p>
+                      <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
                         <span>📍 {report.locationName}</span>
                         <span>📅 {new Date(report.createdAt).toLocaleDateString()}</span>
                       </div>
@@ -5542,14 +5760,14 @@ function AdminDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-slate-500 py-8">No report history found for this user</p>
+                <p className="text-center text-slate-500 dark:text-slate-400 py-8">No report history found for this user</p>
               )}
             </div>
 
-            <div className="p-6 border-t border-slate-200 flex justify-end">
+            <div className="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end">
               <button
                 onClick={() => setShowUserDetailsModal(false)}
-                className="px-4 py-2 bg-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-300 transition-colors"
+                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold rounded-xl transition-colors"
               >
                 Close
               </button>
@@ -5560,18 +5778,18 @@ function AdminDashboard() {
 
       {/* Rescuer Details Modal */}
       {showRescuerDetailsModal && selectedRescuerForDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto">
-            <div className="p-6 border-b border-slate-200 flex justify-between items-start">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-2xl w-full max-h-96 overflow-y-auto text-slate-900 dark:text-white">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-start">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                   {selectedRescuerForDetails.name} - Rescue History
                 </h2>
-                <p className="text-slate-600 text-sm mt-1">{selectedRescuerForDetails.email}</p>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">{selectedRescuerForDetails.email}</p>
               </div>
               <button
                 onClick={() => setShowRescuerDetailsModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-2xl font-bold transition-colors"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold transition-colors"
               >
                 ✕
               </button>
@@ -5581,20 +5799,19 @@ function AdminDashboard() {
               {rescuerRescueHistory && rescuerRescueHistory.length > 0 ? (
                 <div className="space-y-3">
                   {rescuerRescueHistory.map((rescue) => (
-                    <div key={rescue._id} className="p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                    <div key={rescue._id} className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-slate-900">{rescue.title || rescue.description}</h3>
+                        <h3 className="font-semibold text-slate-900 dark:text-white">{rescue.title || rescue.description}</h3>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          rescue.status === 'completed' ? 'bg-green-100 text-green-700' :
-                          rescue.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                          rescue.status === 'assigned' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-slate-100 text-slate-700'
+                          rescue.status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300' :
+                          rescue.status === 'in_progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300' :
+                          'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
                         }`}>
                           {rescue.status}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-600 mb-2">{rescue.description}</p>
-                      <div className="flex justify-between text-xs text-slate-500">
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">{rescue.description}</p>
+                      <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
                         <span>📍 {rescue.location || rescue.locationName}</span>
                         <span>📅 {new Date(rescue.createdAt).toLocaleDateString()}</span>
                       </div>
@@ -5602,14 +5819,14 @@ function AdminDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-slate-500 py-8">No rescue history found for this rescuer</p>
+                <p className="text-center text-slate-500 dark:text-slate-400 py-8">No rescue history found for this rescuer</p>
               )}
             </div>
 
-            <div className="p-6 border-t border-slate-200 flex justify-end">
+            <div className="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end">
               <button
                 onClick={() => setShowRescuerDetailsModal(false)}
-                className="px-4 py-2 bg-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-300 transition-colors"
+                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold rounded-xl transition-colors"
               >
                 Close
               </button>
@@ -5623,37 +5840,37 @@ function AdminDashboard() {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 animate-in slide-in-from-right-96 fade-in ${
+            className={`pointer-events-auto rounded-xl shadow-lg px-4 py-3 flex items-center gap-3 animate-in slide-in-from-right-96 fade-in border ${
               toast.type === 'success'
-                ? 'bg-green-100 border border-green-300 text-green-800'
+                ? 'bg-emerald-50 dark:bg-emerald-950/90 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
                 : toast.type === 'error'
-                ? 'bg-red-100 border border-red-300 text-red-800'
+                ? 'bg-red-50 dark:bg-red-950/90 border-red-300 dark:border-red-800 text-red-800 dark:text-red-200'
                 : toast.type === 'warning'
-                ? 'bg-yellow-100 border border-yellow-300 text-yellow-800'
-                : 'bg-blue-100 border border-blue-300 text-blue-800'
+                ? 'bg-amber-50 dark:bg-amber-950/90 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200'
+                : 'bg-blue-50 dark:bg-blue-950/90 border-blue-300 dark:border-blue-800 text-blue-800 dark:text-blue-200'
             }`}
           >
             {toast.type === 'success' && <CheckCircle size={18} className="flex-shrink-0" />}
             {toast.type === 'error' && <AlertCircle size={18} className="flex-shrink-0" />}
             {toast.type === 'warning' && <AlertCircle size={18} className="flex-shrink-0" />}
             {toast.type === 'info' && <Clock size={18} className="flex-shrink-0" />}
-            <span className="text-sm font-medium">{toast.message}</span>
+            <span className="text-xs font-bold">{toast.message}</span>
           </div>
         ))}
       </div>
 
       {/* Always-visible in-app emergency popup fallback */}
       {incomingAlert && (
-        <div className="fixed bottom-4 right-4 z-[60] w-[360px] bg-white border-2 border-red-300 shadow-2xl rounded-xl p-4">
+        <div className="fixed bottom-4 right-4 z-[60] w-[360px] bg-white dark:bg-slate-800 border-2 border-red-400 dark:border-red-600 shadow-2xl rounded-2xl p-4 text-slate-900 dark:text-white">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-bold text-red-700">Incoming Emergency</p>
-              <p className="text-base font-semibold text-slate-900 mt-1">{incomingAlert.title}</p>
-              <p className="text-sm text-slate-700 mt-1">{incomingAlert.message}</p>
+              <p className="text-xs font-extrabold uppercase text-red-600 dark:text-red-400 tracking-wider">Incoming Emergency SOS</p>
+              <p className="text-base font-bold text-slate-900 dark:text-white mt-1">{incomingAlert.title}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">{incomingAlert.message}</p>
             </div>
             <button
               onClick={() => setIncomingAlert(null)}
-              className="px-2 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200 text-slate-700"
+              className="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200"
             >
               Dismiss
             </button>

@@ -43,7 +43,7 @@ const haversineDistanceMeters = (lat1, lng1, lat2, lng2) => {
 
 export default function MapScreen() {
   const { token } = useAuth();
-  const { dispatchAlert, sendLocationUpdate, connected } = useSocket();
+  const { dispatchAlert, sendLocationUpdate, connected, socket } = useSocket();
   const mapRef = useRef(null);
   const [location, setLocation] = useState(null);
   const [mission, setMission] = useState(null);
@@ -54,6 +54,7 @@ export default function MapScreen() {
   const [routeLoading, setRouteLoading] = useState(false);
   const [missionStatusUpdating, setMissionStatusUpdating] = useState(false);
   const locationSubscription = useRef(null);
+  const hasAutoFittedRef = useRef(false);
 
   // Malaybalay City center as default
   const defaultRegion = {
@@ -75,11 +76,25 @@ export default function MapScreen() {
   }, []);
 
   useEffect(() => {
-    if (dispatchAlert) {
-      // Refresh mission data when dispatch alert is received
-      fetchMission();
-    }
+    // Refresh mission data when dispatch alert changes (either new assignment or resolution)
+    fetchMission();
   }, [dispatchAlert]);
+
+  // Listen directly for mission completion socket events to immediately refresh/clear state
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleMissionComplete = (data) => {
+      console.log('🎯 [MAP] Mission complete event received:', data);
+      fetchMission();
+    };
+
+    socket.on('mission_complete', handleMissionComplete);
+
+    return () => {
+      socket.off('mission_complete', handleMissionComplete);
+    };
+  }, [socket]);
 
   const fetchRoute = async (startLoc, endLoc) => {
     try {
@@ -211,6 +226,22 @@ export default function MapScreen() {
     }
   }, [location, mission]);
 
+  // Auto-fit map coordinates exactly once when route coordinates are first loaded
+  useEffect(() => {
+    if (routeCoordinates && routeCoordinates.length > 0 && mapRef.current && !hasAutoFittedRef.current) {
+      console.log('🗺️ [MAP] Auto-fitting to route coordinates (initial)...');
+      setTimeout(() => {
+        if (mapRef.current) {
+          mapRef.current.fitToCoordinates(routeCoordinates, {
+            edgePadding: { top: 100, right: 50, bottom: 100, left: 50 },
+            animated: true,
+          });
+          hasAutoFittedRef.current = true;
+        }
+      }, 300);
+    }
+  }, [routeCoordinates]);
+
   const initializeLocation = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -283,21 +314,28 @@ export default function MapScreen() {
       if (response.ok) {
         const data = await response.json();
         console.log('✅ Mission fetched');
-        console.log('Mission data keys:', Object.keys(data));
-        console.log('Has report:', !!data?.report);
-        if (data?.report) {
-          console.log('Report coords:', { lat: data.report.lat, lng: data.report.lng });
-        }
-        setMission(data);
+        if (data) {
+          console.log('Mission data keys:', Object.keys(data));
+          console.log('Has report:', !!data?.report);
+          if (data?.report) {
+            console.log('Report coords:', { lat: data.report.lat, lng: data.report.lng });
+          }
+          setMission(data);
 
-        // If there's a mission with coordinates, center the map
-        if (data?.report?.lat && data?.report?.lng && mapRef.current) {
-          mapRef.current.animateToRegion({
-            latitude: data.report.lat,
-            longitude: data.report.lng,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }, 1000);
+          // If there's a mission with coordinates, center the map
+          if (data?.report?.lat && data?.report?.lng && mapRef.current) {
+            mapRef.current.animateToRegion({
+              latitude: data.report.lat,
+              longitude: data.report.lng,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }, 1000);
+          }
+        } else {
+          console.log('No active mission (data is null)');
+          setMission(null);
+          setRouteCoordinates(null);
+          hasAutoFittedRef.current = false;
         }
       } else {
         console.warn('❌ Mission fetch failed, status:', response.status);
@@ -734,9 +772,9 @@ export default function MapScreen() {
           console.log('API_URL:', API_URL);
           console.log(`Testing: ${API_URL}/route`);
           
-          // Test with hardcoded coordinates
-          const testStart = '125.1050,8.1575';
-          const testEnd = '125.1200,8.1650';
+          // Test with hardcoded coordinates (format: latitude,longitude)
+          const testStart = '8.1575,125.1050';
+          const testEnd = '8.1650,125.1200';
           const testUrl = `${API_URL}/route?start=${testStart}&end=${testEnd}`;
           
           console.log('Test URL:', testUrl);
