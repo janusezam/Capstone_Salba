@@ -305,6 +305,7 @@ router.post('/', async (req, res) => {
       locationName: resolvedLocationName,
       senderName: userName || 'Anonymous Reporter',
       senderPhone: userPhone || senderPhone || null, // Accept either userPhone or senderPhone
+      photoUrl: req.body.photoUrl || null,
     });
 
     // Apply suspicious-jump override immediately so admins don't see fallback confidence first.

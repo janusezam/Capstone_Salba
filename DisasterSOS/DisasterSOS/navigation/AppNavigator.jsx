@@ -9,6 +9,7 @@ import MapScreen from "../screens/MapScreen";
 import AdminDashboard from "../screens/AdminDashboard";
 import AlertHistoryScreen from "../screens/AlertHistoryScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import CameraScreen from "../screens/CameraScreen";
 
 const Stack = createStackNavigator();
 
@@ -36,6 +37,11 @@ export default function AppNavigator() {
         <Stack.Screen name="Dashboard" component={AdminDashboard} />
         <Stack.Screen name="History" component={AlertHistoryScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile Settings" }} />
+        <Stack.Screen
+          name="Camera"
+          component={CameraScreen}
+          options={{ headerShown: false, presentation: "fullScreenModal" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

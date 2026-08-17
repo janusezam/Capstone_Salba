@@ -13,7 +13,7 @@ export const getNearestBarangay = (latitude, longitude) => {
   if (!latitude || !longitude) {
     return {
       label: "Unknown Location",
-      fullName: "Unknown Location (Bypasser)",
+      fullName: "Unknown Location (Victim)",
     };
   }
 
@@ -36,7 +36,7 @@ export const getNearestBarangay = (latitude, longitude) => {
   if (!nearestLocation) {
     return {
       label: "Unknown Location",
-      fullName: "Unknown Location (Bypasser)",
+      fullName: "Unknown Location (Victim)",
     };
   }
 
@@ -49,7 +49,7 @@ export const getNearestBarangay = (latitude, longitude) => {
     const purok = match[2];
     return {
       label: nearestLocation.label,
-      fullName: `Brgy ${brgy} Purok ${purok} (Bypasser)`,
+      fullName: `Brgy ${brgy} Purok ${purok} (Victim)`,
       distance: shortestDistance, // in meters
       barangay: brgy,
       purok: purok,
@@ -59,7 +59,7 @@ export const getNearestBarangay = (latitude, longitude) => {
   // Fallback to original label if pattern doesn't match
   return {
     label: nearestLocation.label,
-    fullName: `${nearestLocation.label} (Bypasser)`,
+    fullName: `${nearestLocation.label} (Victim)`,
     distance: shortestDistance,
   };
 };
@@ -72,7 +72,7 @@ export const getNearestBarangay = (latitude, longitude) => {
  */
 export const formatLocationName = (barangay, purok) => {
   if (barangay && purok) {
-    return `Brgy ${barangay} Purok ${purok} (Bypasser)`;
+    return `Brgy ${barangay} Purok ${purok} (Victim)`;
   }
-  return "Current Location (Bypasser)";
+  return "Current Location (Victim)";
 };

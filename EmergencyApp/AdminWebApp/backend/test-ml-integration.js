@@ -7,7 +7,7 @@
 
 const axios = require('axios');
 
-const BACKEND_URL = 'http://localhost:5001';
+const BACKEND_URL = 'http://localhost:5000';
 const ML_SERVICE_URL = 'http://localhost:5001';
 
 let token = '';
@@ -28,7 +28,8 @@ async function test() {
     const registerData = {
       name: 'Integration Test User',
       email: `test${Date.now()}@example.com`,
-      password: 'TestPassword123'
+      password: 'TestPassword123',
+      termsAccepted: true
     };
     const registerResp = await axios.post(`${BACKEND_URL}/api/auth/register`, registerData);
     token = registerResp.data.token;

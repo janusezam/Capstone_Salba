@@ -86,8 +86,8 @@ const getStatusDisplay = (status) => {
     'pending': 'Pending',
     'acknowledged': 'Acknowledged',
     'in_progress': 'In Progress',
-    'on_the_way': 'On The Way',
-    'ongoing': 'Ongoing',
+    'on_the_way': 'On the way',
+    'ongoing': 'Arrived',
     'resolved': 'Resolved',
     'declined': 'Declined'
   };
@@ -762,6 +762,34 @@ function AdminDashboard() {
       setDbRescuers(enrichedRescuers);
     }
   }, [allReports.length]); // Only recalculate when allReports changes
+
+  // Initialize liveRescuerLocations with static database locations on load
+  useEffect(() => {
+    if (dbRescuers.length > 0) {
+      setLiveRescuerLocations((prev) => {
+        const next = { ...prev };
+        let updated = false;
+        dbRescuers.forEach((rescuer) => {
+          if (rescuer.lastLocationCoords?.lat && rescuer.lastLocationCoords?.lng) {
+            const rescuerIdStr = String(rescuer._id);
+            // Only initialize if we don't have a real-time update in memory already
+            if (!next[rescuerIdStr]) {
+              next[rescuerIdStr] = {
+                rescuerId: rescuerIdStr,
+                rescuerName: rescuer.name,
+                lat: rescuer.lastLocationCoords.lat,
+                lng: rescuer.lastLocationCoords.lng,
+                timestamp: rescuer.lastLocationUpdate || new Date().toISOString(),
+                locationName: rescuer.location,
+              };
+              updated = true;
+            }
+          }
+        });
+        return updated ? next : prev;
+      });
+    }
+  }, [dbRescuers]);
 
   // Initialize team members
   useEffect(() => {
@@ -2750,14 +2778,29 @@ function AdminDashboard() {
                                 </div>
                               )}
                               {alert.assignedTeam ? (
-                                <button
-                                  onClick={() => {
-                                    setActiveTab("ongoing");
-                                  }}
-                                  className="w-full mt-4 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded transition-colors"
-                                >
-                                  Ongoing
-                                </button>
+                                <div className="mt-4 space-y-2">
+                                  {/* Rescuer Status Indicator */}
+                                  <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded text-[11px]">
+                                    <span className="text-slate-500 dark:text-slate-400 block mb-1">Rescuer Status:</span>
+                                    <span className={`inline-block px-2 py-0.5 rounded font-bold text-xs ${
+                                      alert.rescuerMissionStatus === 'ongoing' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
+                                      alert.rescuerMissionStatus === 'on_the_way' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' :
+                                      'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                                    }`}>
+                                      {getStatusDisplay(alert.rescuerMissionStatus || 'none')}
+                                    </span>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      setActiveTab("ongoing");
+                                      setExpandedRescue(alert._id);
+                                    }}
+                                    className="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded transition-colors flex items-center justify-center gap-1"
+                                  >
+                                    <Truck className="w-3.5 h-3.5" />
+                                    View Rescue
+                                  </button>
+                                </div>
                               ) : (
                                 <div className="w-full mt-4 space-y-2">
                                   <button
@@ -2821,6 +2864,64 @@ function AdminDashboard() {
                             </Popup>
                           </Marker>
                         ))}
+
+                        {/* Render active rescuer locations */}
+                        {Object.values(
+                          Object.values(liveRescuerLocations || {}).reduce((acc, rescuer) => {
+                            if (rescuer.rescuerId && rescuer.lat && rescuer.lng) {
+                              acc[rescuer.rescuerId] = rescuer;
+                            }
+                            return acc;
+                          }, {})
+                        ).map((rescuer) => {
+                          const rescuerIcon = L.icon({
+                            iconUrl: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="#0284c7" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v8M8 12h8" stroke="#ffffff" stroke-width="2.5"/></svg>')}`,
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15],
+                            popupAnchor: [0, -15],
+                            className: 'rescuer-marker'
+                          });
+
+                          return (
+                            <Marker
+                              key={`rescuer-${rescuer.rescuerId}`}
+                              position={[rescuer.lat, rescuer.lng]}
+                              icon={rescuerIcon}
+                              eventHandlers={{
+                                click: () => {
+                                  if (mapRef.current) {
+                                    mapRef.current.setView([rescuer.lat, rescuer.lng], 17);
+                                  }
+                                }
+                              }}
+                            >
+                              <Popup>
+                                <div className="w-52">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
+                                      {(rescuer.rescuerName || 'R').charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                      <h3 className="font-semibold text-slate-900">{rescuer.rescuerName || 'Rescuer'}</h3>
+                                      <p className="text-[10px] text-emerald-600 font-medium">● Online Active</p>
+                                    </div>
+                                  </div>
+                                  <p className="text-xs text-slate-600">
+                                    <strong>Updated:</strong> {new Date(rescuer.timestamp || Date.now()).toLocaleTimeString()}
+                                  </p>
+                                  {rescuer.locationName && (
+                                    <p className="text-xs text-slate-600 mt-1">
+                                      <strong>Location:</strong> {rescuer.locationName}
+                                    </p>
+                                  )}
+                                  <p className="text-[10px] text-slate-500 mt-2">
+                                    Coordinates: {rescuer.lat.toFixed(4)}, {rescuer.lng.toFixed(4)}
+                                  </p>
+                                </div>
+                              </Popup>
+                            </Marker>
+                          );
+                        })}
                       </>
                     );
                   })()}
@@ -2849,6 +2950,15 @@ function AdminDashboard() {
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">H</div>
                       <span className="text-xs text-slate-700 dark:text-slate-300">Nearest Fire Hydrant (fire alerts)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#0284c7" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                          <path d="M12 8v8M8 12h8" stroke="#ffffff" stroke-width="2.5"/>
+                        </svg>
+                      </div>
+                      <span className="text-xs text-slate-700 dark:text-slate-300">Active Rescuer (Live Location)</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
@@ -2887,9 +2997,34 @@ function AdminDashboard() {
                     <option value="" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">-- Select a Team --</option>
                     {(dbTeams || []).map((team) => {
                       const memberNames = (team.members || []).map(m => typeof m === 'object' ? m.name : m).filter(Boolean).join(', ');
+                      let distanceText = "";
+                      if (selectedAlertForDispatch?.lat && selectedAlertForDispatch?.lng) {
+                        const teamRescuers = Object.values(liveRescuerLocations || {}).filter(loc => 
+                          loc.teamId === String(team._id) || (team.members && team.members.some(m => String(m._id || m) === String(loc.rescuerId)))
+                        );
+                        if (teamRescuers.length > 0) {
+                          const nearestRescuer = teamRescuers.reduce((nearest, current) => {
+                            const dist = haversineDistanceMeters(
+                              selectedAlertForDispatch.lat, selectedAlertForDispatch.lng,
+                              current.lat, current.lng
+                            );
+                            if (!nearest || dist < nearest.dist) {
+                              return { ...current, dist };
+                            }
+                            return nearest;
+                          }, null);
+                          
+                          if (nearestRescuer) {
+                            distanceText = nearestRescuer.dist < 1000 
+                              ? ` - ${Math.round(nearestRescuer.dist)}m away`
+                              : ` - ${(nearestRescuer.dist / 1000).toFixed(1)}km away`;
+                          }
+                        }
+                      }
+                      
                       return (
                         <option key={team._id || team.id} value={team._id || team.id} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
-                          Team {team.name || team.teamName} - {team.leader?.name || team.teamLeader || "Unknown"} ({memberNames || "No Rescuers"})
+                          Team {team.name || team.teamName} - {team.leader?.name || team.teamLeader || "Unknown"} ({memberNames || "No Rescuers"}){distanceText}
                         </option>
                       );
                     })}
@@ -3888,6 +4023,9 @@ function AdminDashboard() {
                               {rescue.rescuerMissionStatus === 'on_the_way' && (
                                 <p className="text-xs text-blue-700 font-semibold mt-1">Rescuer is on the way</p>
                               )}
+                              {rescue.rescuerMissionStatus === 'ongoing' && (
+                                <p className="text-xs text-emerald-700 font-semibold mt-1">Rescuer has arrived</p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -3966,7 +4104,7 @@ function AdminDashboard() {
                                 </p>
                                 {rescue.rescuerMissionStatus && rescue.rescuerMissionStatus !== 'none' && (
                                   <p className="text-sm text-slate-600 mt-1">
-                                    Rescuer update: <span className="font-semibold uppercase text-blue-700">{String(rescue.rescuerMissionStatus).replace(/_/g, ' ')}</span>
+                                    Rescuer update: <span className="font-semibold uppercase text-blue-700">{getStatusDisplay(rescue.rescuerMissionStatus)}</span>
                                     {rescue.rescuerMissionUpdatedAt ? ` (${new Date(rescue.rescuerMissionUpdatedAt).toLocaleString()})` : ''}
                                   </p>
                                 )}
@@ -4020,6 +4158,76 @@ function AdminDashboard() {
                                   <p className="text-sm text-slate-700 bg-slate-50 p-2 rounded">{rescue.note}</p>
                                 </div>
                               )}
+                            </div>
+                          </div>
+
+                          {/* Photo Evidence in Ongoing Rescues */}
+                          {(rescue.photoUrl || rescue.resolutionPhotoUrl) && (
+                            <div>
+                              <h4 className="font-semibold text-slate-900 mb-3">Photo Evidence</h4>
+                              <div className="bg-white rounded-lg p-4 border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {rescue.photoUrl && (
+                                  <div className="flex flex-col">
+                                    <span className="text-slate-600 text-xs font-bold mb-2">📸 Incident Photo (Victim)</span>
+                                    <a 
+                                      href={rescue.photoUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="relative rounded-lg overflow-hidden border border-slate-200 aspect-video group cursor-zoom-in bg-slate-900"
+                                    >
+                                      <img 
+                                        src={rescue.photoUrl} 
+                                        alt="Incident" 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      />
+                                    </a>
+                                  </div>
+                                )}
+                                {rescue.resolutionPhotoUrl && (
+                                  <div className="flex flex-col">
+                                    <span className="text-emerald-700 text-xs font-bold mb-2">✅ Resolution Proof (Rescuer)</span>
+                                    <a 
+                                      href={rescue.resolutionPhotoUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="relative rounded-lg overflow-hidden border border-emerald-200 aspect-video group cursor-zoom-in bg-slate-900"
+                                    >
+                                      <img 
+                                        src={rescue.resolutionPhotoUrl} 
+                                        alt="Resolution Proof" 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      />
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Performance & Routing Summary Section */}
+                          <div>
+                            <h4 className="font-semibold text-slate-900 mb-3">⏱️ Response & Route Summary</h4>
+                            <div className="bg-white rounded-lg p-4 border border-slate-200 grid grid-cols-2 gap-4 mb-4">
+                              <div>
+                                <span className="text-slate-500 text-xs block">Response Time:</span>
+                                <span className="font-bold text-slate-800">
+                                  {rescue.responseDurationMinutes != null 
+                                    ? `${rescue.responseDurationMinutes} mins`
+                                    : "Awaiting arrival..."
+                                  }
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 text-xs block">Distance Traveled:</span>
+                                <span className="font-bold text-slate-800 font-mono">
+                                  {rescue.responseDistanceMeters != null 
+                                    ? (rescue.responseDistanceMeters >= 1000
+                                        ? `${(rescue.responseDistanceMeters / 1000).toFixed(2)} km`
+                                        : `${rescue.responseDistanceMeters} m`)
+                                    : "Calculating..."
+                                  }
+                                </span>
+                              </div>
                             </div>
                           </div>
 
@@ -5691,20 +5899,108 @@ function AdminDashboard() {
                     <p className="text-sm text-slate-800 dark:text-slate-200 mt-2 bg-slate-100 dark:bg-slate-800 p-3 rounded-xl">{selectedReportForDetails.note}</p>
                   </div>
                 )}
+                {/* Photo Evidence Section */}
+                {(selectedReportForDetails.photoUrl || selectedReportForDetails.resolutionPhotoUrl) && (
+                  <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {selectedReportForDetails.photoUrl && (
+                      <div className="flex flex-col">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2 flex items-center gap-1">
+                          📸 Incident Photo
+                        </p>
+                        <a 
+                          href={selectedReportForDetails.photoUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 aspect-video group cursor-zoom-in bg-slate-900"
+                        >
+                          <img 
+                            src={selectedReportForDetails.photoUrl} 
+                            alt="Incident Evidence" 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </a>
+                      </div>
+                    )}
+                    {selectedReportForDetails.resolutionPhotoUrl && (
+                      <div className="flex flex-col">
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mb-2 flex items-center gap-1">
+                          ✅ Resolution Proof
+                        </p>
+                        <a 
+                          href={selectedReportForDetails.resolutionPhotoUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="relative rounded-xl overflow-hidden border border-emerald-200 dark:border-emerald-900/50 aspect-video group cursor-zoom-in bg-slate-900"
+                        >
+                          <img 
+                            src={selectedReportForDetails.resolutionPhotoUrl} 
+                            alt="Resolution Proof" 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
+
+              {/* Performance & Routing Summary Section */}
+              {(selectedReportForDetails.status === "in_progress" || selectedReportForDetails.status === "resolved" || selectedReportForDetails.responseDurationMinutes != null) && (
+                <div className="border border-blue-200 dark:border-blue-800 rounded-xl p-4 bg-blue-50/30 dark:bg-blue-950/20 text-slate-900 dark:text-white">
+                  <h3 className="text-sm font-bold text-blue-800 dark:text-blue-400 mb-3 flex items-center gap-1.5">
+                    ⏱️ Response & Route Summary
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-extrabold uppercase">Response Time</p>
+                      <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
+                        {selectedReportForDetails.responseDurationMinutes != null 
+                          ? `${selectedReportForDetails.responseDurationMinutes} mins`
+                          : "Awaiting arrival..."
+                        }
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-extrabold uppercase">Distance Traveled</p>
+                      <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
+                        {selectedReportForDetails.responseDistanceMeters != null 
+                          ? (selectedReportForDetails.responseDistanceMeters >= 1000
+                              ? `${(selectedReportForDetails.responseDistanceMeters / 1000).toFixed(2)} km`
+                              : `${selectedReportForDetails.responseDistanceMeters} m`)
+                          : "Calculating..."
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-                <button
-                  onClick={() => {
-                    setShowReportDetailsModal(false);
-                    setSelectedAlertForDispatch(selectedReportForDetails);
-                    setShowDispatchModal(true);
-                  }}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
-                >
-                  Assign Team
-                </button>
+                {selectedReportForDetails.assignedTeam ? (
+                  <button
+                    onClick={() => {
+                      setShowReportDetailsModal(false);
+                      setActiveTab("ongoing");
+                      setExpandedRescue(selectedReportForDetails._id);
+                    }}
+                    className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <Truck className="w-4 h-4" />
+                    View Rescue
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setShowReportDetailsModal(false);
+                      setSelectedAlertForDispatch(selectedReportForDetails);
+                      setShowDispatchModal(true);
+                    }}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
+                  >
+                    Assign Team
+                  </button>
+                )}
                 <button
                   onClick={() => setShowReportDetailsModal(false)}
                   className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-700 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-xl transition-colors"

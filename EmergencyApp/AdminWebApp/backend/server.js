@@ -19,6 +19,7 @@ const sitrepRoutes = require('./routes/sitrepRoutes');
 const sitrepDocRoutes = require('./routes/sitrepDocRoutes');
 const hazardRoutes = require('./routes/hazardRoutes');
 const bilingualRoutes = require('./routes/bilingualRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 // Import models for socket handlers
 const User = require('./models/User');
@@ -103,6 +104,7 @@ app.use('/api/sitrep', sitrepRoutes);
 app.use('/api/sitrep-docs', sitrepDocRoutes);
 app.use('/api/hazard', hazardRoutes);
 app.use('/api/bilingual', bilingualRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Basic health
 app.get('/api/health', (req, res) => res.json({ ok: true }));
@@ -130,6 +132,20 @@ io.on('connection', (socket) => {
   });
 
   // Handle rescuer location updates from multiple client event formats.
+  const toRadians = (deg) => (deg * Math.PI) / 180;
+  const calculateDistanceMeters = (lat1, lon1, lat2, lon2) => {
+    if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return null;
+    const R = 6371000; // Earth radius in meters
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
   const handleRescuerLocation = async (incoming = {}) => {
     try {
       const rawRescuerId = incoming.rescuerId || incoming.userId || incoming.id;
@@ -204,35 +220,83 @@ io.on('connection', (socket) => {
       console.log(`Found ${teamsWithRescuer.length} active-mission teams with rescuer ${rescuerName}`);
 
       for (const team of teamsWithRescuer) {
-        // Update the Report's assignedRescuer coordinates with exact lat/lng
         if (team.currentMission?._id) {
           const reportId = String(team.currentMission._id);
-          const reportUpdate = await Report.findByIdAndUpdate(
-            team.currentMission._id,
-            {
-              $set: {
-                'assignedRescuer.rescuerLat': lat,
-                'assignedRescuer.rescuerLng': lng,
-                'assignedRescuer.lastUpdateTime': new Date()
-              }
-            },
-            { new: true }
-          );
-          console.log(`✓ Updated Report ${team.currentMission._id} rescuer coordinates to exact (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+          const reportUpdate = await Report.findById(team.currentMission._id);
+          if (reportUpdate) {
+            reportUpdate.assignedRescuer.rescuerLat = lat;
+            reportUpdate.assignedRescuer.rescuerLng = lng;
+            reportUpdate.assignedRescuer.lastUpdateTime = new Date();
 
-          // Emit a report-scoped location update so admin maps can match updates reliably.
-          io.to('admins').emit('rescuer_location_update', {
-            reportId,
-            teamId: String(team._id),
-            rescuerId,
-            rescuerName,
-            lat,
-            lng,
-            accuracy,
-            timestamp,
-            location: displayString,
-            locationName: locationName || 'Current Location'
-          });
+            // AUTO-ARRIVAL DETECTION
+            // If current status is on_the_way and rescuer enters 50-meter radius, auto-trigger Arrived/Ongoing status
+            if (reportUpdate.rescuerMissionStatus === 'on_the_way') {
+              const distanceToIncident = calculateDistanceMeters(lat, lng, reportUpdate.lat, reportUpdate.lng);
+              console.log(`⏱️ [AUTO-ARRIVE CHECK] Rescuer ${rescuerName} is ${distanceToIncident ? Math.round(distanceToIncident) : 'unknown'}m from incident.`);
+              
+              if (distanceToIncident != null && distanceToIncident <= 50) {
+                console.log(`🚨 [AUTO-ARRIVE] Rescuer is within 50m! Auto-transitioning status to Arrived.`);
+                const now = new Date();
+                reportUpdate.rescuerMissionStatus = 'ongoing'; // ongoing is 'Arrived'
+                reportUpdate.arrivedAt = now;
+                reportUpdate.arrivalLat = lat;
+                reportUpdate.arrivalLng = lng;
+
+                // Fallback starting coordinates
+                if (reportUpdate.startLat == null) {
+                  reportUpdate.startLat = lat;
+                  reportUpdate.startLng = lng;
+                }
+
+                // Calculate response elapsed duration
+                if (reportUpdate.onTheWayAt) {
+                  const diffMs = now.getTime() - new Date(reportUpdate.onTheWayAt).getTime();
+                  reportUpdate.responseDurationMinutes = Math.max(0.1, Number((diffMs / 60000).toFixed(1)));
+                }
+
+                // Calculate response distance traveled
+                if (reportUpdate.startLat != null && reportUpdate.startLng != null) {
+                  const travelDistance = calculateDistanceMeters(reportUpdate.startLat, reportUpdate.startLng, lat, lng);
+                  if (travelDistance != null) {
+                    reportUpdate.responseDistanceMeters = Math.round(travelDistance);
+                  }
+                }
+
+                if (!['in_progress', 'on_the_way', 'ongoing', 'pending', 'acknowledged'].includes(String(reportUpdate.status))) {
+                  reportUpdate.status = 'in_progress';
+                }
+
+                io.to('admins').emit('rescuer_mission_status_updated', {
+                  reportId,
+                  status: 'ongoing',
+                  note: 'Arrival auto-detected by system (GPS proximity < 50m).',
+                  rescuerId,
+                  rescuerName,
+                  updatedAt: now,
+                  responseDurationMinutes: reportUpdate.responseDurationMinutes,
+                  responseDistanceMeters: reportUpdate.responseDistanceMeters,
+                });
+                io.to('admins').emit('alert_updated', reportUpdate);
+              }
+            }
+
+            await reportUpdate.save();
+            console.log(`✓ Updated Report ${reportId} coordinates and status`);
+
+            // Emit a report-scoped location update so admin maps can match updates reliably.
+            io.to('admins').emit('rescuer_location_update', {
+              reportId,
+              teamId: String(team._id),
+              rescuerId,
+              rescuerName,
+              lat,
+              lng,
+              accuracy,
+              timestamp,
+              location: displayString,
+              locationName: locationName || 'Current Location'
+            });
+          }
         }
       }
 
@@ -251,25 +315,68 @@ io.on('connection', (socket) => {
       }
 
       const directReports = directReportFilter.$or.length > 0
-        ? await Report.find(directReportFilter).select('_id')
+        ? await Report.find(directReportFilter)
         : [];
 
       if (directReports.length > 0) {
-        const reportIds = directReports.map((r) => r._id);
-        await Report.updateMany(
-          { _id: { $in: reportIds } },
-          {
-            $set: {
-              'assignedRescuer.rescuerLat': lat,
-              'assignedRescuer.rescuerLng': lng,
-              'assignedRescuer.lastUpdateTime': new Date()
+        for (const reportUpdate of directReports) {
+          const reportId = String(reportUpdate._id);
+          reportUpdate.assignedRescuer.rescuerLat = lat;
+          reportUpdate.assignedRescuer.rescuerLng = lng;
+          reportUpdate.assignedRescuer.lastUpdateTime = new Date();
+
+          // AUTO-ARRIVAL DETECTION
+          if (reportUpdate.rescuerMissionStatus === 'on_the_way') {
+            const distanceToIncident = calculateDistanceMeters(lat, lng, reportUpdate.lat, reportUpdate.lng);
+            console.log(`⏱️ [AUTO-ARRIVE CHECK] Rescuer ${rescuerName} is ${distanceToIncident ? Math.round(distanceToIncident) : 'unknown'}m from incident.`);
+            
+            if (distanceToIncident != null && distanceToIncident <= 50) {
+              console.log(`🚨 [AUTO-ARRIVE] Rescuer is within 50m! Auto-transitioning status to Arrived.`);
+              const now = new Date();
+              reportUpdate.rescuerMissionStatus = 'ongoing';
+              reportUpdate.arrivedAt = now;
+              reportUpdate.arrivalLat = lat;
+              reportUpdate.arrivalLng = lng;
+
+              if (reportUpdate.startLat == null) {
+                reportUpdate.startLat = lat;
+                reportUpdate.startLng = lng;
+              }
+
+              if (reportUpdate.onTheWayAt) {
+                const diffMs = now.getTime() - new Date(reportUpdate.onTheWayAt).getTime();
+                reportUpdate.responseDurationMinutes = Math.max(0.1, Number((diffMs / 60000).toFixed(1)));
+              }
+
+              if (reportUpdate.startLat != null && reportUpdate.startLng != null) {
+                const travelDistance = calculateDistanceMeters(reportUpdate.startLat, reportUpdate.startLng, lat, lng);
+                if (travelDistance != null) {
+                  reportUpdate.responseDistanceMeters = Math.round(travelDistance);
+                }
+              }
+
+              if (!['in_progress', 'on_the_way', 'ongoing', 'pending', 'acknowledged'].includes(String(reportUpdate.status))) {
+                reportUpdate.status = 'in_progress';
+              }
+
+              io.to('admins').emit('rescuer_mission_status_updated', {
+                reportId,
+                status: 'ongoing',
+                note: 'Arrival auto-detected by system (GPS proximity < 50m).',
+                rescuerId,
+                rescuerName,
+                updatedAt: now,
+                responseDurationMinutes: reportUpdate.responseDurationMinutes,
+                responseDistanceMeters: reportUpdate.responseDistanceMeters,
+              });
+              io.to('admins').emit('alert_updated', reportUpdate);
             }
           }
-        );
 
-        for (const reportId of reportIds) {
+          await reportUpdate.save();
+
           io.to('admins').emit('rescuer_location_update', {
-            reportId: String(reportId),
+            reportId,
             rescuerId,
             rescuerName,
             lat,
@@ -281,7 +388,7 @@ io.on('connection', (socket) => {
           });
         }
 
-        console.log(`✓ Updated ${reportIds.length} active reports directly by assignedRescuerId`);
+        console.log(`✓ Updated ${directReports.length} active reports directly by assignedRescuerId`);
       }
 
       // Generic fallback broadcast (kept for compatibility with existing listeners).

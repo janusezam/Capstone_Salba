@@ -11,7 +11,7 @@ const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:5001/api/
 
 class MLServiceClient {
   constructor() {
-    this.baseURL = ML_SERVICE_URL;
+    this.baseURL = ML_SERVICE_URL.endsWith('/') ? ML_SERVICE_URL : `${ML_SERVICE_URL}/`;
     this.client = axios.create({
       baseURL: this.baseURL,
       timeout: 3000, // Reduced timeout for faster failure
@@ -37,7 +37,7 @@ class MLServiceClient {
    */
   async healthCheck() {
     try {
-      const response = await this.client.get('/health');
+      const response = await this.client.get('health');
       return {
         success: true,
         status: response.data.status,
@@ -61,7 +61,7 @@ class MLServiceClient {
    */
   async classifyDisaster(description, latitude, longitude) {
     try {
-      const response = await this.client.post('/classify', {
+      const response = await this.client.post('classify', {
         description,
         latitude,
         longitude,
@@ -92,7 +92,7 @@ class MLServiceClient {
    */
   async predictSeverity(description, textLength = null) {
     try {
-      const response = await this.client.post('/severity', {
+      const response = await this.client.post('severity', {
         description,
         text_length: textLength || description.length,
       });
@@ -122,7 +122,7 @@ class MLServiceClient {
    */
   async verifyReport(description, hasPrankKeywords = 0) {
     try {
-      const response = await this.client.post('/verify', {
+      const response = await this.client.post('verify', {
         description,
         has_prank_keywords: hasPrankKeywords,
       });
@@ -165,7 +165,7 @@ class MLServiceClient {
         return this.predictionCache.get(cacheKey);
       }
 
-      const response = await this.client.post('/evaluate-report', {
+      const response = await this.client.post('evaluate-report', {
         description,
         disaster_type: disasterType,
         latitude,
@@ -223,7 +223,7 @@ class MLServiceClient {
         return this.predictionCache.get(cacheKey);
       }
 
-      const response = await this.client.post('/evaluate-report-fast', {
+      const response = await this.client.post('evaluate-report-fast', {
         reportText: description,
         description,
         latitude,

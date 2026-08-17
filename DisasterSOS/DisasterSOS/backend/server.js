@@ -9,6 +9,7 @@ import connectDB from "./config/db.js";
 import alertRoutes from "./routes/alertRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -40,6 +41,7 @@ app.use("/api", apiLimiter);
 app.use("/api/alerts", alertRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/feedback", feedbackRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.get("/", (req, res) => res.send("DisasterSOS Backend Server is running"));
 app.get("/api/health", (req, res) => res.json({ status: "ok", timestamp: new Date() }));

@@ -15,6 +15,7 @@ import DashboardScreen from './src/screens/DashboardScreen';
 import MapScreen from './src/screens/MapScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import ResolutionCameraScreen from './src/screens/ResolutionCameraScreen';
 
 // Context
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -134,6 +135,12 @@ function RootNavigator() {
       ) : (
         <Stack.Screen name="Auth" component={AuthStack} />
       )}
+      {/* Full-screen modal for rescuer resolution photo */}
+      <Stack.Screen
+        name="ResolutionCamera"
+        component={ResolutionCameraScreen}
+        options={{ headerShown: false, presentation: 'fullScreenModal' }}
+      />
     </Stack.Navigator>
   );
 }

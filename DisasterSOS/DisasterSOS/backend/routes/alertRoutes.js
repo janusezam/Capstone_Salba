@@ -114,6 +114,7 @@ router.post("/", requireAuth, async (req, res) => {
       locationName: resolvedLocationName,
       senderName: senderName || 'Anonymous',
       senderPhone: req.body.userPhone || "",
+      photoUrl: req.body.photoUrl || null,
     };
     const report = new Report(reportData);
     await report.save();
@@ -138,6 +139,7 @@ router.post("/", requireAuth, async (req, res) => {
             userId: reportData.userId,
             userName: reportData.senderName,
             userPhone: req.body.userPhone || "",
+            photoUrl: reportData.photoUrl || null,
           };
           console.log('📤 [Forwarding to AdminWebApp]', {
             type: forwardPayload.type,

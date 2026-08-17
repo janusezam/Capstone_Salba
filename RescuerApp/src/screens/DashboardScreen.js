@@ -70,6 +70,12 @@ export default function DashboardScreen({ navigation }) {
     if (token) {
       fetchData();
       
+      // Fetch mission data whenever DashboardScreen is focused in navigation
+      const unsubscribeFocus = navigation?.addListener ? navigation.addListener('focus', () => {
+        console.log('📊 DashboardScreen focused, fetching latest data...');
+        fetchData();
+      }) : null;
+
       // Fetch on app focus instead of constant polling to avoid blinking
       const subscription = AppState.addEventListener('change', handleAppStateChange);
       
@@ -86,9 +92,12 @@ export default function DashboardScreen({ navigation }) {
         if (pollInterval) {
           clearInterval(pollInterval);
         }
+        if (unsubscribeFocus) {
+          unsubscribeFocus();
+        }
       };
     }
-  }, [token]);
+  }, [token, navigation]);
 
   // Direct socket listener for mission completion
   useEffect(() => {

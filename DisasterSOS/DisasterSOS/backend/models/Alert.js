@@ -18,6 +18,7 @@ const reportSchema = new mongoose.Schema({
   resolvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   resolvedByName: { type: String, default: "" },
   resolvedAt: { type: Date },
+  photoUrl: { type: String, default: null },
 }, { timestamps: true });
 
 export default mongoose.model("Report", reportSchema);

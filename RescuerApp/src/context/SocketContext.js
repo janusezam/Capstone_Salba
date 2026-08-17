@@ -75,7 +75,7 @@ export const SocketProvider = ({ children }) => {
     if (user && token) {
       // Initialize socket connection
       socketRef.current = io(SOCKET_URL, {
-        transports: ['websocket'],
+        transports: ['websocket', 'polling'],
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,

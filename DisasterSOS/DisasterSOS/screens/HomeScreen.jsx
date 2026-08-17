@@ -14,7 +14,7 @@ import {
   TextInput,
 } from "react-native";
 import * as Location from "expo-location";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+
 import { sendAlert } from "../services/alertService";
 import { submitFeedback } from "../services/feedbackService";
 import { Ionicons } from "@expo/vector-icons";
@@ -33,16 +33,7 @@ export default function HomeScreen() {
   const [sent, setSent] = useState(false);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [menuVisible, setMenuVisible] = useState(false);
-  // "bypasser" = report at current location, "report" = pin location on map
-  const [mode, setMode] = useState("bypasser");
-  const [mapExpanded, setMapExpanded] = useState(false);
-  const [currentUserCoords, setCurrentUserCoords] = useState(null);
-  const [mapCenter, setMapCenter] = useState({
-    latitude: 8.1565,
-    longitude: 125.1237,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
-  });
+  
   // Success overlay
   const [showSuccess, setShowSuccess] = useState(false);
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
@@ -50,14 +41,9 @@ export default function HomeScreen() {
   const [sendingFeedback, setSendingFeedback] = useState(false);
   const [feedbackNotice, setFeedbackNotice] = useState("");
   const successOpacity = useRef(new Animated.Value(0)).current;
-  const expandedMapRef = useRef(null);
   const navigation = useNavigation();
   const { logout } = useAuth();
-  const mapProvider = Platform.OS === "android" ? PROVIDER_GOOGLE : undefined;
 
-  const hasValidCoords = (coords) =>
-    coords && Number.isFinite(coords.latitude) && Number.isFinite(coords.longitude);
-  
   const disasterOptions = [
     { label: "Flood", value: "Flood" },
     { label: "Fire", value: "Fire" },
@@ -66,7 +52,7 @@ export default function HomeScreen() {
     { label: "Typhoon", value: "Typhoon" },
   ];
 
-  // Fetch user's current location for bypasser mode and map centering in report mode
+  // Fetch user's current location on mount
   useEffect(() => {
     const fetchUserLocation = async () => {
       try {
@@ -77,26 +63,14 @@ export default function HomeScreen() {
             latitude: loc.coords.latitude,
             longitude: loc.coords.longitude,
           };
-          setCurrentUserCoords(coords);
-          const region = {
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          };
-          setMapCenter(region);
-          if (mode === "bypasser") {
-            setLocation(coords);
-          } else {
-            setLocation(null);
-          }
+          setLocation(coords);
         }
       } catch (error) {
         console.log("Unable to fetch location:", error);
       }
     };
     fetchUserLocation();
-  }, [mode]);
+  }, []);
 
   // Countdown lock after sending a report
   useEffect(() => {
@@ -129,25 +103,31 @@ export default function HomeScreen() {
       return;
     }
 
-    if (mode === "report" && !location) {
-      Alert.alert("Pin Location", "Please pin the incident location on the map first.");
-      return;
-    }
-
-    // Show warning confirmation before sending alert
+    // Show warning confirmation — then open camera to capture incident photo
     Alert.alert(
       "⚠️ Warning",
       "Sending a false or fake report can mislead emergency responders and waste critical resources. Only submit genuine disaster reports.",
       [
+        { text: "Cancel", style: "cancel" },
         {
-          text: "OK",
-          onPress: () => proceedWithAlert(),
+          text: "Proceed",
+          onPress: () => openCamera(),
         },
       ]
     );
   };
 
-  const proceedWithAlert = async () => {
+  const openCamera = async () => {
+    // Retrieve auth token so CameraScreen can authenticate the upload
+    const token = await AsyncStorage.getItem("userToken");
+    navigation.navigate("Camera", {
+      token,
+      onPhotoUploaded: (photoUrl) => proceedWithAlert(photoUrl),
+      onSkip: () => proceedWithAlert(null),
+    });
+  };
+
+  const proceedWithAlert = async (photoUrl = null) => {
     setLoading(true);
     try {
       // Get user data
@@ -162,50 +142,40 @@ export default function HomeScreen() {
       
       console.log('📱 [proceedWithAlert] userPhone from AsyncStorage:', userPhone);
       console.log('👤 [proceedWithAlert] User data:', user?.name, user?.email);
+      console.log('📷 [proceedWithAlert] photoUrl:', photoUrl ? '✅ included' : '⏭ skipped');
 
-      let data;
-
-      if (mode === "bypasser") {
-        // Use current GPS location
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          Alert.alert("Permission Denied", "Location access is needed to send alerts.");
-          setLoading(false);
-          return;
-        }
-
-        const loc = await Location.getCurrentPositionAsync({});
-        setLocation(loc.coords);
-
-        // Get the nearest barangay/purok for the current GPS location
-        const nearestLocation = getNearestBarangay(loc.coords.latitude, loc.coords.longitude);
-
-        data = {
-          type: disasterType,
-          latitude: loc.coords.latitude,
-          longitude: loc.coords.longitude,
-          locationName: nearestLocation.fullName,
-          note: note.trim(),
-          userId: user?._id,
-          userName: user?.name || "Anonymous",
-          userPhone: userPhone || "",
-        };
-
-        // Log the location for debugging
-        console.log(`📍 Nearest barangay: ${nearestLocation.fullName} (${nearestLocation.distance}m away)`);
-      } else {
-        // Use user-pinned coordinates from the map
-        data = {
-          type: disasterType,
-          latitude: location.latitude,
-          longitude: location.longitude,
-          locationName: `Pinned location (${location.latitude.toFixed(5)}, ${location.longitude.toFixed(5)})`,
-          note: note.trim(),
-          userId: user?._id,
-          userName: user?.name || "Anonymous",
-          userPhone: userPhone || "",
-        };
+      // Use current GPS location
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission Denied", "Location access is needed to send alerts.");
+        setLoading(false);
+        return;
       }
+
+      const loc = await Location.getCurrentPositionAsync({});
+      const coords = {
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+      };
+      setLocation(coords);
+
+      // Get the nearest barangay/purok for the current GPS location
+      const nearestLocation = getNearestBarangay(coords.latitude, coords.longitude);
+
+      const data = {
+        type: disasterType,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        locationName: nearestLocation.fullName,
+        note: note.trim(),
+        userId: user?._id,
+        userName: user?.name || "Anonymous",
+        userPhone: userPhone || "",
+        photoUrl: photoUrl || null,
+      };
+
+      // Log the location for debugging
+      console.log(`📍 Nearest barangay: ${nearestLocation.fullName} (${nearestLocation.distance}m away)`);
 
       await sendAlert(data);
       setSent(true);
@@ -231,7 +201,6 @@ export default function HomeScreen() {
           // Reset form for next report (button remains locked until cooldown ends)
           setDisasterType(null);
           setNote("");
-          setLocation(null);
         });
       }, 3000);
     } catch (error) {
@@ -240,55 +209,6 @@ export default function HomeScreen() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const selectMode = (selectedMode) => {
-    setMode(selectedMode);
-    setMenuVisible(false);
-    setSent(false);
-    setDisasterType(null);
-    setNote("");
-    setLocation(null);
-  };
-
-  const centerOnMyLocation = () => {
-    if (!currentUserCoords || !expandedMapRef.current) return;
-    expandedMapRef.current.animateToRegion(
-      {
-        latitude: currentUserCoords.latitude,
-        longitude: currentUserCoords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      },
-      400
-    );
-  };
-
-  const zoomToPinnedLocation = () => {
-    if (!location || !expandedMapRef.current) return;
-    expandedMapRef.current.animateToRegion(
-      {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        latitudeDelta: 0.004,
-        longitudeDelta: 0.004,
-      },
-      400
-    );
-  };
-
-  const fitBothMarkers = () => {
-    if (!expandedMapRef.current || !currentUserCoords || !location) return;
-    expandedMapRef.current.fitToCoordinates(
-      [
-        { latitude: currentUserCoords.latitude, longitude: currentUserCoords.longitude },
-        { latitude: location.latitude, longitude: location.longitude },
-      ],
-      {
-        edgePadding: { top: 120, right: 60, bottom: 180, left: 60 },
-        animated: true,
-      }
-    );
   };
 
   const handleSubmitFeedback = async () => {
@@ -333,12 +253,12 @@ export default function HomeScreen() {
         {/* Mode indicator */}
         <View style={styles.modeIndicator}>
           <Ionicons
-            name={mode === "bypasser" ? "location" : "map"}
+            name="location"
             size={18}
             color="#fff"
           />
           <Text style={styles.modeText}>
-            {mode === "bypasser" ? "Bypasser Mode" : "Report Incident Mode"}
+            Victim Mode
           </Text>
         </View>
 
@@ -363,72 +283,6 @@ export default function HomeScreen() {
           >
             <View style={styles.menuContainer}>
               <Text style={styles.menuTitle}>Menu</Text>
-
-              <TouchableOpacity
-                style={[
-                  styles.menuItem,
-                  mode === "bypasser" && styles.menuItemActive,
-                ]}
-                onPress={() => selectMode("bypasser")}
-              >
-                <Ionicons
-                  name="location"
-                  size={22}
-                  color={mode === "bypasser" ? "#fff" : "#333"}
-                />
-                <View style={styles.menuItemTextContainer}>
-                  <Text
-                    style={[
-                      styles.menuItemLabel,
-                      mode === "bypasser" && styles.menuItemLabelActive,
-                    ]}
-                  >
-                    Bypasser
-                  </Text>
-                  <Text
-                    style={[
-                      styles.menuItemDesc,
-                      mode === "bypasser" && styles.menuItemDescActive,
-                    ]}
-                  >
-                    Report at your current location
-                  </Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.menuItem,
-                  mode === "report" && styles.menuItemActive,
-                ]}
-                onPress={() => selectMode("report")}
-              >
-                <Ionicons
-                  name="map"
-                  size={22}
-                  color={mode === "report" ? "#fff" : "#333"}
-                />
-                <View style={styles.menuItemTextContainer}>
-                  <Text
-                    style={[
-                      styles.menuItemLabel,
-                      mode === "report" && styles.menuItemLabelActive,
-                    ]}
-                  >
-                    Report Incident
-                  </Text>
-                  <Text
-                    style={[
-                      styles.menuItemDesc,
-                      mode === "report" && styles.menuItemDescActive,
-                    ]}
-                  >
-                    Pinpoint incident on the map
-                  </Text>
-                </View>
-              </TouchableOpacity>
-
-              <View style={styles.menuDivider} />
 
               <TouchableOpacity
                 style={styles.menuItem}
@@ -622,126 +476,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Map only for report mode (tap to pin) */}
-        {mode === "report" && (
-          <>
-            <Text style={styles.sectionTitle}>Tap map to pinpoint incident location</Text>
-            <View style={styles.mapContainer}>
-              <MapView
-                style={styles.map}
-                region={hasValidCoords(mapCenter) ? mapCenter : { latitude: 8.1565, longitude: 125.1237, latitudeDelta: 0.05, longitudeDelta: 0.05 }}
-                provider={mapProvider}
-                showsCompass={true}
-                rotateEnabled={true}
-                pointerEvents="none"
-              >
-                {hasValidCoords(location) && (
-                  <Marker
-                    coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-                    title="Pinned Incident Location"
-                    pinColor="red"
-                  />
-                )}
-              </MapView>
-
-              <TouchableOpacity
-                style={styles.mapOverlayButton}
-                activeOpacity={0.85}
-                onPress={() => setMapExpanded(true)}
-              >
-                <Ionicons name="expand-outline" size={18} color="#fff" />
-                <Text style={styles.mapOverlayText}>Tap to expand map</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
       </View>
-
-      <Modal
-        visible={mapExpanded}
-        transparent={false}
-        animationType="slide"
-        onRequestClose={() => setMapExpanded(false)}
-      >
-        <View style={styles.expandedMapContainer}>
-          <MapView
-            ref={expandedMapRef}
-            style={styles.expandedMap}
-            region={hasValidCoords(mapCenter) ? mapCenter : { latitude: 8.1565, longitude: 125.1237, latitudeDelta: 0.05, longitudeDelta: 0.05 }}
-            provider={mapProvider}
-            showsCompass={true}
-            rotateEnabled={true}
-            onRegionChangeComplete={(region) => setMapCenter(region)}
-            onPress={(event) => {
-              const { latitude, longitude } = event.nativeEvent.coordinate;
-              setLocation({ latitude, longitude });
-              setMapCenter({
-                latitude,
-                longitude,
-                latitudeDelta: 0.008,
-                longitudeDelta: 0.008,
-              });
-            }}
-          >
-            {hasValidCoords(currentUserCoords) && (
-              <Marker
-                coordinate={{ latitude: currentUserCoords.latitude, longitude: currentUserCoords.longitude }}
-                title="Your Location"
-              >
-                <View style={styles.myLocationMarker}>
-                  <View style={styles.myLocationInner}>
-                    <Ionicons name="person" size={20} color="#fff" />
-                  </View>
-                </View>
-              </Marker>
-            )}
-            {hasValidCoords(location) && (
-              <Marker
-                coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-                title="Pinned Incident Location"
-              >
-                <View style={styles.emergencyMarker}>
-                  <Ionicons name="alert-circle" size={24} color="#fff" />
-                </View>
-              </Marker>
-            )}
-          </MapView>
-
-          <TouchableOpacity style={styles.closeMapButton} onPress={() => setMapExpanded(false)}>
-            <Ionicons name="close" size={24} color="#DC2626" />
-          </TouchableOpacity>
-
-          <View style={styles.mapControls}>
-            <TouchableOpacity style={styles.controlButton} onPress={centerOnMyLocation}>
-              <Ionicons name="locate" size={22} color="#DC2626" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.controlButton} onPress={zoomToPinnedLocation}>
-              <Ionicons name="flag" size={22} color="#dc2626" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.controlButton} onPress={fitBothMarkers}>
-              <Ionicons name="expand" size={22} color="#DC2626" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.pinInfoCard}>
-            <Text style={styles.pinInfoTitle}>Pinpoint Incident Location</Text>
-            <Text style={styles.expandedMapHint}>Tap anywhere on the map to place your pin.</Text>
-            {location ? (
-              <Text style={styles.expandedCoords}>
-                Lat: {location.latitude.toFixed(5)} | Lng: {location.longitude.toFixed(5)}
-              </Text>
-            ) : (
-              <Text style={styles.expandedCoords}>No location pinned yet.</Text>
-            )}
-            <TouchableOpacity
-              style={styles.pinDoneButton}
-              onPress={() => setMapExpanded(false)}
-            >
-              <Text style={styles.pinDoneText}>Done</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
 
       {/* Success Notification Overlay */}
       {showSuccess && (

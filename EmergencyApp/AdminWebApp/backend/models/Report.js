@@ -59,7 +59,21 @@ const reportSchema = new mongoose.Schema({
     distance: { type: String }, // Distance in km as string (e.g., "0.5")
     riskLevel: { type: String, enum: ['LOW', 'MEDIUM', 'HIGH'] },
     hazardTypes: [{ type: String }] // e.g., ['Flood', 'Landslide']
-  }]
+  }],
+  // Photo evidence fields
+  photoUrl: { type: String, default: null },              // Victim incident photo
+  resolutionPhotoUrl: { type: String, default: null },    // Rescuer proof-of-resolution photo
+  
+  // Routing and response performance metrics
+  onTheWayAt: { type: Date, default: null },              // When rescuer tapped 'on the way'
+  arrivedAt: { type: Date, default: null },               // When rescuer tapped 'ongoing' (arrived at scene)
+  rescuerResolvedAt: { type: Date, default: null },       // When rescuer tapped 'resolved'
+  startLat: { type: Number, default: null },              // Starting latitude of rescuer
+  startLng: { type: Number, default: null },              // Starting longitude of rescuer
+  arrivalLat: { type: Number, default: null },            // Rescuer latitude at arrival
+  arrivalLng: { type: Number, default: null },            // Rescuer longitude at arrival
+  responseDurationMinutes: { type: Number, default: null }, // Elapsed time from start to arrival (mins)
+  responseDistanceMeters: { type: Number, default: null }, // Distance from start to incident scene (meters)
 }, { timestamps: true });
 
 module.exports = mongoose.model('Report', reportSchema);

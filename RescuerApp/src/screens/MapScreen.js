@@ -41,7 +41,7 @@ const haversineDistanceMeters = (lat1, lng1, lat2, lng2) => {
   return earthRadius * c;
 };
 
-export default function MapScreen() {
+export default function MapScreen({ navigation }) {
   const { token } = useAuth();
   const { dispatchAlert, sendLocationUpdate, connected, socket } = useSocket();
   const mapRef = useRef(null);
@@ -68,12 +68,20 @@ export default function MapScreen() {
     initializeLocation();
     fetchMission();
 
+    const unsubscribeFocus = navigation?.addListener ? navigation.addListener('focus', () => {
+      console.log('🗺️ MapScreen focused, fetching latest mission...');
+      fetchMission();
+    }) : null;
+
     return () => {
       if (locationSubscription.current) {
         locationSubscription.current.remove();
       }
+      if (unsubscribeFocus) {
+        unsubscribeFocus();
+      }
     };
-  }, []);
+  }, [navigation]);
 
   useEffect(() => {
     // Refresh mission data when dispatch alert changes (either new assignment or resolution)
@@ -391,14 +399,19 @@ export default function MapScreen() {
     }
   };
 
-  const updateMissionStatus = async (status) => {
+  const updateMissionStatus = async (status, resolutionPhotoUrl = null) => {
     if (!mission?.report || missionStatusUpdating) return;
     try {
       setMissionStatusUpdating(true);
       const response = await fetch(`${API_URL}/rescue/my-mission/status`, {
         method: 'PATCH',
         headers: getAuthHeaders(token),
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({
+          status,
+          latitude: location?.latitude || null,
+          longitude: location?.longitude || null,
+          ...(resolutionPhotoUrl ? { resolutionPhotoUrl } : {}),
+        }),
       });
 
       const data = await response.json();
@@ -406,7 +419,8 @@ export default function MapScreen() {
         throw new Error(data?.message || 'Failed to update mission status');
       }
 
-      Alert.alert('Success', `Mission marked as ${String(status).replace(/_/g, ' ').toUpperCase()}.`);
+      const displayStatusText = status === 'ongoing' ? 'ARRIVED' : status === 'on_the_way' ? 'ON THE WAY' : status;
+      Alert.alert('Success', `Mission marked as ${String(displayStatusText).toUpperCase()}.`);
       await fetchMission();
     } catch (error) {
       console.error('Mission status update error:', error);
@@ -422,12 +436,23 @@ export default function MapScreen() {
       return;
     }
 
+    // For 'resolved': show confirm dialog, then open camera for proof photo
     Alert.alert(
       'Confirm Resolution',
-      'Mark mission as RESOLVED? Admin will still verify this before final closure.',
+      'Mark mission as RESOLVED? You will be asked to take a proof photo. Admin will still verify this before final closure.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Confirm', style: 'default', onPress: () => updateMissionStatus('resolved') },
+        {
+          text: 'Confirm & Take Photo',
+          style: 'default',
+          onPress: () => {
+            navigation.navigate('ResolutionCamera', {
+              token,
+              onPhotoUploaded: (photoUrl) => updateMissionStatus('resolved', photoUrl),
+              onSkip: () => updateMissionStatus('resolved', null),
+            });
+          },
+        },
       ]
     );
   };
@@ -651,7 +676,11 @@ export default function MapScreen() {
               <View style={styles.infoRow}>
                 <Ionicons name="flag" size={16} color="#2563EB" />
                 <Text style={styles.infoText}>
-                  Your mission status: {String(mission.report.rescuerMissionStatus).replace(/_/g, ' ').toUpperCase()}
+                  Your mission status: {
+                    mission.report.rescuerMissionStatus === 'ongoing' ? 'ARRIVED' :
+                    mission.report.rescuerMissionStatus === 'on_the_way' ? 'ON THE WAY' :
+                    String(mission.report.rescuerMissionStatus).replace(/_/g, ' ').toUpperCase()
+                  }
                 </Text>
               </View>
             )}
@@ -680,8 +709,9 @@ export default function MapScreen() {
                 styles.statusButton,
                 styles.onTheWayButton,
                 mission.report.rescuerMissionStatus === 'on_the_way' && styles.statusButtonActive,
+                (mission.report.rescuerMissionStatus && mission.report.rescuerMissionStatus !== 'none' && mission.report.rescuerMissionStatus !== 'on_the_way') && styles.statusButtonDisabled,
               ]}
-              disabled={missionStatusUpdating}
+              disabled={missionStatusUpdating || (mission.report.rescuerMissionStatus && mission.report.rescuerMissionStatus !== 'none')}
               onPress={() => handleMissionStatusPress('on_the_way')}
             >
               <Ionicons name="navigate" size={16} color="#fff" />
@@ -693,12 +723,13 @@ export default function MapScreen() {
                 styles.statusButton,
                 styles.ongoingButton,
                 mission.report.rescuerMissionStatus === 'ongoing' && styles.statusButtonActive,
+                (mission.report.rescuerMissionStatus !== 'on_the_way' && mission.report.rescuerMissionStatus !== 'ongoing') && styles.statusButtonDisabled,
               ]}
-              disabled={missionStatusUpdating}
+              disabled={missionStatusUpdating || mission.report.rescuerMissionStatus !== 'on_the_way'}
               onPress={() => handleMissionStatusPress('ongoing')}
             >
               <Ionicons name="time" size={16} color="#fff" />
-              <Text style={styles.statusButtonText}>Ongoing</Text>
+              <Text style={styles.statusButtonText}>Arrived</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -706,8 +737,9 @@ export default function MapScreen() {
                 styles.statusButton,
                 styles.resolvedButton,
                 mission.report.rescuerMissionStatus === 'resolved' && styles.statusButtonActive,
+                (mission.report.rescuerMissionStatus !== 'ongoing' && mission.report.rescuerMissionStatus !== 'resolved') && styles.statusButtonDisabled,
               ]}
-              disabled={missionStatusUpdating}
+              disabled={missionStatusUpdating || mission.report.rescuerMissionStatus !== 'ongoing'}
               onPress={() => handleMissionStatusPress('resolved')}
             >
               <Ionicons name="checkmark-done" size={16} color="#fff" />
@@ -1013,6 +1045,10 @@ const styles = StyleSheet.create({
     opacity: 0.85,
     borderWidth: 2,
     borderColor: '#111827',
+  },
+  statusButtonDisabled: {
+    backgroundColor: '#94A3B8',
+    opacity: 0.45,
   },
   statusButtonText: {
     color: '#fff',

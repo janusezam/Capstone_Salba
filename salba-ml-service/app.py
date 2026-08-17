@@ -124,13 +124,13 @@ def classify_disaster():
         
         # Predict
         pred_encoded = classifier.predict(X)[0]
-        pred_class = encoders['disaster'].inverse_transform([pred_encoded])[0]
+        pred_class = encoders['disaster_type'].inverse_transform([pred_encoded])[0]
         pred_proba = classifier.predict_proba(X)[0]
         confidence = float(np.max(pred_proba))
         
         # Build response with all probabilities
         probabilities = {}
-        for i, class_name in enumerate(encoders['disaster'].classes_):
+        for i, class_name in enumerate(encoders['disaster_type'].classes_):
             probabilities[class_name] = float(pred_proba[i])
         
         return jsonify({
@@ -260,7 +260,7 @@ def evaluate_report():
         
         # Classification
         pred_type_encoded = classifier.predict(X)[0]
-        pred_type = encoders['disaster'].inverse_transform([pred_type_encoded])[0]
+        pred_type = encoders['disaster_type'].inverse_transform([pred_type_encoded])[0]
         type_conf = float(np.max(classifier.predict_proba(X)))
         
         # Severity
@@ -385,7 +385,7 @@ def evaluate_report_fast():
         def classify():
             try:
                 pred_type_encoded = classifier.predict(X)[0]
-                results['type'] = encoders['disaster'].inverse_transform([pred_type_encoded])[0]
+                results['type'] = encoders['disaster_type'].inverse_transform([pred_type_encoded])[0]
                 results['type_conf'] = float(np.max(classifier.predict_proba(X)))
             except:
                 results['type'] = 'Unknown'
@@ -459,7 +459,7 @@ def models_info():
             'type': 'Random Forest',
             'n_estimators': 100,
             'accuracy': '~87%',  # From training
-            'classes': list(encoders['disaster'].classes_)
+            'classes': list(encoders['disaster_type'].classes_)
         },
         'severity_predictor': {
             'type': 'XGBoost',
