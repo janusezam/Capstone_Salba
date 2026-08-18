@@ -110,6 +110,8 @@ app.use('/api/upload', uploadRoutes);
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 // Socket handlers
+const connectedRescuers = new Map();
+
 io.on('connection', (socket) => {
   console.log('Socket connected', socket.id);
 
@@ -120,13 +122,29 @@ io.on('connection', (socket) => {
   });
 
   // Allow rescuers to join their own room for targeted notifications
-  socket.on('join_rescuer', (userId) => {
+  socket.on('join_rescuer', async (userId) => {
+    if (userId) {
+      connectedRescuers.set(socket.id, String(userId));
+      try {
+        await User.findByIdAndUpdate(userId, { isOnline: true, lastSeen: new Date() });
+      } catch (err) {
+        console.error('Error updating online status:', err);
+      }
+    }
     socket.join(`rescuer_${userId}`);
     console.log('Rescuer joined room:', `rescuer_${userId}`, socket.id);
   });
 
   // Handle rescuer room join (from React Native and web apps)
-  socket.on('join_rescuer_room', (userId) => {
+  socket.on('join_rescuer_room', async (userId) => {
+    if (userId) {
+      connectedRescuers.set(socket.id, String(userId));
+      try {
+        await User.findByIdAndUpdate(userId, { isOnline: true, lastSeen: new Date() });
+      } catch (err) {
+        console.error('Error updating online status:', err);
+      }
+    }
     socket.join(`rescuer_${userId}`);
     console.log('Rescuer joined room:', `rescuer_${userId}`, socket.id);
   });
@@ -182,6 +200,10 @@ io.on('connection', (socket) => {
         rescuerId = rescuerUser?._id ? String(rescuerUser._id) : null;
       }
       
+      if (rescuerId) {
+        connectedRescuers.set(socket.id, String(rescuerId));
+      }
+
       console.log('\n🟡 [RESCUER_LOCATION] Received:', { rescuerId, rescuerName, lat, lng });
       
       if (!rescuerId || !Number.isFinite(lat) || !Number.isFinite(lng)) {
@@ -417,6 +439,13 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Socket disconnected', socket.id);
+    const rescuerId = connectedRescuers.get(socket.id);
+    if (rescuerId) {
+      console.log('Rescuer went offline:', rescuerId);
+      io.to('admins').emit('rescuer_disconnected', { rescuerId });
+      connectedRescuers.delete(socket.id);
+      User.findByIdAndUpdate(rescuerId, { isOnline: false, lastSeen: new Date() }).catch(err => console.error('Error updating offline status:', err));
+    }
   });
 });
 

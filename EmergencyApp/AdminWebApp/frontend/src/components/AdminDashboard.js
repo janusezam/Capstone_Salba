@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline } from "react-leaflet";
 import L from "leaflet";
 import API from "../api";
 import io from "socket.io-client";
@@ -80,7 +80,10 @@ const toTitleCase = (str) => {
 };
 
 // Helper to convert status values to display format
-const getStatusDisplay = (status) => {
+const getStatusDisplay = (status, rescuerMissionStatus) => {
+  if (rescuerMissionStatus === 'resolved' && status !== 'resolved') {
+    return 'Awaiting Verification';
+  }
   const statusMap = {
     'new': 'New',
     'pending': 'Pending',
@@ -91,6 +94,11 @@ const getStatusDisplay = (status) => {
     'resolved': 'Resolved',
     'declined': 'Declined'
   };
+  
+  if (rescuerMissionStatus && rescuerMissionStatus !== 'none' && rescuerMissionStatus !== 'resolved') {
+    return statusMap[String(rescuerMissionStatus).toLowerCase()] || toTitleCase(rescuerMissionStatus);
+  }
+  
   return statusMap[String(status || '').toLowerCase()] || toTitleCase(status);
 };
 
@@ -766,12 +774,25 @@ function AdminDashboard() {
   // Initialize liveRescuerLocations with static database locations on load
   useEffect(() => {
     if (dbRescuers.length > 0) {
+      // Find all rescuers that are currently on an active mission
+      const activeRescuerIds = new Set();
+      allReports.forEach(r => {
+        if (r.status !== 'resolved' && r.status !== 'fake_alarm') {
+          if (r.assignedRescuer?.rescuerId) activeRescuerIds.add(String(r.assignedRescuer.rescuerId));
+          if (r.assignedTeam?.members) {
+            r.assignedTeam.members.forEach(m => activeRescuerIds.add(String(m._id || m)));
+          }
+        }
+      });
+
       setLiveRescuerLocations((prev) => {
         const next = { ...prev };
         let updated = false;
         dbRescuers.forEach((rescuer) => {
-          if (rescuer.lastLocationCoords?.lat && rescuer.lastLocationCoords?.lng) {
-            const rescuerIdStr = String(rescuer._id);
+          const rescuerIdStr = String(rescuer._id);
+          const isActiveMission = activeRescuerIds.has(rescuerIdStr);
+          
+          if ((rescuer.isOnline || isActiveMission) && rescuer.lastLocationCoords?.lat && rescuer.lastLocationCoords?.lng) {
             // Only initialize if we don't have a real-time update in memory already
             if (!next[rescuerIdStr]) {
               next[rescuerIdStr] = {
@@ -841,26 +862,42 @@ function AdminDashboard() {
         const latestReport = uniqueData[0]; // First item is latest due to sort
         const latestReportId = latestReport?._id ? String(latestReport._id) : null;
 
-        // Read from local storage to check read status
-        let readIds = [];
-        try {
-          const saved = localStorage.getItem("adminReadNotifications");
-          if (saved) readIds = JSON.parse(saved);
-        } catch (e) {}
-
         // Build real notifications from database emergency reports
-        const realNotifications = uniqueData.slice(0, 15).map(report => ({
-          _id: String(report._id),
-          type: report.status === 'Resolved' ? 'system' : 'alert',
-          title: `🚨 ${report.disasterType || 'Emergency SOS'}`,
-          message: `${report.locationName || 'Unknown location'} • Status: ${report.status || 'Pending'} • Severity: ${String(report.severity || 'Medium').toUpperCase()}`,
-          createdAt: report.createdAt || new Date(),
-          isRead: report.status === 'Resolved' || readIds.includes(String(report._id))
-        }));
+        const realNotifications = [];
+        uniqueData.slice(0, 15).forEach(report => {
+          // 1. The initial report alert
+          realNotifications.push({
+            _id: String(report._id),
+            type: report.status === 'Resolved' ? 'system' : 'alert',
+            title: `🚨 ${report.disasterType || 'Emergency SOS'}`,
+            message: `${report.locationName || 'Unknown location'} • Status: ${report.status || 'Pending'} • Severity: ${String(report.severity || 'Medium').toUpperCase()}`,
+            createdAt: report.createdAt || new Date(),
+            isRead: report.status === 'resolved' || report.isReadByAdmin === true
+          });
+
+          // 2. The rescuer status update (if any)
+          if (report.rescuerMissionStatus && report.rescuerMissionStatus !== 'none') {
+            const statusTextMap = {
+              'on_the_way': 'is on the way',
+              'ongoing': 'arrived at the scene',
+              'resolved': 'resolved the mission'
+            };
+            const statusText = statusTextMap[report.rescuerMissionStatus] || report.rescuerMissionStatus;
+            
+            realNotifications.push({
+              _id: `status-${report._id}`,
+              type: 'rescuer',
+              title: `📍 Status Update`,
+              message: `Rescuer ${statusText} for ${report.disasterType || 'Emergency SOS'} at ${report.locationName || 'Unknown location'}`,
+              createdAt: report.rescuerMissionUpdatedAt || report.updatedAt || new Date(),
+              isRead: report.status === 'resolved' || report.isReadByAdmin === true // Tie read status to the main report
+            });
+          }
+        });
         setNotifications(prev => {
           const liveIds = new Set(prev.map(n => n._id));
           const dbNotifsFiltered = realNotifications.filter(n => !liveIds.has(n._id));
-          return [...prev, ...dbNotifsFiltered];
+          return [...prev, ...dbNotifsFiltered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 30);
         });
 
         // First load: initialize refs only (no alert).
@@ -1189,23 +1226,7 @@ function AdminDashboard() {
   // Mark notification as read
   const markNotificationRead = async (id) => {
     try {
-      try {
-        await API.patch(`/rescue/notifications/${id}/read`);
-      } catch (e) {
-        // Ignored for admin locally generated notifications
-      }
-
-      try {
-        const saved = localStorage.getItem("adminReadNotifications");
-        const readIds = saved ? JSON.parse(saved) : [];
-        if (!readIds.includes(id)) {
-          readIds.push(id);
-          localStorage.setItem("adminReadNotifications", JSON.stringify(readIds));
-        }
-      } catch (e) {
-        console.error("Failed to save read notification to local storage", e);
-      }
-
+      await API.patch(`/reports/${id}/read`);
       setNotifications(
         notifications.map((notif) =>
           notif._id === id ? { ...notif, isRead: true } : notif
@@ -1219,20 +1240,7 @@ function AdminDashboard() {
   // Mark all notifications as read
   const markAllAsRead = async () => {
     try {
-      try {
-        await API.patch('/rescue/notifications/read-all');
-      } catch (e) {
-        // Ignored for admin locally generated notifications
-      }
-
-      const allIds = notifications.map(n => n._id);
-      try {
-        const saved = localStorage.getItem("adminReadNotifications");
-        const readIds = saved ? JSON.parse(saved) : [];
-        const newSet = new Set([...readIds, ...allIds]);
-        localStorage.setItem("adminReadNotifications", JSON.stringify(Array.from(newSet)));
-      } catch (e) {}
-
+      await API.patch('/reports/read-all');
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     } catch (err) {
       console.error("Error marking all notifications as read:", err);
@@ -1242,13 +1250,11 @@ function AdminDashboard() {
   // Clear all notifications
   const clearAllNotifications = async () => {
     try {
-      await API.patch("/rescue/notifications/read-all");
-      setNotifications([]);
+      await API.patch('/reports/read-all');
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       setShowNotificationsModal(false);
     } catch (err) {
       console.error("Error clearing notifications:", err);
-      // Fallback to local clear
-      setNotifications([]);
       setShowNotificationsModal(false);
     }
   };
@@ -1619,6 +1625,32 @@ function AdminDashboard() {
         console.log('[Notifications] New report notification sent');
       } else if (eventName === 'report_ml_updated') {
         showToast('AI analysis updated for latest report', 'info', 3000);
+      } else if (eventName === 'rescuer_mission_status_updated') {
+        const rescuerName = data?.rescuerName || 'Rescuer';
+        const status = data?.status || 'updated';
+        const statusTextMap = {
+          'on_the_way': 'is on the way',
+          'ongoing': 'arrived at the scene',
+          'resolved': 'resolved the mission',
+          'none': 'reset their status'
+        };
+        const statusText = statusTextMap[status] || status;
+        
+        showToast(`📍 ${rescuerName} ${statusText}`, 'info', 5000);
+        showNotification(`Rescuer Update`, {
+          body: `${rescuerName} ${statusText}`,
+          tag: 'rescuer-notification'
+        });
+        
+        const liveNotif = {
+          _id: `status-${data?.reportId}-${Date.now()}`,
+          type: 'rescuer',
+          title: `📍 Status Update`,
+          message: `${rescuerName} ${statusText}`,
+          createdAt: new Date(),
+          isRead: false
+        };
+        setNotifications(prev => [liveNotif, ...prev]);
       }
     };
 
@@ -1670,6 +1702,22 @@ function AdminDashboard() {
       });
 
       // Ongoing map uses this event stream directly; skip dashboard refetch to avoid UI flicker.
+    });
+
+    socket.on("rescuer_disconnected", (data) => {
+      console.log("[Realtime] rescuer_disconnected received", data || {});
+      const rescuerKey = data?.rescuerId ? String(data.rescuerId) : null;
+      if (rescuerKey) {
+        setLiveRescuerLocations((prev) => {
+          const next = { ...prev };
+          Object.keys(next).forEach(key => {
+            if (next[key]?.rescuerId === rescuerKey || key === rescuerKey) {
+              delete next[key];
+            }
+          });
+          return next;
+        });
+      }
     });
 
     socket.on("disconnect", () => {
@@ -2384,12 +2432,15 @@ function AdminDashboard() {
                           <td className="px-6 py-4">
                             <Badge 
                               variant={
-                                report.status === "Active" || report.status === "active" ? "critical" :
-                                report.status === "Responded" || report.status === "ongoing" ? "info" :
+                                (report.rescuerMissionStatus === 'resolved' && report.status !== 'resolved') ? "warning" :
+                                (report.status === "new" || report.status === "pending") ? "default" :
+                                (report.status === "acknowledged" || report.status === "on_the_way" || report.status === "in_progress") ? "info" :
+                                report.status === "ongoing" ? "high" :
+                                report.status === "resolved" ? "success" :
                                 "default"
                               }
                             >
-                              {getStatusDisplay(report.status)}
+                              {getStatusDisplay(report.status, report.rescuerMissionStatus)}
                             </Badge>
                           </td>
                           <td className="px-6 py-4 text-xs font-semibold text-slate-400">
@@ -2922,6 +2973,81 @@ function AdminDashboard() {
                             </Marker>
                           );
                         })}
+
+                        {/* Render Route Lines for Rescuers on Active Missions */}
+                        {allReports.filter(r => r.status !== 'resolved' && r.status !== 'fake_alarm').map(report => {
+                          let routeLat = null;
+                          let routeLng = null;
+
+                          if (report.assignedRescuer?.rescuerId) {
+                            const rescuerIdStr = String(report.assignedRescuer.rescuerId);
+                            if (liveRescuerLocations[rescuerIdStr]?.lat && liveRescuerLocations[rescuerIdStr]?.lng) {
+                              routeLat = liveRescuerLocations[rescuerIdStr].lat;
+                              routeLng = liveRescuerLocations[rescuerIdStr].lng;
+                            } else if (report.assignedRescuer.rescuerLat && report.assignedRescuer.rescuerLng) {
+                              // Fallback to report's static assignment coordinates if no live update
+                              routeLat = report.assignedRescuer.rescuerLat;
+                              routeLng = report.assignedRescuer.rescuerLng;
+                            }
+                          } else if (report.assignedTeam?.members?.length > 0) {
+                            // Find the first team member that has an active location
+                            for (const member of report.assignedTeam.members) {
+                              const memberId = typeof member === 'object' ? String(member._id) : String(member);
+                              if (liveRescuerLocations[memberId]?.lat && liveRescuerLocations[memberId]?.lng) {
+                                routeLat = liveRescuerLocations[memberId].lat;
+                                routeLng = liveRescuerLocations[memberId].lng;
+                                break;
+                              }
+                            }
+                          }
+
+                          if (routeLat && routeLng && report.lat && report.lng) {
+                            return (
+                              <React.Fragment key={`route-group-${report._id}`}>
+                                <Polyline
+                                  key={`route-${report._id}`}
+                                  positions={[
+                                    [routeLat, routeLng],
+                                    [report.lat, report.lng]
+                                  ]}
+                                  color="#0284c7"
+                                  weight={3}
+                                  dashArray="5, 10"
+                                  opacity={0.7}
+                                />
+                                {/* If the rescuer isn't in liveRescuerLocations but we have their coordinates from the report, render a marker for them here so they don't disappear */}
+                                {(!liveRescuerLocations[String(report.assignedRescuer?.rescuerId)] && report.assignedRescuer?.rescuerLat && report.assignedRescuer?.rescuerLng) && (
+                                  <Marker
+                                    position={[routeLat, routeLng]}
+                                    icon={L.icon({
+                                      iconUrl: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="#0284c7" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v8M8 12h8" stroke="#ffffff" stroke-width="2.5"/></svg>')}`,
+                                      iconSize: [30, 30],
+                                      iconAnchor: [15, 15],
+                                      popupAnchor: [0, -15],
+                                      className: 'rescuer-marker'
+                                    })}
+                                  >
+                                    <Popup>
+                                      <div className="w-52">
+                                        <div className="flex items-center gap-2 mb-2">
+                                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
+                                            {(report.assignedRescuer.rescuerName || 'R').charAt(0).toUpperCase()}
+                                          </div>
+                                          <div>
+                                            <h3 className="font-semibold text-slate-800">{report.assignedRescuer.rescuerName || 'Rescuer'}</h3>
+                                            <p className="text-xs text-blue-600 font-medium">On active mission</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </Popup>
+                                  </Marker>
+                                )}
+                              </React.Fragment>
+                            );
+                          }
+                          return null;
+                        })}
+
                       </>
                     );
                   })()}
@@ -3629,12 +3755,18 @@ function AdminDashboard() {
                           return "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300";
                         };
 
-                        const getStatusColor = (status) => {
-                          const s = String(status || '').toLowerCase();
+                        const getStatusColor = (status, rescuerMissionStatus) => {
+                          if (rescuerMissionStatus === 'resolved' && status !== 'resolved') {
+                            return "bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300";
+                          }
+                          const activeStatus = (rescuerMissionStatus && rescuerMissionStatus !== 'none' && rescuerMissionStatus !== 'resolved') 
+                            ? rescuerMissionStatus 
+                            : status;
+                          const s = String(activeStatus || '').toLowerCase();
                           if (s === "resolved") return "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300";
                           if (s === "declined") return "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300";
                           if (s === "pending" || s === "new") return "bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300";
-                          if (s === "on_the_way" || s === "in_progress") return "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300";
+                          if (s === "on_the_way" || s === "in_progress" || s === "acknowledged") return "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300";
                           if (s === "ongoing") return "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300";
                           return "bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300";
                         };
@@ -3649,8 +3781,8 @@ function AdminDashboard() {
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(report.status || "Pending")}`}>
-                                {toTitleCase(report.status || "Pending")}
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(report.status || "Pending", report.rescuerMissionStatus)}`}>
+                                {getStatusDisplay(report.status || "Pending", report.rescuerMissionStatus)}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{report.createdAt || "N/A"}</td>
@@ -4401,11 +4533,7 @@ function AdminDashboard() {
                         <div className="flex items-center gap-2 self-end sm:self-center">
                           {!notif.isRead && (
                             <button
-                              onClick={() => {
-                                setNotifications(prev =>
-                                  prev.map(n => (n._id === notif._id || n.id === notif.id) ? { ...n, isRead: true } : n)
-                                );
-                              }}
+                              onClick={() => markNotificationRead(notif._id || notif.id)}
                               className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                             >
                               Mark Read
@@ -4587,12 +4715,18 @@ function AdminDashboard() {
                             return "bg-green-100 text-green-700";
                           };
 
-                          const getStatusColor = (status) => {
-                            const s = String(status || '').toLowerCase();
+                          const getStatusColor = (status, rescuerMissionStatus) => {
+                            if (rescuerMissionStatus === 'resolved' && status !== 'resolved') {
+                              return "bg-amber-100 text-amber-700";
+                            }
+                            const activeStatus = (rescuerMissionStatus && rescuerMissionStatus !== 'none' && rescuerMissionStatus !== 'resolved') 
+                              ? rescuerMissionStatus 
+                              : status;
+                            const s = String(activeStatus || '').toLowerCase();
                             if (s === "resolved") return "bg-green-100 text-green-700";
                             if (s === "declined") return "bg-red-100 text-red-700";
                             if (s === "pending" || s === "new") return "bg-slate-100 text-slate-700";
-                            if (s === "on_the_way" || s === "in_progress") return "bg-blue-100 text-blue-700";
+                            if (s === "on_the_way" || s === "in_progress" || s === "acknowledged") return "bg-blue-100 text-blue-700";
                             if (s === "ongoing") return "bg-orange-100 text-orange-700";
                             return "bg-slate-100 text-slate-700";
                           };
@@ -4639,8 +4773,8 @@ function AdminDashboard() {
                                 </div>
                               </td>
                               <td className="px-6 py-4">
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(alert.status)}`}>
-                                  {getStatusDisplay(alert.status)}
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(alert.status, alert.rescuerMissionStatus)}`}>
+                                  {getStatusDisplay(alert.status, alert.rescuerMissionStatus)}
                                 </span>
                               </td>
                               <td className="px-6 py-4 text-sm text-slate-600">{alert.createdAt ? new Date(alert.createdAt).toLocaleString() : "N/A"}</td>

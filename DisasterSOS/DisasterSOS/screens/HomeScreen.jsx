@@ -14,6 +14,7 @@ import {
   TextInput,
 } from "react-native";
 import * as Location from "expo-location";
+import MapView, { Marker } from "react-native-maps";
 
 import { sendAlert } from "../services/alertService";
 import { submitFeedback } from "../services/feedbackService";
@@ -40,6 +41,8 @@ export default function HomeScreen() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [sendingFeedback, setSendingFeedback] = useState(false);
   const [feedbackNotice, setFeedbackNotice] = useState("");
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const successOpacity = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
   const { logout } = useAuth();
@@ -144,20 +147,23 @@ export default function HomeScreen() {
       console.log('👤 [proceedWithAlert] User data:', user?.name, user?.email);
       console.log('📷 [proceedWithAlert] photoUrl:', photoUrl ? '✅ included' : '⏭ skipped');
 
-      // Use current GPS location
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission Denied", "Location access is needed to send alerts.");
-        setLoading(false);
-        return;
-      }
+      // Use selected location if available, otherwise fetch GPS
+      let coords = selectedLocation;
+      if (!coords) {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Permission Denied", "Location access is needed to send alerts.");
+          setLoading(false);
+          return;
+        }
 
-      const loc = await Location.getCurrentPositionAsync({});
-      const coords = {
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-      };
-      setLocation(coords);
+        const loc = await Location.getCurrentPositionAsync({});
+        coords = {
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+        };
+        setLocation(coords);
+      }
 
       // Get the nearest barangay/purok for the current GPS location
       const nearestLocation = getNearestBarangay(coords.latitude, coords.longitude);
@@ -231,6 +237,48 @@ export default function HomeScreen() {
       setSendingFeedback(false);
     }
   };
+
+  if (isMapExpanded) {
+    return (
+      <View style={styles.expandedMapContainer}>
+        <MapView
+          style={styles.expandedMap}
+          initialRegion={{
+            latitude: selectedLocation?.latitude || location?.latitude || 8.1574,
+            longitude: selectedLocation?.longitude || location?.longitude || 125.1246,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          }}
+          onPress={(e) => setSelectedLocation(e.nativeEvent.coordinate)}
+        >
+          {(selectedLocation || location) && (
+            <Marker coordinate={selectedLocation || location}>
+              <View style={styles.emergencyMarker}>
+                <Ionicons name="warning" size={24} color="#fff" />
+              </View>
+            </Marker>
+          )}
+        </MapView>
+        <TouchableOpacity
+          style={styles.closeMapButton}
+          onPress={() => setIsMapExpanded(false)}
+        >
+          <Ionicons name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
+
+        <View style={styles.pinInfoCard}>
+          <Text style={styles.pinInfoTitle}>Pinpoint Location</Text>
+          <Text style={styles.expandedMapHint}>Tap on the map to set the exact emergency location.</Text>
+          <TouchableOpacity
+            style={styles.pinDoneButton}
+            onPress={() => setIsMapExpanded(false)}
+          >
+            <Text style={styles.pinDoneText}>Confirm Location</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -474,6 +522,41 @@ export default function HomeScreen() {
             value={note}
             onChangeText={setNote}
           />
+        </View>
+
+        <Text style={styles.sectionTitle}>Location (Testing)</Text>
+        <View style={styles.mapContainer}>
+          {location ? (
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: selectedLocation?.latitude || location?.latitude || 8.1574,
+                longitude: selectedLocation?.longitude || location?.longitude || 125.1246,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+              scrollEnabled={false}
+              zoomEnabled={false}
+              pitchEnabled={false}
+              rotateEnabled={false}
+              onPress={() => setIsMapExpanded(true)}
+            >
+              <Marker coordinate={selectedLocation || location}>
+                <View style={styles.emergencyMarker}>
+                  <Ionicons name="warning" size={20} color="#fff" />
+                </View>
+              </Marker>
+            </MapView>
+          ) : (
+            <ActivityIndicator size="large" color="#007AFF" style={{marginTop: 50}} />
+          )}
+          <TouchableOpacity
+            style={styles.mapOverlayButton}
+            onPress={() => setIsMapExpanded(true)}
+          >
+            <Ionicons name="expand" size={16} color="#fff" />
+            <Text style={styles.mapOverlayText}>Change Pin</Text>
+          </TouchableOpacity>
         </View>
 
       </View>

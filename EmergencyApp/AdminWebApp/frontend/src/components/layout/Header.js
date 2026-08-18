@@ -63,11 +63,15 @@ export function Header({
             )}
           </button>
 
-          {/* Notifications Dropdown Container */}
+          {/* Notifications Button */}
           <div className="relative">
             <button 
-              onClick={() => setShowNotificationsModal(!showNotificationsModal)}
+              onClick={() => {
+                setShowNotificationsModal(false);
+                onViewAllNotifications?.();
+              }}
               className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+              title="Go to Notifications Center"
             >
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
@@ -77,85 +81,6 @@ export function Header({
                 </span>
               )}
             </button>
-
-            {/* Notification Floating Card Popover */}
-            {showNotificationsModal && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
-                <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
-                  <div className="flex items-center gap-2">
-                    <Bell className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">Notifications</h3>
-                    {unreadCount > 0 && (
-                      <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400">
-                        {unreadCount} new
-                      </span>
-                    )}
-                  </div>
-                  {notifications.length > 0 && (
-                    <button 
-                      onClick={clearAllNotifications}
-                      className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-medium"
-                    >
-                      Clear all
-                    </button>
-                  )}
-                </div>
-
-                <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60 custom-scrollbar">
-                  {notifications.length === 0 ? (
-                    <div className="p-8 text-center text-slate-500 dark:text-slate-400 text-xs">
-                      No notifications yet
-                    </div>
-                  ) : (
-                    notifications.slice(0, 5).map((notif) => (
-                      <div
-                        key={notif._id || notif.id}
-                        onClick={() => markNotificationRead(notif._id || notif.id)}
-                        className={`p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer flex items-start gap-3 ${
-                          !notif.isRead ? "bg-blue-50/40 dark:bg-blue-950/20" : ""
-                        }`}
-                      >
-                        <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                          notif.type === "alert" ? "bg-red-500" :
-                          notif.type === "rescuer" ? "bg-blue-500" :
-                          "bg-emerald-500"
-                        }`} />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1 mb-0.5">
-                            <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                              {notif.title || notif.message}
-                            </p>
-                            {!notif.isRead && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 flex-shrink-0" />
-                            )}
-                          </div>
-                          {notif.message && notif.title !== notif.message && (
-                            <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2">
-                              {notif.message}
-                            </p>
-                          )}
-                          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
-                            {notif.createdAt ? new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (notif.time || 'Just now')}
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                  <button
-                    onClick={() => {
-                      setShowNotificationsModal(false);
-                      onViewAllNotifications?.();
-                    }}
-                    className="w-full py-2 text-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-xl transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    View All Notifications & Full History →
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block" />

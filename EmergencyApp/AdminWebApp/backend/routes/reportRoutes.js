@@ -753,4 +753,29 @@ router.patch('/:id', authMiddleware, requireAdmin, async (req, res) => {
   }
 });
 
+// PATCH /api/reports/:id/read  -- mark a specific report as read by admin
+router.patch('/:id/read', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const updated = await Report.findByIdAndUpdate(req.params.id, { isReadByAdmin: true }, { new: true });
+    if (!updated) {
+      return res.status(404).json({ message: 'Report not found' });
+    }
+    res.json(updated);
+  } catch (err) {
+    console.error('Mark read error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// PATCH /api/reports/read-all  -- mark all reports as read by admin
+router.patch('/read-all', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    await Report.updateMany({ isReadByAdmin: false }, { isReadByAdmin: true });
+    res.json({ message: 'All reports marked as read' });
+  } catch (err) {
+    console.error('Mark all read error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

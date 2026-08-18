@@ -147,11 +147,40 @@ router.patch('/my-mission/status', authMiddleware, requireRescuer, async (req, r
       }
     }
 
-    if (['on_the_way', 'ongoing'].includes(status) && !['in_progress', 'on_the_way', 'ongoing', 'pending', 'acknowledged'].includes(String(report.status))) {
-      report.status = 'in_progress';
+    if (status === 'on_the_way' || status === 'ongoing') {
+      report.status = status;
     }
 
     await report.save();
+
+    // Create a status_update Notification for the rescuer to track mission timeline
+    try {
+      const statusTextMap = {
+        'on_the_way': 'On the Way',
+        'ongoing': 'Arrived at Scene',
+        'resolved': 'Mission Resolved',
+        'none': 'Status Reset'
+      };
+      
+      const statusTitle = statusTextMap[status] || status;
+      const severityIcon = report.severity === 'critical' ? '🔴' : report.severity === 'high' ? '🟠' : report.severity === 'moderate' ? '🟡' : '🟢';
+
+      await Notification.create({
+        userId: req.user.id,
+        type: 'status_update',
+        title: `📍 Status Update: ${statusTitle}`,
+        message: `Your mission status was updated to ${statusTitle} for ${report.disasterType || 'Emergency'} at ${report.locationName || 'Unknown'}. ${severityIcon} Severity: ${String(report.severity || '').toUpperCase()}`,
+        data: {
+          reportId: report._id,
+          lat: report.lat,
+          lng: report.lng,
+          address: report.locationName
+        }
+      });
+      console.log(`[Notification] Created timeline status update for rescuer ${req.user.id}`);
+    } catch (notifErr) {
+      console.warn('⚠️ [RESCUE STATUS] Notification creation failed (non-critical):', notifErr.message);
+    }
 
     if (req.io) {
       req.io.to('admins').emit('rescuer_mission_status_updated', {
@@ -225,6 +254,11 @@ router.post('/status', authMiddleware, requireRescuer, async (req, res) => {
       isOnline, 
       lastSeen: new Date() 
     });
+
+    if (!isOnline && req.io) {
+      req.io.to('admins').emit('rescuer_disconnected', { rescuerId: String(req.user.id) });
+    }
+
     res.json({ message: 'Status updated' });
   } catch (err) {
     console.error('Status update error:', err);

@@ -217,7 +217,7 @@ router.post('/:id/dispatch', authMiddleware, requireAdmin, async (req, res) => {
       });
       
       const updatedReport = await Report.findByIdAndUpdate(reportId, { 
-        status: 'ongoing',
+        status: 'acknowledged',
         assignedTeam: team._id,
         assignedRescuer: {
           rescuerId: rescuerId?.toString() || null,

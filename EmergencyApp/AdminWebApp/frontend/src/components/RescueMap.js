@@ -419,11 +419,20 @@ function RescueMap({ rescue, onRealTimeUpdate, externalLocationUpdate }) {
 
     // Register the listener
     socketRef.current.on("rescuer_location_update", handleLocationUpdate);
+    
+    const handleRescuerDisconnect = (data) => {
+      if (data?.rescuerId === String(rescue?.assignedRescuer?.rescuerId)) {
+        console.log(`⚠️ Assigned rescuer went offline`);
+        setRescuerLocation(null);
+      }
+    };
+    socketRef.current.on("rescuer_disconnected", handleRescuerDisconnect);
 
     // Cleanup - remove listener when rescue changes
     return () => {
       if (socketRef.current) {
         socketRef.current.off("rescuer_location_update", handleLocationUpdate);
+        socketRef.current.off("rescuer_disconnected", handleRescuerDisconnect);
       }
     };
   }, [rescue, onRealTimeUpdate]); // Re-register listener when rescue changes

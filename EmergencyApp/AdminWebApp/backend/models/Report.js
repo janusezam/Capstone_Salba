@@ -38,6 +38,7 @@ const reportSchema = new mongoose.Schema({
   declinedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   declinedAt: { type: Date, default: null },
   actionNote: { type: String, default: '' },
+  isReadByAdmin: { type: Boolean, default: false },
   // ML Predictions
   mlPredictions: {
     disasterType: { type: String, default: null },

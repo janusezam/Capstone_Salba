@@ -121,7 +121,6 @@ router.post("/", requireAuth, async (req, res) => {
 
     const io = req.app.get("io");
     if (io) {
-      io.to("admins").emit("new_alert", report);
       io.to("admins").emit("new_report", report);
     }
     

@@ -54,6 +54,8 @@ export default function NotificationsScreen({ navigation }) {
         return { name: 'people', color: '#3B82F6', bg: '#DBEAFE' };
       case 'alert':
         return { name: 'warning', color: '#F59E0B', bg: '#FEF3C7' };
+      case 'status_update':
+        return { name: 'analytics-outline', color: '#8B5CF6', bg: '#EDE9FE' };
       default:
         return { name: 'notifications', color: '#6B7280', bg: '#F3F4F6' };
     }
