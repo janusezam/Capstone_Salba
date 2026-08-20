@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
+import RecaptchaV3 from '../components/RecaptchaV3';
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
@@ -22,14 +23,24 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+  const recaptchaRef = useRef(null);
+
+  const handleLogin = () => {
     if (!username.trim() || !password.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
+    
+    if (recaptchaRef.current) {
+      recaptchaRef.current.execute();
+    } else {
+      Alert.alert("Error", "Recaptcha component not loaded.");
+    }
+  };
 
+  const onReceiveToken = async (token) => {
     setLoading(true);
-    const result = await login(username.trim(), password);
+    const result = await login(username.trim(), password, token);
     setLoading(false);
 
     if (!result.success) {
@@ -119,6 +130,9 @@ export default function LoginScreen({ navigation }) {
               <Text style={styles.registerLink}>Register</Text>
             </TouchableOpacity>
           </View>
+          
+          <Text style={{color: "#bbb", fontSize: 11, marginTop: 20, textAlign: 'center'}}>Protected by reCAPTCHA v3</Text>
+          <RecaptchaV3 ref={recaptchaRef} onReceiveToken={onReceiveToken} />
         </View>
 
         {/* Footer */}

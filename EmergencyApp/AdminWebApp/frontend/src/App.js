@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { ThemeProvider } from "./context/ThemeContext";
 import AdminPanel from "./pages/AdminPanel";
 import UserPanel from "./pages/UserPanel";
@@ -24,8 +25,9 @@ function App() {
   return (
     <ThemeProvider>
       <GoogleOAuthProvider clientId={googleClientId || ""}>
-        <Router>
-          <Routes>
+        <GoogleReCaptchaProvider reCaptchaKey={process.env.REACT_APP_RECAPTCHA_SITE_KEY || "6LfzgIgtAAAAADM2dIVYJBPFLSmZ4ajYmM5fGNcP"}>
+          <Router>
+            <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Navigate to="/login" replace />} />
@@ -36,8 +38,9 @@ function App() {
             <Route path="/rescuer" element={<RescuerPanel />} />
             <Route path="/user" element={<UserPanel />} />
             <Route path="/sitrep/:reportId" element={<SitrepPage />} />
-          </Routes>
-        </Router>
+            </Routes>
+          </Router>
+        </GoogleReCaptchaProvider>
       </GoogleOAuthProvider>
     </ThemeProvider>
   );

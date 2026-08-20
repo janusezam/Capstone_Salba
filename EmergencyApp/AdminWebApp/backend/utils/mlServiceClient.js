@@ -215,7 +215,7 @@ class MLServiceClient {
    */
   async evaluateReportFast(reportData) {
     try {
-      const { description, latitude, longitude, textLength } = reportData;
+      const { description, latitude, longitude, textLength, disasterType } = reportData;
 
       // Check cache first
       const cacheKey = this._getCacheKey(description, latitude, longitude);
@@ -229,6 +229,7 @@ class MLServiceClient {
         latitude,
         longitude,
         text_length: textLength || description.length,
+        disasterType: disasterType || '',
       });
 
       const result = {

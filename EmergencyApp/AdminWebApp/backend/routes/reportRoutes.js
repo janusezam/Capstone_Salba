@@ -303,6 +303,7 @@ router.post('/', authMiddleware, async (req, res) => {
           latitude: lat,
           longitude: lng,
           textLength: description.length,
+          disasterType: disasterType || '',
         });
 
         if (mlResult.success) {
@@ -318,13 +319,23 @@ router.post('/', authMiddleware, async (req, res) => {
 
           const predictions = applySuspiciousOverride(basePredictions);
           
+          if (predictions.severity) {
+            r.severity = predictions.severity;
+          }
           r.mlPredictions = predictions;
           r.mlProcessedAt = new Date();
           await r.save();
           
           // Cache result for future use
           await PredictionCache.setCache(description, lat, lng, basePredictions);
-          console.log('✓ ML predictions completed (fast mode)');
+          console.log('✓ ML predictions completed (fast mode) - Updated severity to:', r.severity);
+
+          // Broadcast to connected admins that ML predictions and severity have been updated
+          if (req.io) {
+            const populated = await Report.findById(r._id).populate('userId', 'name email').lean();
+            req.io.to('admins').emit('report_ml_updated', populated);
+            console.log('[Socket.IO] Broadcasted report_ml_updated for report:', r._id);
+          }
         } else if (suspiciousJump.suspicious) {
           await applySuspiciousOnlyFallback();
         }
@@ -749,6 +760,25 @@ router.patch('/:id', authMiddleware, requireAdmin, async (req, res) => {
     res.json(updated);
   } catch (err) {
     console.error('Update report error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// DELETE /api/reports/:id -- admin: delete a specific report permanently
+router.delete('/:id', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const deletedReport = await Report.findByIdAndDelete(req.params.id);
+    if (!deletedReport) {
+      return res.status(404).json({ message: 'Report not found' });
+    }
+    
+    // Delete associated notifications
+    const Notification = require('../models/Notification');
+    await Notification.deleteMany({ 'data.reportId': req.params.id });
+
+    res.json({ success: true, message: 'Report permanently deleted' });
+  } catch (err) {
+    console.error('Delete report error', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

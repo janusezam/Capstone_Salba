@@ -163,6 +163,20 @@ router.get('/locations/barangays', async (req, res) => {
   }
 });
 
+// GET /api/alerts/phone/:phone - Get alerts for a specific sender phone
+router.get('/phone/:phone', async (req, res) => {
+  try {
+    const { phone } = req.params;
+    const reports = await Report.find({ senderPhone: phone })
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json(reports);
+  } catch (err) {
+    console.error('Get alerts by phone error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // POST /api/alerts -- create emergency alert from mobile app (no auth)
 router.post('/', async (req, res) => {
   try {
@@ -629,6 +643,10 @@ router.post('/', async (req, res) => {
               }
             }
           : basePredictions;
+
+        if (assessment.severity) {
+          report.severity = assessment.severity;
+        }
 
         report.mlProcessedAt = new Date();
         await report.save();

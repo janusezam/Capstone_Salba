@@ -24,9 +24,15 @@ module.exports = {
           'success': '#16A34A',
           'info': '#0EA5E9',
         },
+        brand: {
+          DEFAULT: '#CC3A18',
+          dark: '#A82A10',
+          light: 'rgba(204, 58, 24, 0.1)',
+        }
       },
       fontFamily: {
         'inter': ['Inter', 'sans-serif'],
+        'barlow': ['"Barlow Condensed"', 'sans-serif'],
       },
       borderRadius: {
         'card': '16px',

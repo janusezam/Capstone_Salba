@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { BASE_URL } from "../config/api";
+import RecaptchaV3 from "../components/RecaptchaV3";
 
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState("");
@@ -26,7 +27,9 @@ export default function RegisterScreen({ navigation }) {
   const [hasViewedTerms, setHasViewedTerms] = useState(false);
   const [termsVisible, setTermsVisible] = useState(false);
 
-  const handleRegister = async () => {
+  const recaptchaRef = React.useRef(null);
+
+  const handleRegister = () => {
     if (!name || !email || !phone || !password) {
       Alert.alert("Missing Fields", "Please fill in all fields.");
       return;
@@ -43,11 +46,20 @@ export default function RegisterScreen({ navigation }) {
     }
 
     setLoading(true);
+    if (recaptchaRef.current) {
+      recaptchaRef.current.execute();
+    } else {
+      setLoading(false);
+      Alert.alert("Error", "Recaptcha component not loaded.");
+    }
+  };
+
+  const onReceiveToken = async (token) => {
     try {
       const res = await fetch(`${BASE_URL}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, password }),
+        body: JSON.stringify({ name, email, phone, password, recaptchaToken: token }),
       });
       const data = await res.json();
 
@@ -176,6 +188,8 @@ export default function RegisterScreen({ navigation }) {
               Already have an account? <Text style={styles.linkBold}>Log In</Text>
             </Text>
           </TouchableOpacity>
+          <Text style={{color: "#bbb", fontSize: 11, marginTop: 20}}>Protected by reCAPTCHA v3</Text>
+          <RecaptchaV3 ref={recaptchaRef} onReceiveToken={onReceiveToken} />
         </View>
 
         <Modal

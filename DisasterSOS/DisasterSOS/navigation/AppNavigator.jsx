@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
+import { View, ActivityIndicator } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
@@ -14,9 +16,36 @@ import CameraScreen from "../screens/CameraScreen";
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {
+  const [initialRoute, setInitialRoute] = useState("Login");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const token = await AsyncStorage.getItem("userToken");
+        if (token) {
+          setInitialRoute("Home");
+        }
+      } catch (err) {
+        console.log("Auth check error", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkLogin();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#10b981" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName={initialRoute}>
         <Stack.Screen
           name="Login"
           component={LoginScreen}

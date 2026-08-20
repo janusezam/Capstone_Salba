@@ -223,15 +223,15 @@ export default function DashboardScreen({ navigation }) {
             <Text style={styles.welcomeText}>Welcome back,</Text>
             <Text style={styles.userName}>{user?.name || 'Rescuer'}</Text>
           </View>
-          <View style={[styles.connectionStatus, { backgroundColor: connected ? '#10B981' : '#EF4444' }]}>
-            <View style={[styles.statusDot, { backgroundColor: connected ? '#fff' : '#fff' }]} />
-            <Text style={styles.connectionText}>{connected ? 'Online' : 'Offline'}</Text>
+          <View style={[styles.connectionStatus, { borderColor: connected ? '#D1FAE5' : '#FEE2E2', backgroundColor: connected ? '#ECFDF5' : '#FEF2F2' }]}>
+            <View style={[styles.statusDot, { backgroundColor: connected ? '#10B981' : '#EF4444' }]} />
+            <Text style={[styles.connectionText, { color: connected ? '#059669' : '#DC2626' }]}>{connected ? 'ONLINE' : 'OFFLINE'}</Text>
           </View>
         </View>
       </View>
 
       {/* Team Status Card */}
-      <View style={[styles.statusCard, { borderLeftColor: getStatusColor() }]}>
+      <View style={styles.statusCard}>
         <View style={styles.statusHeader}>
           <View>
             <Text style={styles.statusLabel}>Current Status</Text>
@@ -272,13 +272,13 @@ export default function DashboardScreen({ navigation }) {
         >
           <View style={styles.missionHeader}>
             <View style={styles.missionIconContainer}>
-              <Ionicons name="alert-circle" size={30} color="#fff" />
+              <Ionicons name="alert-circle" size={24} color="#991B1B" />
             </View>
             <View style={styles.missionInfo}>
               <Text style={styles.missionLabel}>ACTIVE MISSION</Text>
               <Text style={styles.missionTitle}>Emergency Response</Text>
             </View>
-            <Ionicons name="chevron-forward" size={24} color="#DC2626" />
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
           </View>
           
           <View style={styles.missionDetails}>
@@ -305,73 +305,37 @@ export default function DashboardScreen({ navigation }) {
           </View>
 
           <View style={styles.missionAction}>
-            <Text style={styles.missionActionText}>Tap to view on map</Text>
+            <Text style={styles.missionActionText}>View on map</Text>
+            <Ionicons name="arrow-forward" size={16} color="#991B1B" style={{marginLeft: 6}} />
           </View>
         </TouchableOpacity>
       )}
 
       {/* Quick Actions */}
-      <Text style={styles.sectionTitle}>Quick Actions</Text>
+      <Text style={styles.sectionTitle}>Actions</Text>
       <View style={styles.actionsGrid}>
         <TouchableOpacity 
-          style={styles.actionCard}
-          onPress={() => navigation.navigate('Map')}
-        >
-          <View style={[styles.actionIcon, { backgroundColor: '#EEF2FF' }]}>
-            <Ionicons name="map" size={28} color="#4F46E5" />
-          </View>
-          <Text style={styles.actionTitle}>Mission Map</Text>
-          <Text style={styles.actionSubtitle}>View location</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.actionCard}
-          onPress={() => navigation.navigate('Notifications')}
-        >
-          <View style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}>
-            <Ionicons name="notifications" size={28} color="#D97706" />
-            {unreadCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
-              </View>
-            )}
-          </View>
-          <Text style={styles.actionTitle}>Alerts</Text>
-          <Text style={styles.actionSubtitle}>{unreadCount} unread</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.actionCard}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          <View style={[styles.actionIcon, { backgroundColor: '#ECFDF5' }]}>
-            <Ionicons name="person" size={28} color="#059669" />
-          </View>
-          <Text style={styles.actionTitle}>Profile</Text>
-          <Text style={styles.actionSubtitle}>Settings</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.actionCard}
+          style={[styles.actionCard, { width: '100%', flexDirection: 'row', justifyContent: 'flex-start', paddingHorizontal: 20, borderWidth: 1, borderColor: '#E5E7EB', shadowOpacity: 0.05 }]}
           onPress={onRefresh}
         >
-          <View style={[styles.actionIcon, { backgroundColor: '#FEE2E2' }]}>
-            <Ionicons name="refresh" size={28} color="#DC2626" />
+          <View style={[styles.actionIcon, { backgroundColor: '#F3F4F6', marginBottom: 0, marginRight: 15, width: 44, height: 44, borderRadius: 22 }]}>
+            <Ionicons name="refresh" size={22} color="#4B5563" />
           </View>
-          <Text style={styles.actionTitle}>Refresh</Text>
-          <Text style={styles.actionSubtitle}>Update data</Text>
+          <View>
+            <Text style={styles.actionTitle}>Refresh Data</Text>
+            <Text style={styles.actionSubtitle}>Update mission and team status</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
       {/* Info Card */}
       {!team && (
         <View style={styles.infoCard}>
-          <Ionicons name="information-circle" size={24} color="#DC2626" />
+          <Ionicons name="information-circle" size={24} color="#6B7280" />
           <View style={styles.infoContent}>
             <Text style={styles.infoTitle}>Not Assigned to a Team</Text>
             <Text style={styles.infoText}>
-              Please wait for an admin to assign you to a rescue team 
-              (Alpha, Bravo, Charlie, or Delta).
+              Please wait for an admin to assign you to a rescue team.
             </Text>
           </View>
         </View>
@@ -401,10 +365,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   welcomeCard: {
-    backgroundColor: '#DC2626',
-    borderRadius: 15,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 20,
-    marginBottom: 15,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   welcomeHeader: {
     flexDirection: 'row',
@@ -412,11 +381,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   welcomeText: {
-    color: 'rgba(255,255,255,0.8)',
+    color: '#6B7280',
     fontSize: 14,
   },
   userName: {
-    color: '#fff',
+    color: '#111827',
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: 2,
@@ -424,32 +393,34 @@ const styles = StyleSheet.create({
   connectionStatus: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
   },
   statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     marginRight: 6,
   },
   connectionText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   statusCard: {
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 16,
     padding: 20,
-    marginBottom: 15,
-    borderLeftWidth: 5,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   statusHeader: {
     flexDirection: 'row',
@@ -457,12 +428,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   statusLabel: {
-    color: '#666',
-    fontSize: 14,
+    color: '#6B7280',
+    fontSize: 13,
     marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   statusValue: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   teamBadge: {
@@ -472,8 +445,9 @@ const styles = StyleSheet.create({
   },
   teamBadgeText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   teamInfo: {
     marginTop: 15,
@@ -493,26 +467,26 @@ const styles = StyleSheet.create({
   },
   missionCard: {
     backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 15,
-    borderWidth: 2,
-    borderColor: '#DC2626',
-    shadowColor: '#DC2626',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   missionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   missionIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#DC2626',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FEF2F2',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -521,21 +495,22 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   missionLabel: {
-    color: '#DC2626',
-    fontSize: 12,
-    fontWeight: 'bold',
+    color: '#991B1B',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   missionTitle: {
-    color: '#333',
+    color: '#111827',
     fontSize: 18,
     fontWeight: 'bold',
     marginTop: 2,
   },
   missionDetails: {
-    marginTop: 15,
-    paddingTop: 15,
+    marginTop: 16,
+    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: '#F3F4F6',
   },
   missionDetailRow: {
     flexDirection: 'row',
@@ -544,19 +519,21 @@ const styles = StyleSheet.create({
   },
   missionDetailText: {
     marginLeft: 10,
-    color: '#666',
+    color: '#4B5563',
     fontSize: 14,
     flex: 1,
   },
   missionAction: {
-    backgroundColor: '#FEE2E2',
-    borderRadius: 8,
-    padding: 10,
-    marginTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+    marginTop: 16,
+    paddingTop: 16,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   missionActionText: {
-    color: '#DC2626',
+    color: '#991B1B',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -620,25 +597,27 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   infoCard: {
-    backgroundColor: '#FEF2F2',
-    borderRadius: 15,
-    padding: 15,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'flex-start',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   infoContent: {
     flex: 1,
     marginLeft: 12,
   },
   infoTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#991B1B',
+    color: '#111827',
     marginBottom: 4,
   },
   infoText: {
     fontSize: 14,
-    color: '#7F1D1D',
+    color: '#4B5563',
     lineHeight: 20,
   },
 });

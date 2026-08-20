@@ -16,6 +16,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { BASE_URL } from "../config/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import RecaptchaV3 from "../components/RecaptchaV3";
 
 export default function LoginScreen({ navigation, onLoginSuccess }) {
   const [phone, setPhone] = useState("");
@@ -23,19 +24,30 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [termsVisible, setTermsVisible] = useState(false);
+  
+  const recaptchaRef = React.useRef(null);
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     if (!phone || !password) {
       Alert.alert("Missing Fields", "Please enter phone number and password.");
       return;
     }
 
     setLoading(true);
+    if (recaptchaRef.current) {
+      recaptchaRef.current.execute();
+    } else {
+      setLoading(false);
+      Alert.alert("Error", "Recaptcha component not loaded.");
+    }
+  };
+
+  const onReceiveToken = async (token) => {
     try {
       const res = await fetch(`${BASE_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, password }),
+        body: JSON.stringify({ phone, password, recaptchaToken: token }),
       });
       const data = await res.json();
 
@@ -147,6 +159,7 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
           <Text style={styles.recaptchaText}>
             Protected by reCAPTCHA v3
           </Text>
+          <RecaptchaV3 ref={recaptchaRef} onReceiveToken={onReceiveToken} />
         </View>
 
         <Modal

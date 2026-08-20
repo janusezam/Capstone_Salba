@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const axios = require('axios');
 const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const { OAuth2Client } = require('google-auth-library');
@@ -28,6 +29,27 @@ const getMailer = () => {
       pass: process.env.MAIL_PASS,
     },
   });
+};
+
+const verifyRecaptcha = async (token) => {
+  try {
+    const response = await axios.post(
+      "https://www.google.com/recaptcha/api/siteverify",
+      null,
+      {
+        params: {
+          secret: process.env.RECAPTCHA_SECRET_KEY,
+          response: token,
+        },
+      }
+    );
+    const { success, score } = response.data;
+    // score >= 0.5 is generally considered human
+    return success && score >= 0.5;
+  } catch (err) {
+    console.error("reCAPTCHA verification error:", err);
+    return false;
+  }
 };
 
 /* ==============================
@@ -139,6 +161,17 @@ router.post('/login', async (req, res) => {
     const normalizedUsername = username ? String(username).trim() : '';
     const normalizedIdentifier = identifier ? String(identifier).trim() : '';
     const loginValue = normalizedIdentifier || normalizedEmail || normalizedUsername;
+    const { recaptchaToken } = req.body;
+
+    // Enforce reCAPTCHA for RescuerApp and Web App
+    if (recaptchaToken) {
+      const isHuman = await verifyRecaptcha(recaptchaToken);
+      if (!isHuman) {
+        return res.status(400).json({ message: "reCAPTCHA verification failed" });
+      }
+    } else {
+      return res.status(400).json({ message: "reCAPTCHA token is missing" });
+    }
 
     if (!loginValue || !password) {
       return res.status(400).json({ message: 'Username or email and password are required' });
@@ -213,8 +246,20 @@ router.post('/forgot-password', async (req, res) => {
         from: process.env.MAIL_FROM || process.env.MAIL_USER,
         to: normalizedEmail,
         subject: 'SALBA Password Reset',
-        text: `Your SALBA password reset code is ${resetCode}. It expires in 10 minutes.\n\nOr reset directly using this link: ${resetUrl}`,
-        html: `<p>Your SALBA password reset code is:</p><h2 style="letter-spacing:2px;">${resetCode}</h2><p>This code expires in 10 minutes.</p><p>Or click here to reset directly:</p><p><a href="${resetUrl}">Click here to reset password</a></p>`,
+        text: `Your SALBA password reset code is ${resetCode}.`,
+        html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #d32f2f;">SALBA Password Reset</h2>
+          <p>Hello,</p>
+          <p>We received a request to reset your password. Use the code below to reset your password:</p>
+          <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; text-align: center;">
+            <h1 style="color: #d32f2f; letter-spacing: 5px; margin: 0;">${resetCode}</h1>
+          </div>
+          <p>If you didn't request this, please ignore this email.</p>
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+          <p style="color: #888; font-size: 12px;">© SALBA CDRRMO - Emergency Alert System</p>
+        </div>
+        `,
       });
 
       return res.json({
@@ -441,8 +486,21 @@ router.patch('/profile', verifyToken, async (req, res) => {
     // Update picture (as base64 or URL)
     if (picture) user.picture = picture;
     
-    // Email cannot be changed (silently ignore)
-    // if (email && email !== user.email) { ... }
+    // Update email (check for uniqueness if different)
+    if (email !== undefined) {
+      if (email.trim() !== "") {
+        const normalizedEmail = email.toLowerCase().trim();
+        if (normalizedEmail !== user.email) {
+          const existingEmail = await User.findOne({ email: normalizedEmail });
+          if (existingEmail) {
+            return res.status(400).json({ message: "Email already taken" });
+          }
+          user.email = normalizedEmail;
+        }
+      } else {
+        user.email = null;
+      }
+    }
 
     // Update password if provided
     if (newPassword) {
@@ -482,7 +540,16 @@ router.patch('/profile', verifyToken, async (req, res) => {
 --------------------------------*/
 router.post('/google-login', async (req, res) => {
   try {
-    const { credential, termsAccepted, termsVersion, termsAcceptedAt } = req.body;
+    const { credential, termsAccepted, termsVersion, termsAcceptedAt, recaptchaToken } = req.body;
+
+    if (!recaptchaToken) {
+      return res.status(400).json({ message: "reCAPTCHA token is missing" });
+    }
+
+    const isHuman = await verifyRecaptcha(recaptchaToken);
+    if (!isHuman) {
+      return res.status(400).json({ message: "reCAPTCHA verification failed" });
+    }
 
     if (!credential) {
       return res.status(400).json({ message: 'No credential provided' });

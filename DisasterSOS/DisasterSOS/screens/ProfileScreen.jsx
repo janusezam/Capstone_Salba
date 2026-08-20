@@ -19,6 +19,7 @@ export default function ProfileScreen({ navigation }) {
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [birthday, setBirthday] = useState("");
   const [location, setLocation] = useState("");
   const [authProvider, setAuthProvider] = useState("local");
@@ -48,6 +49,7 @@ export default function ProfileScreen({ navigation }) {
       if (res.ok) {
         setName(data.name || "");
         setPhone(data.phone || "");
+        setEmail(data.email || "");
         setBirthday(data.birthday ? data.birthday.split("T")[0] : "");
         setLocation(data.location || "");
         setAuthProvider(data.authProvider || "local");
@@ -76,6 +78,7 @@ export default function ProfileScreen({ navigation }) {
         },
         body: JSON.stringify({
           name,
+          email,
           birthday: birthday || null,
           location,
         }),
@@ -162,7 +165,7 @@ export default function ProfileScreen({ navigation }) {
             <Ionicons name="person" size={50} color="#fff" />
           </View>
           <Text style={styles.userName}>{name}</Text>
-          <Text style={styles.userEmail}>{phone}</Text>
+          <Text style={styles.userEmail}>{email ? email : phone}</Text>
         </View>
 
         {/* Profile Fields */}
@@ -190,6 +193,22 @@ export default function ProfileScreen({ navigation }) {
               style={[styles.input, { color: "#aaa" }]}
               value={phone}
               editable={false}
+            />
+          </View>
+        </View>
+
+        <View style={styles.fieldContainer}>
+          <Text style={styles.fieldLabel}>Email Address (Gmail)</Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail-outline" size={18} color="#888" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="e.g. yourname@gmail.com"
+              placeholderTextColor="#aaa"
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
           </View>
         </View>

@@ -43,12 +43,16 @@ save_encoders(encoders)
 
 # Features
 feature_cols = get_feature_names()
-X_train = df_train[feature_cols]
+feature_cols_type_fa = [f for f in feature_cols if f != 'disaster_type_encoded']
+
+X_train_type_fa = df_train[feature_cols_type_fa]
+X_train_sev = df_train[feature_cols]
+
 y_type = df_train['disaster_type_encoded']
 y_severity = df_train['severity_encoded']
 y_false_alarm = df_train['is_false_alarm']
 
-print(f"✅ Features prepared: {len(feature_cols)} features")
+print(f"✅ Features prepared: {len(feature_cols)} features (severity), {len(feature_cols_type_fa)} features (classifier/false alarm)")
 
 # ============================================
 # 1. DISASTER TYPE CLASSIFIER
@@ -58,7 +62,7 @@ print("1️⃣  Training Disaster Type Classifier (Random Forest)")
 print("="*60)
 
 X_train_type, X_test_type, y_train_type, y_test_type = train_test_split(
-    X_train, y_type, test_size=0.2, random_state=42, stratify=y_type
+    X_train_type_fa, y_type, test_size=0.2, random_state=42, stratify=y_type
 )
 
 classifier = RandomForestClassifier(
@@ -102,7 +106,7 @@ print("2️⃣  Training Severity Predictor (XGBoost)")
 print("="*60)
 
 X_train_sev, X_test_sev, y_train_sev, y_test_sev = train_test_split(
-    X_train, y_severity, test_size=0.2, random_state=42, stratify=y_severity
+    X_train_sev, y_severity, test_size=0.2, random_state=42, stratify=y_severity
 )
 
 severity_model = xgb.XGBClassifier(
@@ -139,7 +143,7 @@ print("3️⃣  Training False Alarm Detector (Logistic Regression)")
 print("="*60)
 
 X_train_fa, X_test_fa, y_train_fa, y_test_fa = train_test_split(
-    X_train, y_false_alarm, test_size=0.2, random_state=42
+    X_train_type_fa, y_false_alarm, test_size=0.2, random_state=42
 )
 
 false_alarm_model = LogisticRegression(

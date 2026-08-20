@@ -208,18 +208,45 @@ router.patch('/my-mission/status', authMiddleware, requireRescuer, async (req, r
   }
 });
 
-// Get rescuer's notifications
+// Get rescuer's/admin's notifications (limited to past 7 days)
 router.get('/notifications', authMiddleware, requireRescuer, async (req, res) => {
   try {
-    const notifications = await Notification.find({ userId: req.user.id })
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const notifications = await Notification.find({ 
+      userId: req.user.id,
+      createdAt: { $gte: sevenDaysAgo }
+    })
       .populate('data.reportId')
       .populate('data.teamId')
-      .sort({ createdAt: -1 })
-      .limit(50);
+      .sort({ createdAt: -1 });
     
     res.json(notifications);
   } catch (err) {
     console.error('Get notifications error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete all notifications for a user
+router.delete('/notifications/all', authMiddleware, requireRescuer, async (req, res) => {
+  try {
+    await Notification.deleteMany({ userId: req.user.id });
+    res.json({ message: 'All notifications deleted' });
+  } catch (err) {
+    console.error('Delete all notifications error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete a specific notification
+router.delete('/notifications/:id', authMiddleware, requireRescuer, async (req, res) => {
+  try {
+    await Notification.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
+    res.json({ message: 'Notification deleted' });
+  } catch (err) {
+    console.error('Delete notification error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

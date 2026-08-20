@@ -5,7 +5,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  'expo-notifications: Android Push notifications',
+]);
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -19,7 +23,7 @@ import ResolutionCameraScreen from './src/screens/ResolutionCameraScreen';
 
 // Context
 import { AuthProvider, useAuth } from './src/context/AuthContext';
-import { NotificationProvider } from './src/context/NotificationContext';
+import { NotificationProvider, useNotifications } from './src/context/NotificationContext';
 import { SocketProvider } from './src/context/SocketContext';
 
 const Stack = createNativeStackNavigator();
@@ -27,6 +31,8 @@ const Tab = createBottomTabNavigator();
 
 // Main Tab Navigator for logged in users
 function MainTabs() {
+  const { unreadCount } = useNotifications();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -43,7 +49,7 @@ function MainTabs() {
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#DC2626',
+        tabBarActiveTintColor: '#991B1B',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
           paddingBottom: 5,
@@ -51,7 +57,7 @@ function MainTabs() {
           height: 60,
         },
         headerStyle: {
-          backgroundColor: '#DC2626',
+          backgroundColor: '#991B1B',
         },
         headerTintColor: '#fff',
         headerTitleStyle: {
@@ -72,7 +78,11 @@ function MainTabs() {
       <Tab.Screen 
         name="Notifications" 
         component={NotificationsScreen} 
-        options={{ title: 'Alerts' }}
+        options={{ 
+          title: 'Alerts',
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+          tabBarBadgeStyle: { backgroundColor: '#991B1B' }
+        }}
       />
       <Tab.Screen 
         name="Profile" 
@@ -89,7 +99,7 @@ function AuthStack() {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#DC2626',
+          backgroundColor: '#991B1B',
         },
         headerTintColor: '#fff',
         headerTitleStyle: {
@@ -122,7 +132,7 @@ function RootNavigator() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#DC2626' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#991B1B' }}>
         <ActivityIndicator size="large" color="#fff" />
       </View>
     );

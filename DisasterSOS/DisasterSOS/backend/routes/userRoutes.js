@@ -94,7 +94,8 @@ const verifyRecaptcha = async (token) => {
         },
       }
     );
-    const { success, score } = response.data;
+    const { success, score, 'error-codes': errorCodes } = response.data;
+    console.log("reCAPTCHA response:", response.data);
     // score >= 0.5 is generally considered human
     return success && score >= 0.5;
   } catch (err) {
@@ -122,11 +123,12 @@ router.post("/register", authLimiter, async (req, res) => {
     }
 
     // Verify reCAPTCHA
-    if (recaptchaToken) {
-      const isHuman = await verifyRecaptcha(recaptchaToken);
-      if (!isHuman) {
-        return res.status(400).json({ message: "reCAPTCHA verification failed" });
-      }
+    if (!recaptchaToken) {
+      return res.status(400).json({ message: "reCAPTCHA token is missing" });
+    }
+    const isHuman = await verifyRecaptcha(recaptchaToken);
+    if (!isHuman) {
+      return res.status(400).json({ message: "reCAPTCHA verification failed" });
     }
 
     const existingUser = await User.findOne({ phone: normalizedPhone });
@@ -189,6 +191,8 @@ router.post("/login", authLimiter, async (req, res) => {
       if (!isHuman) {
         return res.status(400).json({ message: "reCAPTCHA verification failed" });
       }
+    } else {
+      return res.status(400).json({ message: "reCAPTCHA token is missing" });
     }
 
     const user = await User.findOne({ phone: normalizedPhone });
@@ -259,8 +263,8 @@ router.post("/forgot-password/request-otp", forgotLimiter, async (req, res) => {
       expiresAt,
     });
 
-    // Send OTP via email if email is provided and user has email
-    if (email && user.email) {
+    // Send OTP via email if user has a registered email address
+    if (user && user.email) {
       const { sendPasswordResetEmail } = await import("../utils/emailSender.js");
       sendPasswordResetEmail(user.email, otp).catch(err => console.error("Email send error:", err));
     }
@@ -391,13 +395,27 @@ router.get("/profile", auth, async (req, res) => {
 // ✏️ Update profile
 router.put("/profile", auth, async (req, res) => {
   try {
-    const { name, birthday, location } = req.body;
+    const { name, email, birthday, location } = req.body;
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
     if (name) user.name = name;
     if (birthday !== undefined) user.birthday = birthday;
     if (location !== undefined) user.location = location;
+
+    if (email !== undefined) {
+      if (email.trim() !== "") {
+        const normalizedEmail = email.toLowerCase().trim();
+        const existingEmail = await User.findOne({ email: normalizedEmail, _id: { $ne: user._id } });
+        if (existingEmail) {
+          return res.status(400).json({ message: "Email already taken by another account" });
+        }
+        user.email = normalizedEmail;
+      } else {
+        // Allow removing email
+        user.email = null;
+      }
+    }
 
     await user.save();
     res.json({

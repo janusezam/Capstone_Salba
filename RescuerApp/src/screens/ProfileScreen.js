@@ -25,6 +25,7 @@ export default function ProfileScreen() {
   
   // Edit fields
   const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -73,7 +74,7 @@ export default function ProfileScreen() {
 
     setSaving(true);
 
-    const updates = { name: name.trim(), phone: phone.trim() };
+    const updates = { name: name.trim(), email: email.trim(), phone: phone.trim() };
     if (newPassword) {
       updates.currentPassword = currentPassword;
       updates.newPassword = newPassword;
@@ -107,6 +108,7 @@ export default function ProfileScreen() {
   const cancelEdit = () => {
     setEditing(false);
     setName(user?.name || '');
+    setEmail(user?.email || '');
     setPhone(user?.phone || '');
     setCurrentPassword('');
     setNewPassword('');
@@ -194,11 +196,14 @@ export default function ProfileScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Email (cannot be changed)</Text>
+              <Text style={styles.inputLabel}>Email</Text>
               <TextInput
-                style={[styles.input, styles.inputDisabled]}
-                value={user?.email}
-                editable={false}
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter your email address"
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
             </View>
 

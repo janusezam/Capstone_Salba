@@ -581,16 +581,16 @@ export default function MapScreen({ navigation }) {
       {/* Map Controls */}
       <View style={styles.mapControls}>
         <TouchableOpacity style={styles.controlButton} onPress={centerOnLocation}>
-          <Ionicons name="locate" size={24} color="#DC2626" />
+          <Ionicons name="locate" size={22} color="#4B5563" />
         </TouchableOpacity>
         
         {mission?.report && (
           <>
             <TouchableOpacity style={styles.controlButton} onPress={centerOnMission}>
-              <Ionicons name="flag" size={24} color="#DC2626" />
+              <Ionicons name="flag" size={22} color="#4B5563" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.controlButton} onPress={fitBothMarkers}>
-              <Ionicons name="expand" size={24} color="#DC2626" />
+              <Ionicons name="expand" size={22} color="#4B5563" />
             </TouchableOpacity>
           </>
         )}
@@ -707,43 +707,40 @@ export default function MapScreen({ navigation }) {
             <TouchableOpacity
               style={[
                 styles.statusButton,
-                styles.onTheWayButton,
                 mission.report.rescuerMissionStatus === 'on_the_way' && styles.statusButtonActive,
                 (mission.report.rescuerMissionStatus && mission.report.rescuerMissionStatus !== 'none' && mission.report.rescuerMissionStatus !== 'on_the_way') && styles.statusButtonDisabled,
               ]}
               disabled={missionStatusUpdating || (mission.report.rescuerMissionStatus && mission.report.rescuerMissionStatus !== 'none')}
               onPress={() => handleMissionStatusPress('on_the_way')}
             >
-              <Ionicons name="navigate" size={16} color="#fff" />
-              <Text style={styles.statusButtonText}>On the way</Text>
+              <Ionicons name="navigate" size={16} color={mission.report.rescuerMissionStatus === 'on_the_way' ? '#fff' : '#4B5563'} />
+              <Text style={[styles.statusButtonText, mission.report.rescuerMissionStatus === 'on_the_way' && styles.statusButtonTextActive]}>On the way</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
                 styles.statusButton,
-                styles.ongoingButton,
                 mission.report.rescuerMissionStatus === 'ongoing' && styles.statusButtonActive,
                 (mission.report.rescuerMissionStatus !== 'on_the_way' && mission.report.rescuerMissionStatus !== 'ongoing') && styles.statusButtonDisabled,
               ]}
               disabled={missionStatusUpdating || mission.report.rescuerMissionStatus !== 'on_the_way'}
               onPress={() => handleMissionStatusPress('ongoing')}
             >
-              <Ionicons name="time" size={16} color="#fff" />
-              <Text style={styles.statusButtonText}>Arrived</Text>
+              <Ionicons name="time" size={16} color={mission.report.rescuerMissionStatus === 'ongoing' ? '#fff' : '#4B5563'} />
+              <Text style={[styles.statusButtonText, mission.report.rescuerMissionStatus === 'ongoing' && styles.statusButtonTextActive]}>Arrived</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
                 styles.statusButton,
-                styles.resolvedButton,
                 mission.report.rescuerMissionStatus === 'resolved' && styles.statusButtonActive,
                 (mission.report.rescuerMissionStatus !== 'ongoing' && mission.report.rescuerMissionStatus !== 'resolved') && styles.statusButtonDisabled,
               ]}
               disabled={missionStatusUpdating || mission.report.rescuerMissionStatus !== 'ongoing'}
               onPress={() => handleMissionStatusPress('resolved')}
             >
-              <Ionicons name="checkmark-done" size={16} color="#fff" />
-              <Text style={styles.statusButtonText}>Resolved</Text>
+              <Ionicons name="checkmark-done" size={16} color={mission.report.rescuerMissionStatus === 'resolved' ? '#fff' : '#4B5563'} />
+              <Text style={[styles.statusButtonText, mission.report.rescuerMissionStatus === 'resolved' && styles.statusButtonTextActive]}>Resolved</Text>
             </TouchableOpacity>
           </View>
 
@@ -772,74 +769,13 @@ export default function MapScreen({ navigation }) {
       {/* Connection Status */}
       <View style={[
         styles.connectionIndicator,
-        { backgroundColor: connected ? '#10B981' : '#EF4444' }
+        { borderColor: connected ? '#D1FAE5' : '#FEE2E2', backgroundColor: connected ? '#ECFDF5' : '#FEF2F2' }
       ]}>
-        <View style={styles.connectionDot} />
-        <Text style={styles.connectionText}>
-          {connected ? 'Connected' : 'Disconnected'}
+        <View style={[styles.connectionDot, { backgroundColor: connected ? '#10B981' : '#EF4444' }]} />
+        <Text style={[styles.connectionText, { color: connected ? '#059669' : '#DC2626' }]}>
+          {connected ? 'ONLINE' : 'OFFLINE'}
         </Text>
       </View>
-
-      {/* Debug Route Test Button - Always Visible */}
-      <TouchableOpacity 
-        style={{
-          position: 'absolute',
-          bottom: mission?.report ? 240 : 20,
-          right: 20,
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          backgroundColor: '#3B82F6',
-          justifyContent: 'center',
-          alignItems: 'center',
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.3,
-          shadowRadius: 4,
-          elevation: 5,
-          zIndex: 1000,
-        }}
-        onPress={async () => {
-          console.log('\n🔵 ROUTE ENDPOINT DIAGNOSTICS');
-          console.log('API_URL:', API_URL);
-          console.log(`Testing: ${API_URL}/route`);
-          
-          // Test with hardcoded coordinates (format: latitude,longitude)
-          const testStart = '8.1575,125.1050';
-          const testEnd = '8.1650,125.1200';
-          const testUrl = `${API_URL}/route?start=${testStart}&end=${testEnd}`;
-          
-          console.log('Test URL:', testUrl);
-          
-          try {
-            const response = await fetch(testUrl);
-            console.log('Status:', response.status);
-            const data = await response.json();
-            console.log('Response keys:', Object.keys(data));
-            console.log('Geometry type:', data.geometry?.type);
-            console.log('Coordinates count:', data.geometry?.coordinates?.length);
-            
-            if (data.geometry?.coordinates?.length > 0) {
-              console.log('✅ ENDPOINT WORKING - Got', data.geometry.coordinates.length, 'points');
-              Alert.alert('✅ Route Endpoint Works!', `Got ${data.geometry.coordinates.length} route points`);
-            } else {
-              console.log('❌ ENDPOINT ISSUE - No coordinates');
-              Alert.alert('❌ Route Error', 'Endpoint returned no coordinates');
-            }
-          } catch (err) {
-            console.error('❌ NETWORK ERROR:', err.message);
-            Alert.alert('❌ Network Error', err.message);
-          }
-          
-          // Now test with current mission
-          if (location && mission?.report) {
-            console.log('\n🟡 Retrying with current mission coordinates');
-            fetchRoute(location, { latitude: mission.report.lat, longitude: mission.report.lng });
-          }
-        }}
-      >
-        <Ionicons name="bug" size={28} color="#fff" />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -935,7 +871,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 4,
   },
@@ -945,13 +881,15 @@ const styles = StyleSheet.create({
     left: 15,
     right: 15,
     backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 15,
+    borderRadius: 24,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   missionHeader: {
     flexDirection: 'row',
@@ -979,10 +917,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   missionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    color: '#111827',
+    marginBottom: 12,
   },
   missionInfo: {
     marginBottom: 15,
@@ -994,22 +932,23 @@ const styles = StyleSheet.create({
   },
   infoText: {
     marginLeft: 8,
-    color: '#666',
+    color: '#4B5563',
     fontSize: 14,
     flex: 1,
   },
   directionsButton: {
-    backgroundColor: '#DC2626',
+    backgroundColor: '#991B1B',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderRadius: 10,
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginTop: 8,
   },
   directionsText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
     marginLeft: 8,
   },
   missionStatusActions: {
@@ -1031,30 +970,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderRadius: 10,
-  },
-  onTheWayButton: {
-    backgroundColor: '#0EA5E9',
-  },
-  ongoingButton: {
-    backgroundColor: '#2563EB',
-  },
-  resolvedButton: {
-    backgroundColor: '#059669',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   statusButtonActive: {
-    opacity: 0.85,
-    borderWidth: 2,
-    borderColor: '#111827',
+    backgroundColor: '#991B1B',
+    borderColor: '#991B1B',
   },
   statusButtonDisabled: {
-    backgroundColor: '#94A3B8',
-    opacity: 0.45,
+    backgroundColor: '#F3F4F6',
+    borderColor: '#E5E7EB',
+    opacity: 0.6,
   },
   statusButtonText: {
-    color: '#fff',
-    fontSize: 12,
+    color: '#4B5563',
+    fontSize: 11,
     fontWeight: '700',
     marginLeft: 4,
+    letterSpacing: 0.5,
+  },
+  statusButtonTextActive: {
+    color: '#FFFFFF',
   },
   statusUpdatingText: {
     marginTop: 8,
@@ -1068,26 +1005,29 @@ const styles = StyleSheet.create({
     left: 15,
     right: 15,
     backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 20,
+    borderRadius: 24,
+    padding: 24,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   noMissionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
-    marginTop: 10,
+    color: '#111827',
+    marginTop: 12,
   },
   noMissionText: {
-    color: '#666',
+    color: '#6B7280',
     fontSize: 14,
     textAlign: 'center',
-    marginTop: 5,
+    marginTop: 6,
+    lineHeight: 20,
   },
   errorBanner: {
     position: 'absolute',
@@ -1107,24 +1047,25 @@ const styles = StyleSheet.create({
   },
   connectionIndicator: {
     position: 'absolute',
-    top: 20,
+    top: 50,
     left: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    backgroundColor: '#FFFFFF',
   },
   connectionDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#fff',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     marginRight: 6,
   },
   connectionText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
 });

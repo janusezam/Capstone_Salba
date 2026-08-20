@@ -8,6 +8,7 @@ import {
   AlertCircle,
   Truck,
   Bell,
+  Archive,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -52,6 +53,12 @@ function Sidebar({
           id: "ongoing",
           label: "Ongoing Rescues",
           icon: Truck,
+          badge: null
+        },
+        {
+          id: "archived",
+          label: "Completed Rescues",
+          icon: Archive,
           badge: null
         },
         {

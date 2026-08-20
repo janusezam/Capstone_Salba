@@ -7,13 +7,14 @@ import "leaflet/dist/leaflet.css";
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
 import markerShadowPng from "leaflet/dist/images/marker-shadow.png";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, CheckCircle, Clock, TrendingUp, Activity, Truck, Users, ArrowUpRight, ArrowDownRight, MoreVertical, Flame, Eye, RefreshCw, FileText, Bell } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, TrendingUp, Activity, Truck, Users, ArrowUpRight, ArrowDownRight, MoreVertical, Flame, Eye, RefreshCw, FileText, Bell, Archive, Trash2 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import Sidebar from "./Sidebar";
 import { Header } from "./layout/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { Badge } from "./ui/Badge";
 import RescueMap from "./RescueMap";
+import ReportRoutePolyline from "./ReportRoutePolyline";
 
 const DefaultIcon = L.icon({
   iconUrl: markerIconPng,
@@ -282,6 +283,9 @@ function AdminDashboard() {
   const [ongoingRescues, setOngoingRescues] = useState([]);
   const [loadingOngoingRescues, setLoadingOngoingRescues] = useState(false);
   const [ongoingRescuesError, setOngoingRescuesError] = useState(null);
+  const [archivedRescues, setArchivedRescues] = useState([]);
+  const [loadingArchivedRescues, setLoadingArchivedRescues] = useState(false);
+  const [archivedRescuesError, setArchivedRescuesError] = useState(null);
   const [expandedRescue, setExpandedRescue] = useState(null);
   const [resolvingRescueId, setResolvingRescueId] = useState(null);
   const [dbRescuers, setDbRescuers] = useState([]);
@@ -740,6 +744,9 @@ function AdminDashboard() {
     if (activeTab === "ongoing" || activeTab === "rescuers") {
       fetchOngoingRescues();
     }
+    if (activeTab === "archived") {
+      fetchArchivedRescues();
+    }
   }, [activeTab]);
 
   // Calculate assigned alerts for each rescuer based on all reports
@@ -1027,6 +1034,48 @@ function AdminDashboard() {
     }
   };
 
+  const fetchArchivedRescues = async ({ silent = false } = {}) => {
+    if (!silent) {
+      setLoadingArchivedRescues(true);
+      setArchivedRescuesError(null);
+    }
+    try {
+      const res = await API.get(`/reports`, { params: { status: 'resolved', limit: 100 } });
+      if (res.data?.success && Array.isArray(res.data?.data)) {
+        setArchivedRescues(res.data.data);
+      } else {
+        throw new Error('Invalid API response format');
+      }
+    } catch (err) {
+      console.error("[API] ✗ Failed to fetch archived rescues:", err.response?.data || err.message);
+      if (!silent) {
+        setArchivedRescuesError(err.response?.data?.message || err.message || "Failed to fetch completed rescues");
+        setArchivedRescues([]);
+      }
+    } finally {
+      if (!silent) {
+        setLoadingArchivedRescues(false);
+      }
+    }
+  };
+
+  const deleteArchivedRescue = async (id) => {
+    if (window.confirm("Are you sure you want to permanently delete this report? This action cannot be undone.")) {
+      try {
+        await API.delete(`/reports/${id}`);
+        setArchivedRescues(prev => prev.filter(r => r._id !== id));
+        setNotifications(prev => prev.filter(n => {
+          const reportId = n.data?.reportId?._id || n.data?.reportId;
+          return n._id !== String(id) && reportId !== id;
+        }));
+        alert("Report deleted successfully.");
+      } catch (err) {
+        console.error("Failed to delete report:", err);
+        alert(err.response?.data?.message || "Failed to delete report.");
+      }
+    }
+  };
+
   // Groq AI Priority Analysis
   const analyzeWithGroq = async (language = 'en') => {
     try {
@@ -1226,10 +1275,11 @@ function AdminDashboard() {
   // Mark notification as read
   const markNotificationRead = async (id) => {
     try {
-      await API.patch(`/reports/${id}/read`);
-      setNotifications(
-        notifications.map((notif) =>
-          notif._id === id ? { ...notif, isRead: true } : notif
+      const reportId = String(id).replace('status-', '');
+      await API.patch(`/reports/${reportId}/read`);
+      setNotifications(prev => 
+        prev.map((notif) =>
+          (notif._id === id || notif.id === id) ? { ...notif, isRead: true } : notif
         )
       );
     } catch (err) {
@@ -1240,7 +1290,7 @@ function AdminDashboard() {
   // Mark all notifications as read
   const markAllAsRead = async () => {
     try {
-      await API.patch('/reports/read-all');
+      await API.patch('/rescue/notifications/read-all');
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     } catch (err) {
       console.error("Error marking all notifications as read:", err);
@@ -1250,12 +1300,22 @@ function AdminDashboard() {
   // Clear all notifications
   const clearAllNotifications = async () => {
     try {
-      await API.patch('/reports/read-all');
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      await API.delete('/rescue/notifications/all');
+      setNotifications([]);
       setShowNotificationsModal(false);
     } catch (err) {
       console.error("Error clearing notifications:", err);
       setShowNotificationsModal(false);
+    }
+  };
+
+  // Delete a specific notification
+  const deleteNotification = async (notifId) => {
+    try {
+      await API.delete(`/rescue/notifications/${notifId}`);
+      setNotifications(prev => prev.filter(n => (n._id || n.id) !== notifId));
+    } catch (err) {
+      console.error("Error deleting notification:", err);
     }
   };
 
@@ -3004,16 +3064,13 @@ function AdminDashboard() {
                           if (routeLat && routeLng && report.lat && report.lng) {
                             return (
                               <React.Fragment key={`route-group-${report._id}`}>
-                                <Polyline
+                                <ReportRoutePolyline
                                   key={`route-${report._id}`}
-                                  positions={[
-                                    [routeLat, routeLng],
-                                    [report.lat, report.lng]
-                                  ]}
-                                  color="#0284c7"
-                                  weight={3}
-                                  dashArray="5, 10"
-                                  opacity={0.7}
+                                  reportId={report._id}
+                                  startLat={routeLat}
+                                  startLng={routeLng}
+                                  endLat={report.lat}
+                                  endLng={report.lng}
                                 />
                                 {/* If the rescuer isn't in liveRescuerLocations but we have their coordinates from the report, render a marker for them here so they don't disappear */}
                                 {(!liveRescuerLocations[String(report.assignedRescuer?.rescuerId)] && report.assignedRescuer?.rescuerLat && report.assignedRescuer?.rescuerLng) && (
@@ -4411,6 +4468,285 @@ function AdminDashboard() {
             </div>
           )}
 
+          {activeTab === "archived" && (
+            <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Completed Rescues</h1>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">View historical data of resolved emergency operations</p>
+                </div>
+                <button 
+                  onClick={() => fetchArchivedRescues()}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5 self-start sm:self-auto"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" /> Refresh Archive
+                </button>
+              </div>
+
+              {loadingArchivedRescues && (
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-8 text-center shadow-xs">
+                  <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto" />
+                  <p className="text-xs font-semibold text-slate-500 mt-3">Loading completed rescue operations...</p>
+                </Card>
+              )}
+
+              {archivedRescuesError && !loadingArchivedRescues && (
+                <Card className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-2xl p-4">
+                  <p className="text-xs font-bold text-red-600 dark:text-red-400">{archivedRescuesError}</p>
+                </Card>
+              )}
+
+              {!loadingArchivedRescues && archivedRescues.length === 0 && !archivedRescuesError && (
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-8 text-center shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-600 dark:bg-slate-900/60 dark:text-slate-400 flex items-center justify-center mx-auto mb-3">
+                    <Archive className="w-6 h-6" />
+                  </div>
+                  <p className="text-base font-bold text-slate-900 dark:text-white">No archived operations</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">There are no completed rescues in the archive.</p>
+                </Card>
+              )}
+
+              {!loadingArchivedRescues && archivedRescues.length > 0 && (
+                <div className="space-y-4">
+                  {archivedRescues.map((rescue) => (
+                    <div 
+                      key={rescue._id}
+                      className="bg-white border border-slate-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+                    >
+                      {/* Summary Section */}
+                      <div 
+                        className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50"
+                        onClick={() => setExpandedRescue(expandedRescue === rescue._id ? null : rescue._id)}
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                              <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-slate-900">
+                                {rescue.mlPredictions?.disasterType || "Emergency Rescue"}
+                              </h3>
+                              <p className="text-sm text-slate-600">
+                                Location: {rescue.locationName || `${rescue.lat.toFixed(4)}, ${rescue.lng.toFixed(4)}`}
+                              </p>
+                              <p className="text-sm text-slate-600">
+                                Reported by: {rescue.userId?.name || rescue.senderName || "Unknown"}
+                              </p>
+                              <p className="text-xs text-green-700 font-semibold mt-1">
+                                Resolved: {new Date(rescue.resolvedAt || rescue.updatedAt).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="text-sm font-medium text-slate-900">
+                              Severity: <Badge className="bg-orange-100 text-orange-800 ml-2">{rescue.severity}</Badge>
+                            </p>
+                            <p className="text-xs text-slate-600 mt-1">
+                              Started: {new Date(rescue.createdAt).toLocaleTimeString()}
+                            </p>
+                          </div>
+                          <span className="text-slate-400">
+                            {expandedRescue === rescue._id ? "▼" : "▶"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Expanded Details Section */}
+                      {expandedRescue === rescue._id && (
+                        <div className="border-t border-slate-200 p-4 bg-slate-50 space-y-4">
+                          {/* Assigned Team Info */}
+                          <div>
+                            <h4 className="font-semibold text-slate-900 mb-3">Assigned Team</h4>
+                            {rescue.assignedTeam ? (
+                              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                                <div className="flex items-center gap-3 mb-4">
+                                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <Users className="w-5 h-5 text-blue-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold text-slate-900">{rescue.assignedTeam.name}</p>
+                                    <p className="text-sm text-slate-600">
+                                      {rescue.assignedTeam.members?.length || 0} members
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Team Members */}
+                                {rescue.assignedTeam.members && rescue.assignedTeam.members.length > 0 && (
+                                  <div>
+                                    <p className="text-sm font-medium text-slate-700 mb-2">Team Members:</p>
+                                    <div className="space-y-2">
+                                      {rescue.assignedTeam.members.map((member, idx) => (
+                                        <div key={idx} className="flex items-center justify-between bg-slate-50 p-2 rounded">
+                                          <div>
+                                            <p className="text-sm font-medium text-slate-900">{member.name}</p>
+                                            <p className="text-xs text-slate-600">{member.email}</p>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
+                                <p className="text-slate-500 text-sm">No team recorded</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Assigned Rescuer Info */}
+                          {rescue.assignedRescuer && rescue.assignedRescuer.rescuerName && (
+                            <div>
+                              <h4 className="font-semibold text-slate-900 mb-3">Primary Rescuer</h4>
+                              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                                <p className="font-semibold text-slate-900">{rescue.assignedRescuer.rescuerName}</p>
+                                <p className="text-sm text-slate-600">
+                                  Started at: {new Date(rescue.assignedRescuer.startedAt).toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Map (Static Location) */}
+                          <div>
+                            <h4 className="font-semibold text-slate-900 mb-3">Incident Location</h4>
+                            <RescueMap rescue={rescue} externalLocationUpdate={null} />
+                          </div>
+
+                          {/* Rescue Details */}
+                          <div>
+                            <h4 className="font-semibold text-slate-900 mb-3">Details</h4>
+                            <div className="bg-white rounded-lg p-4 border border-slate-200 space-y-2">
+                              <div className="flex justify-between">
+                                <span className="text-slate-600">Status:</span>
+                                <span className="font-medium text-green-600">{getStatusDisplay(rescue.status)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-600">Severity:</span>
+                                <span className="font-medium capitalize">{rescue.severity}</span>
+                              </div>
+                              {rescue.disasterType && (
+                                <div className="flex justify-between">
+                                  <span className="text-slate-600">Type:</span>
+                                  <span className="font-medium">{rescue.disasterType}</span>
+                                </div>
+                              )}
+                              {rescue.note && (
+                                <div>
+                                  <span className="text-slate-600 block mb-1">Notes:</span>
+                                  <p className="text-sm text-slate-700 bg-slate-50 p-2 rounded">{rescue.note}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Photo Evidence in Ongoing Rescues */}
+                          {(rescue.photoUrl || rescue.resolutionPhotoUrl) && (
+                            <div>
+                              <h4 className="font-semibold text-slate-900 mb-3">Photo Evidence</h4>
+                              <div className="bg-white rounded-lg p-4 border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {rescue.photoUrl && (
+                                  <div className="flex flex-col">
+                                    <span className="text-slate-600 text-xs font-bold mb-2">📸 Incident Photo (Victim)</span>
+                                    <a 
+                                      href={rescue.photoUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="relative rounded-lg overflow-hidden border border-slate-200 aspect-video group cursor-zoom-in bg-slate-900"
+                                    >
+                                      <img 
+                                        src={rescue.photoUrl} 
+                                        alt="Incident" 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      />
+                                    </a>
+                                  </div>
+                                )}
+                                {rescue.resolutionPhotoUrl && (
+                                  <div className="flex flex-col">
+                                    <span className="text-emerald-700 text-xs font-bold mb-2">✅ Resolution Proof (Rescuer)</span>
+                                    <a 
+                                      href={rescue.resolutionPhotoUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="relative rounded-lg overflow-hidden border border-emerald-200 aspect-video group cursor-zoom-in bg-slate-900"
+                                    >
+                                      <img 
+                                        src={rescue.resolutionPhotoUrl} 
+                                        alt="Resolution Proof" 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      />
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Performance & Routing Summary Section */}
+                          <div>
+                            <h4 className="font-semibold text-slate-900 mb-3">⏱️ Response & Route Summary</h4>
+                            <div className="bg-white rounded-lg p-4 border border-slate-200 grid grid-cols-2 gap-4 mb-4">
+                              <div>
+                                <span className="text-slate-500 text-xs block">Response Time:</span>
+                                <span className="font-bold text-slate-800">
+                                  {rescue.responseDurationMinutes != null 
+                                    ? `${rescue.responseDurationMinutes} mins`
+                                    : "N/A"
+                                  }
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 text-xs block">Distance Traveled:</span>
+                                <span className="font-bold text-slate-800 font-mono">
+                                  {rescue.responseDistanceMeters != null 
+                                    ? (rescue.responseDistanceMeters >= 1000
+                                        ? `${(rescue.responseDistanceMeters / 1000).toFixed(2)} km`
+                                        : `${rescue.responseDistanceMeters} m`)
+                                    : "N/A"
+                                  }
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* SITREP Button */}
+                          <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                            <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                              📋 Situation Report (SITREP)
+                            </h4>
+                            <p className="text-sm text-slate-600 mb-4">Open the detailed SITREP form to view casualties, damage assessment, and relief assistance.</p>
+                            <button
+                              onClick={() => navigate(`/sitrep/${rescue._id}`)}
+                              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                              📄 Open SITREP Form
+                            </button>
+                          </div>
+
+                          {/* Action Button */}
+                          <div className="pt-4 border-t border-slate-200">
+                            <button
+                              onClick={() => deleteArchivedRescue(rescue._id)}
+                              className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 border border-red-200"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                              Permanently Delete Record
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === "notifications" && (
             <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
               {/* Header Section */}
@@ -4539,6 +4875,13 @@ function AdminDashboard() {
                               Mark Read
                             </button>
                           )}
+                          <button
+                            onClick={() => deleteNotification(notif._id || notif.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                            title="Delete notification"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={() => {
                               setActiveTab('alerts');

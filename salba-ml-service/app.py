@@ -34,11 +34,18 @@ except FileNotFoundError as e:
     print(f"❌ Error loading models: {e}")
     print("   Run 'python export_data.py' then 'python train_models.py' first")
 
-# Feature names
-FEATURE_NAMES = [
+# Feature names for different models
+FEATURE_NAMES_TYPE_ALARM = [
     'text_length', 'word_count', 'has_urgency',
     'lat_normalized', 'lng_normalized',
     'hour', 'month', 'day_of_week'
+]
+
+FEATURE_NAMES_SEVERITY = [
+    'text_length', 'word_count', 'has_urgency',
+    'lat_normalized', 'lng_normalized',
+    'hour', 'month', 'day_of_week',
+    'disaster_type_encoded'
 ]
 
 # ============================================
@@ -74,11 +81,21 @@ def extract_features(report_data):
     features['month'] = now.month
     features['day_of_week'] = now.weekday()
     
+    # Disaster type encoding for severity prediction
+    disaster_type = report_data.get('disasterType') or report_data.get('disaster_type') or 'Other'
+    try:
+        if encoders and 'disaster_type' in encoders and disaster_type in encoders['disaster_type'].classes_:
+            features['disaster_type_encoded'] = int(encoders['disaster_type'].transform([disaster_type])[0])
+        else:
+            features['disaster_type_encoded'] = 0
+    except Exception as e:
+        features['disaster_type_encoded'] = 0
+    
     return features
 
-def features_to_array(features):
+def features_to_array(features, feature_names):
     """Convert features dict to numpy array in correct order"""
-    return np.array([features[name] for name in FEATURE_NAMES]).reshape(1, -1)
+    return np.array([features[name] for name in feature_names]).reshape(1, -1)
 
 # ============================================
 # HEALTH CHECK
@@ -120,7 +137,7 @@ def classify_disaster():
         
         # Extract features
         features = extract_features(data)
-        X = features_to_array(features)
+        X = features_to_array(features, FEATURE_NAMES_TYPE_ALARM)
         
         # Predict
         pred_encoded = classifier.predict(X)[0]
@@ -167,7 +184,7 @@ def predict_severity():
         
         # Extract features
         features = extract_features(data)
-        X = features_to_array(features)
+        X = features_to_array(features, FEATURE_NAMES_SEVERITY)
         
         # Predict
         pred_encoded = severity_model.predict(X)[0]
@@ -213,7 +230,7 @@ def verify_report():
         
         # Extract features
         features = extract_features(data)
-        X = features_to_array(features)
+        X = features_to_array(features, FEATURE_NAMES_TYPE_ALARM)
         
         # Predict
         is_false_alarm = bool(false_alarm_model.predict(X)[0])
@@ -256,21 +273,22 @@ def evaluate_report():
         
         # Extract features
         features = extract_features(data)
-        X = features_to_array(features)
+        X_type_alarm = features_to_array(features, FEATURE_NAMES_TYPE_ALARM)
+        X_sev = features_to_array(features, FEATURE_NAMES_SEVERITY)
         
         # Classification
-        pred_type_encoded = classifier.predict(X)[0]
+        pred_type_encoded = classifier.predict(X_type_alarm)[0]
         pred_type = encoders['disaster_type'].inverse_transform([pred_type_encoded])[0]
-        type_conf = float(np.max(classifier.predict_proba(X)))
+        type_conf = float(np.max(classifier.predict_proba(X_type_alarm)))
         
         # Severity
-        pred_sev_encoded = severity_model.predict(X)[0]
+        pred_sev_encoded = severity_model.predict(X_sev)[0]
         pred_sev = encoders['severity'].inverse_transform([pred_sev_encoded])[0]
-        sev_conf = float(np.max(severity_model.predict_proba(X)))
+        sev_conf = float(np.max(severity_model.predict_proba(X_sev)))
         
         # Verification
-        is_legitimate = not bool(false_alarm_model.predict(X)[0])
-        verify_conf = float(np.max(false_alarm_model.predict_proba(X)))
+        is_legitimate = not bool(false_alarm_model.predict(X_type_alarm)[0])
+        verify_conf = float(np.max(false_alarm_model.predict_proba(X_type_alarm)))
         
         # Overall recommendation
         overall_confidence = (type_conf + sev_conf + verify_conf) / 3
@@ -376,7 +394,8 @@ def evaluate_report_fast():
         
         # Quick inference
         features = extract_features(data)
-        X = features_to_array(features)
+        X_type_alarm = features_to_array(features, FEATURE_NAMES_TYPE_ALARM)
+        X_sev = features_to_array(features, FEATURE_NAMES_SEVERITY)
         
         # Parallel inference on all 3 models
         import threading
@@ -384,27 +403,27 @@ def evaluate_report_fast():
         
         def classify():
             try:
-                pred_type_encoded = classifier.predict(X)[0]
+                pred_type_encoded = classifier.predict(X_type_alarm)[0]
                 results['type'] = encoders['disaster_type'].inverse_transform([pred_type_encoded])[0]
-                results['type_conf'] = float(np.max(classifier.predict_proba(X)))
+                results['type_conf'] = float(np.max(classifier.predict_proba(X_type_alarm)))
             except:
                 results['type'] = 'Unknown'
                 results['type_conf'] = 0.0
         
         def severity():
             try:
-                pred_sev_encoded = severity_model.predict(X)[0]
+                pred_sev_encoded = severity_model.predict(X_sev)[0]
                 results['sev'] = encoders['severity'].inverse_transform([pred_sev_encoded])[0]
-                results['sev_conf'] = float(np.max(severity_model.predict_proba(X)))
+                results['sev_conf'] = float(np.max(severity_model.predict_proba(X_sev)))
             except:
                 results['sev'] = 'moderate'
                 results['sev_conf'] = 0.0
         
         def verify():
             try:
-                is_false = bool(false_alarm_model.predict(X)[0])
+                is_false = bool(false_alarm_model.predict(X_type_alarm)[0])
                 results['legit'] = not is_false
-                results['legit_conf'] = float(np.max(false_alarm_model.predict_proba(X)))
+                results['legit_conf'] = float(np.max(false_alarm_model.predict_proba(X_type_alarm)))
             except:
                 results['legit'] = True
                 results['legit_conf'] = 0.0

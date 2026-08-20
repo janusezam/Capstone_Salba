@@ -1,9 +1,9 @@
 import Constants from 'expo-constants';
 
 const getApiBaseUrl = () => {
-  // Extract host IP (e.g., "10.0.0.34") from the Expo packager's address
+  // Extract host IP (e.g., "10.0.0.35") from the Expo packager's address
   const hostUri = Constants.expoConfig?.hostUri || Constants.manifest?.debuggerHost || '';
-  const ip = hostUri ? hostUri.split(':')[0] : '10.0.0.34'; // fallback to last known IP
+  const ip = hostUri ? hostUri.split(':')[0] : '10.0.0.35'; // fallback to last known IP
   return `http://${ip}:5000`;
 };
 

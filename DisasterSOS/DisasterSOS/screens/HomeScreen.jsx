@@ -16,7 +16,23 @@ import {
 import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
 
-import { sendAlert } from "../services/alertService";
+import { sendAlert, getMyReports } from "../services/alertService";
+
+const calculateDistanceMeters = (lat1, lon1, lat2, lon2) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+  const toRadians = (deg) => (deg * Math.PI) / 180;
+  const R = 6371e3; // metres
+  const phi1 = toRadians(lat1);
+  const phi2 = toRadians(lat2);
+  const deltaPhi = toRadians(lat2 - lat1);
+  const deltaLambda = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+    Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // distance in meters
+};
 import { submitFeedback } from "../services/feedbackService";
 import { Ionicons } from "@expo/vector-icons";
 import { Dropdown } from "react-native-element-dropdown";
@@ -44,15 +60,60 @@ export default function HomeScreen() {
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const successOpacity = useRef(new Animated.Value(0)).current;
+  const [activeReport, setActiveReport] = useState(null);
+  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
   const navigation = useNavigation();
   const { logout } = useAuth();
 
+  // Poll for active reports
+  useEffect(() => {
+    let interval;
+    const fetchActiveReport = async () => {
+      try {
+        const data = await getMyReports();
+        if (data && data.reports && data.reports.length > 0) {
+          const active = data.reports.find(r => 
+            r.status === 'new' || r.status === 'pending' || r.status === 'acknowledged' || r.status === 'on_the_way' || r.status === 'ongoing'
+          );
+          setActiveReport(active || null);
+        } else {
+          setActiveReport(null);
+        }
+      } catch (err) {
+        console.log("Error fetching reports:", err);
+        if (err.message && err.message.includes("401")) {
+          await logout();
+          navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+        }
+      }
+    };
+    
+    fetchActiveReport();
+    interval = setInterval(fetchActiveReport, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getDistanceText = () => {
+    if (!activeReport || activeReport.status !== 'on_the_way') return null;
+    const rescuerLat = activeReport.assignedRescuer?.rescuerLat;
+    const rescuerLng = activeReport.assignedRescuer?.rescuerLng;
+    if (!rescuerLat || !rescuerLng) return "Calculating...";
+    
+    const victimLat = activeReport.lat;
+    const victimLng = activeReport.lng;
+    
+    const distMeters = calculateDistanceMeters(victimLat, victimLng, rescuerLat, rescuerLng);
+    if (distMeters === null) return "Calculating...";
+    if (distMeters < 1000) return `${Math.round(distMeters)}m away`;
+    return `${(distMeters / 1000).toFixed(1)}km away`;
+  };
+
   const disasterOptions = [
-    { label: "Flood", value: "Flood" },
-    { label: "Fire", value: "Fire" },
-    { label: "Earthquake", value: "Earthquake" },
-    { label: "Landslide", value: "Landslide" },
-    { label: "Typhoon", value: "Typhoon" },
+    { label: "Flood", value: "Flood", icon: "water" },
+    { label: "Fire", value: "Fire", icon: "flame" },
+    { label: "Earthquake", value: "Earthquake", icon: "pulse" },
+    { label: "Landslide", value: "Landslide", icon: "warning" },
+    { label: "Typhoon", value: "Typhoon", icon: "thunderstorm" },
   ];
 
   // Fetch user's current location on mount
@@ -283,13 +344,24 @@ export default function HomeScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        {/* Header with burger menu */}
+        {/* Header with notification bell and burger menu */}
         <View style={styles.header}>
-          <Image source={require('../assets/CDRRMO_LOGO.png')} style={styles.logo} />
+          <TouchableOpacity 
+            style={styles.notificationButton}
+            onPress={() => setNotificationModalVisible(true)}
+          >
+            <Ionicons name="notifications" size={28} color="#333" />
+            {activeReport && (
+              <View style={styles.notificationBadge} />
+            )}
+          </TouchableOpacity>
+
           <View style={styles.titleContainer}>
+            <Image source={require('../assets/CDRRMO_LOGO.png')} style={styles.centerLogo} />
             <Text style={styles.title}>SALBA</Text>
             <Text style={styles.headerSubtitle}>Malaybalay City CDDRMO One Tap Rescue</Text>
           </View>
+
           <TouchableOpacity
             style={styles.burgerButton}
             onPress={() => setMenuVisible(true)}
@@ -316,6 +388,73 @@ export default function HomeScreen() {
             <Text style={styles.feedbackNoticeText}>{feedbackNotice}</Text>
           </View>
         ) : null}
+
+        {/* Notification Modal */}
+        <Modal
+          visible={notificationModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setNotificationModalVisible(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setNotificationModalVisible(false)}
+          >
+            <View style={styles.notificationModalContainer}>
+              <View style={styles.notificationModalHeader}>
+                <Text style={styles.notificationModalTitle}>Emergency Report Status</Text>
+                <TouchableOpacity onPress={() => setNotificationModalVisible(false)}>
+                  <Ionicons name="close" size={24} color="#333" />
+                </TouchableOpacity>
+              </View>
+
+              {!activeReport ? (
+                <View style={styles.notificationModalContent}>
+                  <Ionicons name="checkmark-circle-outline" size={48} color="#10b981" />
+                  <Text style={styles.notificationModalEmpty}>No active reports at the moment.</Text>
+                </View>
+              ) : (
+                <View style={styles.notificationModalContent}>
+                  <Text style={styles.reportStatusType}>{activeReport.type || 'Emergency'} Alert</Text>
+                  
+                  <View style={styles.statusBadgeContainer}>
+                    <Text style={styles.statusBadgeText}>
+                      {activeReport.status === 'pending' && "Pending Review"}
+                      {activeReport.status === 'acknowledged' && "Acknowledged"}
+                      {activeReport.status === 'on_the_way' && "Rescuer On The Way"}
+                      {activeReport.status === 'ongoing' && "Rescuer Arrived"}
+                    </Text>
+                  </View>
+
+                  {activeReport.status === 'on_the_way' && (
+                    <View style={styles.distanceContainer}>
+                      <Ionicons name="bicycle" size={32} color="#0284c7" />
+                      <Text style={styles.distanceText}>{getDistanceText()}</Text>
+                      <Text style={styles.distanceSubtext}>
+                        {activeReport.assignedRescuer?.rescuerName ? `${activeReport.assignedRescuer.rescuerName} is moving towards your location.` : "A rescuer is moving towards your location."}
+                      </Text>
+                    </View>
+                  )}
+
+                  {activeReport.status === 'ongoing' && (
+                    <View style={styles.distanceContainer}>
+                      <Ionicons name="location" size={32} color="#10b981" />
+                      <Text style={styles.distanceText}>Arrived at Scene</Text>
+                      <Text style={styles.distanceSubtext}>
+                        {activeReport.assignedRescuer?.rescuerName ? `${activeReport.assignedRescuer.rescuerName} has arrived at your location.` : "A rescuer has arrived at your location."}
+                      </Text>
+                    </View>
+                  )}
+                  
+                  <Text style={styles.reportTimeText}>
+                    Reported on {new Date(activeReport.createdAt).toLocaleString()}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
+        </Modal>
 
         {/* Burger Menu Modal */}
         <Modal
@@ -487,28 +626,29 @@ export default function HomeScreen() {
           )}
         </TouchableOpacity>
 
-        {/* Disaster Type Dropdown */}
-        <View style={styles.dropdownContainer}>
-          <Dropdown
-            style={styles.dropdown}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={styles.selectedTextStyle}
-            iconStyle={styles.iconStyle}
-            data={disasterOptions}
-            labelField="label"
-            valueField="value"
-            placeholder="Select Disaster Type"
-            value={disasterType}
-            onChange={(item) => setDisasterType(item.value)}
-            renderLeftIcon={() => (
-              <Ionicons
-                name="warning"
-                size={22}
-                color="#007AFF"
-                style={{ marginRight: 10 }}
+        <View style={styles.disasterGrid}>
+          {disasterOptions.map((item) => (
+            <TouchableOpacity
+              key={item.value}
+              style={[
+                styles.disasterCard,
+                disasterType === item.value && styles.disasterCardSelected
+              ]}
+              onPress={() => setDisasterType(item.value)}
+            >
+              <Ionicons 
+                name={item.icon} 
+                size={32} 
+                color={disasterType === item.value ? "#fff" : "#d32f2f"} 
               />
-            )}
-          />
+              <Text style={[
+                styles.disasterCardText,
+                disasterType === item.value && styles.disasterCardTextSelected
+              ]}>
+                {item.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <View style={styles.noteContainer}>
@@ -600,13 +740,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     position: "relative",
   },
-  logo: {
-    width: 40,
-    height: 40,
-    resizeMode: "contain",
-    marginRight: 10,
+  notificationButton: {
     position: "absolute",
     left: 20,
+    zIndex: 10,
+    padding: 5,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'red',
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  centerLogo: {
+    width: 45,
+    height: 45,
+    resizeMode: "contain",
+    marginBottom: 5,
   },
   titleContainer: {
     alignItems: "center",
@@ -816,29 +971,38 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
-  dropdownContainer: {
-    width: "85%",
+  disasterGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10,
     marginTop: 20,
+    width: '90%',
   },
-  dropdown: {
-    height: 50,
-    borderColor: "#ddd",
-    borderWidth: 1,
+  disasterCard: {
+    width: '30%',
+    aspectRatio: 1,
+    backgroundColor: '#f9f9f9',
     borderRadius: 12,
-    paddingHorizontal: 10,
-    backgroundColor: "#f9f9f9",
+    borderWidth: 1,
+    borderColor: '#ddd',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 5,
   },
-  placeholderStyle: {
-    fontSize: 16,
-    color: "#888",
+  disasterCardSelected: {
+    backgroundColor: '#d32f2f',
+    borderColor: '#d32f2f',
   },
-  selectedTextStyle: {
-    fontSize: 16,
-    color: "#333",
+  disasterCardText: {
+    marginTop: 8,
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
   },
-  iconStyle: {
-    width: 20,
-    height: 20,
+  disasterCardTextSelected: {
+    color: '#fff',
   },
   noteContainer: {
     width: "85%",
@@ -1056,5 +1220,81 @@ const styles = StyleSheet.create({
   successSubtext: {
     fontSize: 12,
     color: "#aaa",
+  },
+  notificationModalContainer: {
+    width: "85%",
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  notificationModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    paddingBottom: 10,
+  },
+  notificationModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  notificationModalContent: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  notificationModalEmpty: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  reportStatusType: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#111',
+    marginBottom: 10,
+  },
+  statusBadgeContainer: {
+    backgroundColor: '#fef3c7',
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 20,
+  },
+  statusBadgeText: {
+    color: '#d97706',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  distanceContainer: {
+    alignItems: 'center',
+    backgroundColor: '#f0f9ff',
+    padding: 15,
+    borderRadius: 15,
+    width: '100%',
+    marginBottom: 15,
+  },
+  distanceText: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#0284c7',
+    marginVertical: 5,
+  },
+  distanceSubtext: {
+    fontSize: 13,
+    color: '#0369a1',
+    textAlign: 'center',
+  },
+  reportTimeText: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 10,
   },
 });

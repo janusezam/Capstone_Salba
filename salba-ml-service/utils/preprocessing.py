@@ -47,7 +47,8 @@ def get_feature_names():
         'lng_normalized',
         'hour',
         'month',
-        'day_of_week'
+        'day_of_week',
+        'disaster_type_encoded'
     ]
 
 def encode_targets(df):
