@@ -2649,7 +2649,7 @@ function AdminDashboard() {
                       const getSeverityBadgeColor = (severity) => {
                         if (severity === "critical") return "bg-red-100 text-red-700";
                         if (severity === "high") return "bg-orange-100 text-orange-700";
-                        if (severity === "medium") return "bg-yellow-100 text-yellow-700";
+                        if (severity === "medium" || severity === "moderate") return "bg-yellow-100 text-yellow-700";
                         return "bg-green-100 text-green-700";
                       };
 
@@ -2840,7 +2840,7 @@ function AdminDashboard() {
                                 <strong>Status:</strong> {toTitleCase(alert.status || "Pending")}
                               </p>
                               <p className="text-xs text-slate-600">
-                                <strong>Severity:</strong> <span className={`px-2 py-1 rounded text-xs font-medium ${alert.severity === "critical" ? "bg-red-100 text-red-700" : alert.severity === "high" ? "bg-orange-100 text-orange-700" : alert.severity === "medium" ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>{toTitleCase(alert.severity || "Medium")}</span>
+                                <strong>Severity:</strong> <span className={`px-2 py-1 rounded text-xs font-medium ${alert.severity === "critical" ? "bg-red-100 text-red-700" : alert.severity === "high" ? "bg-orange-100 text-orange-700" : (alert.severity === "medium" || alert.severity === "moderate") ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>{toTitleCase(alert.severity || "Medium")}</span>
                               </p>
 
                               {/* AI Detector Score in Popup */}
@@ -3163,7 +3163,7 @@ function AdminDashboard() {
                   <p className="text-sm text-slate-700 dark:text-slate-300"><strong>Type:</strong> {selectedAlertForDispatch.disasterType || selectedAlertForDispatch.type || "Emergency"}</p>
                   <p className="text-sm text-slate-700 dark:text-slate-300"><strong>Location:</strong> {selectedAlertForDispatch.locationName || selectedAlertForDispatch.location || "Unknown"}</p>
                   <p className="text-sm text-slate-700 dark:text-slate-300">
-                    <strong>Severity:</strong> <span className={`px-2 py-1 rounded text-xs font-medium ${selectedAlertForDispatch.severity === "critical" ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300" : selectedAlertForDispatch.severity === "high" ? "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300" : selectedAlertForDispatch.severity === "medium" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/60 dark:text-yellow-300" : "bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-300"}`}>{selectedAlertForDispatch.severity?.charAt(0).toUpperCase() + selectedAlertForDispatch.severity?.slice(1) || "Medium"}</span>
+                    <strong>Severity:</strong> <span className={`px-2 py-1 rounded text-xs font-medium ${selectedAlertForDispatch.severity === "critical" ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300" : selectedAlertForDispatch.severity === "high" ? "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300" : (selectedAlertForDispatch.severity === "medium" || selectedAlertForDispatch.severity === "moderate") ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/60 dark:text-yellow-300" : "bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-300"}`}>{selectedAlertForDispatch.severity?.charAt(0).toUpperCase() + selectedAlertForDispatch.severity?.slice(1) || "Medium"}</span>
                   </p>
                 </div>
 
@@ -3808,7 +3808,7 @@ function AdminDashboard() {
                         const getSeverityColor = (severity) => {
                           if (severity === "critical") return "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300";
                           if (severity === "high") return "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300";
-                          if (severity === "medium") return "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300";
+                          if (severity === "medium" || severity === "moderate") return "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300";
                           return "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300";
                         };
 
@@ -5054,7 +5054,7 @@ function AdminDashboard() {
                           const getSeverityColor = (severity) => {
                             if (severity === "critical") return "bg-red-100 text-red-700";
                             if (severity === "high") return "bg-orange-100 text-orange-700";
-                            if (severity === "medium") return "bg-yellow-100 text-yellow-700";
+                            if (severity === "medium" || severity === "moderate") return "bg-yellow-100 text-yellow-700";
                             return "bg-green-100 text-green-700";
                           };
 

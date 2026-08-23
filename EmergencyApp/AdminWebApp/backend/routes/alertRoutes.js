@@ -287,13 +287,14 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Map disaster type to severity (case-insensitive)
+    // Map disaster type to severity initially (will be updated by AI later)
+    // Default to 'moderate' until AI confirms it is critical, per user feedback.
     const severityMap = {
-      fire: 'critical',
-      earthquake: 'high',
-      flood: 'high',
-      landslide: 'high',
-      typhoon: 'high',
+      fire: 'moderate',
+      earthquake: 'moderate',
+      flood: 'moderate',
+      landslide: 'moderate',
+      typhoon: 'moderate',
     };
 
     // Resolve location using GeoJSON boundaries with fallback to nearest-point
@@ -583,7 +584,7 @@ router.post('/', async (req, res) => {
           console.log(`[AI] Suspicious jump detected for alert ${report._id}:`, suspiciousJump);
         }
 
-        // Verify report legitimacy using AI
+        // Verify report legitimacy using AI (fallback)
         const recentReports = await Report.find({
           lat: { $gte: latitude - 0.05, $lte: latitude + 0.05 },
           lng: { $gte: longitude - 0.05, $lte: longitude + 0.05 },
@@ -591,40 +592,56 @@ router.post('/', async (req, res) => {
           _id: { $ne: report._id } // Exclude current report
         }).lean();
 
-        const verification = enhancedML.verifyReport(
-          { lat: latitude, lng: longitude, disasterType: type, reportText: locationName, userId },
+        // 1. Evaluate with Groq AI for intelligent classification and legitimacy
+        const aiEvaluation = await groqService.evaluateReportAI(
+          { disasterType: type, reportText: locationName, lat: latitude, lng: longitude },
           recentReports
         );
 
-        // Assess severity with AI
-        const assessment = enhancedML.assessSeverity(type, latitude, longitude, locationName || '');
+        let finalSeverity = report.severity;
+        let isLegit = true;
+        let aiConfidence = 0.8;
+        let disasterTypeConf = 0.9;
+        let aiReason = null;
+
+        if (aiEvaluation && aiEvaluation.success) {
+          finalSeverity = aiEvaluation.severity || finalSeverity;
+          isLegit = aiEvaluation.isLegitimate !== false;
+          aiConfidence = aiEvaluation.confidence || 0.8;
+          aiReason = aiEvaluation.reason;
+          if (aiEvaluation.classification && aiEvaluation.classification !== type) {
+            type = aiEvaluation.classification;
+            report.disasterType = type;
+            disasterTypeConf = 0.95;
+          }
+        } else {
+          // Fallback to local heuristic if Groq fails
+          const verification = enhancedML.verifyReport(
+            { lat: latitude, lng: longitude, disasterType: type, reportText: locationName, userId },
+            recentReports
+          );
+          const assessment = enhancedML.assessSeverity(type, latitude, longitude, locationName || '');
+          finalSeverity = assessment.severity || finalSeverity;
+          isLegit = verification.isValid !== false;
+          aiConfidence = Math.max(0.5, Math.min(0.99, Number(verification.confidence || 0.7)));
+          aiReason = verification.recommendation;
+        }
 
         // Build dynamic confidence instead of fixed values.
-        const urgency = Number(assessment?.urgencyIndicators || 0);
-        const inHotspot = Boolean(assessment?.inHotspot);
-        const severityConfidence = Math.max(0.55, Math.min(0.98, 0.72 + (urgency * 0.06) + (inHotspot ? 0.08 : 0)));
-        const disasterTypeConfidence = Math.max(0.7, Math.min(0.99, type ? 0.95 : 0.78));
-        const overallConfidence = Math.max(
-          0.5,
-          Math.min(
-            0.99,
-            ((Number(verification?.confidence) || 0.7) * 0.6) + (severityConfidence * 0.4)
-          )
-        );
+        const disasterTypeConfidence = Math.max(0.7, Math.min(0.99, type ? disasterTypeConf : 0.78));
 
         // Update report with ML predictions
-        const verificationConfidence = Number(verification.confidence);
         const basePredictions = {
           disasterType: type,
           disasterTypeConfidence,
-          severity: assessment.severity,
-          severityConfidence,
-          isLegitimate: verification.isValid,
-          legitimacyConfidence: verification.confidence,
+          severity: finalSeverity,
+          severityConfidence: aiConfidence,
+          isLegitimate: isLegit,
+          legitimacyConfidence: aiConfidence,
           overall: {
-            confidence: overallConfidence,
-            recommendation: verification.recommendation,
-            reason: null,
+            confidence: aiConfidence,
+            recommendation: isLegit ? 'admin_review' : 'flag_false_alarm',
+            reason: aiReason,
           }
         };
 
@@ -632,20 +649,18 @@ router.post('/', async (req, res) => {
           ? {
               ...basePredictions,
               isLegitimate: false,
-              legitimacyConfidence: Number.isFinite(verificationConfidence)
-                ? Math.min(verificationConfidence, 0.18)
-                : 0.18,
+              legitimacyConfidence: 0.18,
               overall: {
                 ...basePredictions.overall,
-                confidence: Math.min(Number(basePredictions.overall?.confidence || 0.5), 0.3),
+                confidence: 0.3,
                 recommendation: 'flag_false_alarm',
                 reason: suspiciousJump.reason,
               }
             }
           : basePredictions;
 
-        if (assessment.severity) {
-          report.severity = assessment.severity;
+        if (finalSeverity) {
+          report.severity = finalSeverity;
         }
 
         report.mlProcessedAt = new Date();

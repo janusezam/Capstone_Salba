@@ -206,5 +206,75 @@ async function translateBisaya(text, targetLanguage = 'en') {
 module.exports = {
   analyzeCriticalReports,
   translateBisaya,
-  generateFallbackPriority
+  generateFallbackPriority,
+  evaluateReportAI
 };
+
+/**
+ * Intelligently evaluate an incoming disaster report for severity, classification, and legitimacy
+ * @param {Object} reportData - The incoming report data (type, description/note, etc.)
+ * @param {Array} recentReports - Recent reports nearby for duplicate/false alarm context
+ * @returns {Object} Structured JSON analysis
+ */
+async function evaluateReportAI(reportData, recentReports = []) {
+  try {
+    const prompt = `
+You are an expert emergency dispatcher AI. Your job is to analyze incoming disaster reports to determine their true severity, classification, and legitimacy (false-alarm detection).
+
+Incoming Report Details:
+- Disaster Type (User Selected): ${reportData.disasterType || 'None'}
+- Description/Note/Location Name: ${reportData.reportText || 'No text provided'}
+- Recent Nearby Reports (last 30m): ${recentReports.length}
+
+Instructions:
+1. Classification: Based on the description, confirm or correct the disaster type (Fire, Flood, Earthquake, Landslide, Typhoon, Medical, Other).
+2. Severity: Assess contextual severity (low, moderate, high, critical). 
+   - 'small', 'minor', 'trash can', 'controlled' -> low or moderate
+   - 'spreading', 'trapped', 'huge', 'life threatening' -> high or critical
+   - CRITICAL RULE 1: If the description is "No text provided" (like a one-tap SOS with no notes), you MUST output 'moderate' severity for ALL disaster types. Do not assume 'Critical' just because it is a Fire.
+   - CRITICAL RULE 2: If the description only contains a location name (e.g., 'Casisang', 'Purok 1', 'Victim') and lacks specific urgency details, you MUST output 'moderate' severity. Do not assume 'Critical' because of the word 'Victim'.
+3. Legitimacy: Detect false alarms (e.g., 'test', 'prank', 'hello'). 
+   - If the text explicitly says 'test' or 'prank', isLegitimate should be false.
+   - If there is NO text (or just a location name), you MUST set isLegitimate to true with 0.99 confidence.
+   - A high number of Recent Nearby Reports means the emergency is strongly CORROBORATED and REAL. It does NOT mean it is a spam/fake alarm.
+4. Provide a confidence score (0.0 to 1.0) for your overall assessment.
+
+RESPOND ONLY WITH EXACT JSON FORMAT (no markdown, just JSON):
+{
+  "classification": "Fire",
+  "severity": "moderate",
+  "isLegitimate": true,
+  "confidence": 0.85,
+  "reason": "Brief explanation for the severity and legitimacy assessment."
+}
+`;
+
+    const message = await groq.messages.create({
+      model: 'mixtral-8x7b-32768',
+      max_tokens: 500,
+      system: 'You are an expert emergency response coordinator. Return ONLY valid JSON, no markdown formatting.',
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    });
+
+    let responseText = message.content[0].text;
+    responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    const analysisResult = JSON.parse(responseText.trim());
+
+    return {
+      success: true,
+      ...analysisResult
+    };
+
+  } catch (error) {
+    console.error('❌ Groq Evaluate Report Error:', error.message);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}

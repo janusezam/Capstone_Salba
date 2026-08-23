@@ -63,11 +63,11 @@ class SALBAIntelligenceEngine {
      ================================ */
   assessSeverity(disasterType, lat, lng, reportText = '') {
     const baseSeverity = {
-      'Fire': 'high',
-      'Earthquake': 'high',
-      'Flood': 'high',
-      'Landslide': 'high',
-      'Typhoon': 'critical',
+      'Fire': 'high', // fire is inherently dangerous
+      'Earthquake': 'moderate',
+      'Flood': 'moderate',
+      'Landslide': 'moderate',
+      'Typhoon': 'high',
     };
 
     const severity = baseSeverity[disasterType] || 'moderate';
@@ -84,10 +84,20 @@ class SALBAIntelligenceEngine {
     const escalatedSeverity = inHotspot && severity === 'high' ? 'critical' : severity;
 
     // Text analysis for urgency keywords
-    const urgencyKeywords = ['immediate', 'urgent', 'critical', 'emergency', 'life threat'];
+    const urgencyKeywords = ['immediate', 'urgent', 'critical', 'emergency', 'life threat', 'spreading', 'huge'];
     const urgencyScore = urgencyKeywords.filter(k => reportText.toLowerCase().includes(k)).length;
+    
+    // Text analysis for minor/downgrade keywords
+    const minorKeywords = ['small', 'minor', 'test', 'controlled', 'trash', 'drill'];
+    const minorScore = minorKeywords.filter(k => reportText.toLowerCase().includes(k)).length;
 
-    const finalSeverity = urgencyScore > 2 ? 'critical' : escalatedSeverity;
+    let finalSeverity = escalatedSeverity;
+    if (urgencyScore >= 2) {
+      finalSeverity = 'critical';
+    } else if (minorScore > 0) {
+      finalSeverity = 'moderate'; // Downgrade if it looks minor
+      if (minorScore >= 2) finalSeverity = 'low';
+    }
 
     return {
       severity: finalSeverity,
