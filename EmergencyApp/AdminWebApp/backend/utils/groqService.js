@@ -231,20 +231,20 @@ Instructions:
 2. Severity: Assess contextual severity (low, moderate, high, critical). 
    - 'small', 'minor', 'trash can', 'controlled' -> low or moderate
    - 'spreading', 'trapped', 'huge', 'life threatening' -> high or critical
-   - CRITICAL RULE 1: If the description is "No text provided" (like a one-tap SOS with no notes), you MUST output 'moderate' severity for ALL disaster types. Do not assume 'Critical' just because it is a Fire.
-   - CRITICAL RULE 2: If the description only contains a location name (e.g., 'Casisang', 'Purok 1', 'Victim') and lacks specific urgency details, you MUST output 'moderate' severity. Do not assume 'Critical' because of the word 'Victim'.
+   - CLUSTER RULE: If Recent Nearby Reports is >= 2 (meaning 3+ reports clustered in the same location/river area), the emergency is MULTI-CORROBORATED and WIDESPREAD — you SHOULD escalate severity to 'high' or 'critical' even if the individual note has minimal text.
+   - SINGLE ONE-TAP RULE: If Recent Nearby Reports is 0 and description is "No text provided" or just a location name, output 'moderate' severity.
 3. Legitimacy: Detect false alarms (e.g., 'test', 'prank', 'hello'). 
    - If the text explicitly says 'test' or 'prank', isLegitimate should be false.
    - If there is NO text (or just a location name), you MUST set isLegitimate to true with 0.99 confidence.
-   - A high number of Recent Nearby Reports means the emergency is strongly CORROBORATED and REAL. It does NOT mean it is a spam/fake alarm.
+   - A cluster of Recent Nearby Reports means the emergency is strongly CORROBORATED and 100% REAL. It must NEVER be marked as a fake alarm or drill.
 4. Provide a confidence score (0.0 to 1.0) for your overall assessment.
 
 RESPOND ONLY WITH EXACT JSON FORMAT (no markdown, just JSON):
 {
-  "classification": "Fire",
-  "severity": "moderate",
+  "classification": "Flood",
+  "severity": "high",
   "isLegitimate": true,
-  "confidence": 0.85,
+  "confidence": 0.95,
   "reason": "Brief explanation for the severity and legitimacy assessment."
 }
 `;

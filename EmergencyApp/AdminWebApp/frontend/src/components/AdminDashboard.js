@@ -103,6 +103,21 @@ const getStatusDisplay = (status, rescuerMissionStatus) => {
   return statusMap[String(status || '').toLowerCase()] || toTitleCase(status);
 };
 
+const getTimeAgo = (dateInput) => {
+  if (!dateInput) return '';
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return '';
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+  if (seconds < 45) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+};
+
 const TEST_REPORT_REGEX = /\b(test|testing|prank|dummy|sample|drill|simulation|simulated|mock|trial)\b/i;
 
 const isForceTestModeEnabled = () => {
@@ -134,18 +149,18 @@ const getAlertConfidence = (alert) => {
   if (isLikelyTestReport(alert)) return 0.18;
 
   const ml = alert?.mlPredictions;
-  if (typeof ml?.overall?.confidence === 'number') return ml.overall.confidence;
-  if (typeof ml?.legitimacyConfidence === 'number') return ml.legitimacyConfidence;
-  // Fallback while ML is still processing. Use stable per-report variance to avoid fixed-looking values.
-  const source = String(alert?._id || alert?.createdAt || alert?.note || 'seed');
-  let hash = 0;
-  for (let i = 0; i < source.length; i++) {
-    hash = ((hash << 5) - hash + source.charCodeAt(i)) | 0;
+  if (ml) {
+    if (ml.isLegitimate === false) {
+      return typeof ml.legitimacyConfidence === 'number' ? Math.min(ml.legitimacyConfidence, 0.25) : 0.18;
+    }
+    if (typeof ml.legitimacyConfidence === 'number') return ml.legitimacyConfidence;
+    if (typeof ml.overall?.confidence === 'number') return ml.overall.confidence;
   }
+
+  // Initial confidence before async AI completion
   const severity = String(alert?.severity || '').toLowerCase();
-  const base = severity === 'critical' ? 0.72 : severity === 'high' ? 0.68 : (severity === 'medium' || severity === 'moderate') ? 0.64 : 0.6;
-  const variance = (((Math.abs(hash) % 9) - 4) / 100); // -0.04 .. +0.04
-  return Math.max(0.5, Math.min(0.9, base + variance));
+  const base = severity === 'critical' ? 0.88 : severity === 'high' ? 0.82 : 0.75;
+  return base;
 };
 
 const getHotspotSummary = (alert, contextReports = []) => {
@@ -304,6 +319,7 @@ function AdminDashboard() {
   const [filterRescuerStatus, setFilterRescuerStatus] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchRescuerQuery, setSearchRescuerQuery] = useState("");
+  const [dashboardTimeframe, setDashboardTimeframe] = useState("Last 7 Days");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState(null);
   const [showAddRescuerModal, setShowAddRescuerModal] = useState(false);
@@ -402,7 +418,9 @@ function AdminDashboard() {
   });
   const [profilePicture, setProfilePicture] = useState(null);
   const [hoveredAlertId, setHoveredAlertId] = useState(null);
+  const [selectedAlertId, setSelectedAlertId] = useState(null);
   const mapRef = useRef(null);
+  const markerRefs = useRef({});
   const incomingAlertTimeoutRef = useRef(null);
 
   // Toast notification system
@@ -442,6 +460,16 @@ function AdminDashboard() {
       }
     };
   }, [incomingAlert]);
+
+  // Smoothly scroll the selected active alert card into view in the sidebar stream
+  useEffect(() => {
+    if (selectedAlertId) {
+      const el = document.getElementById(`alert-card-${selectedAlertId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [selectedAlertId]);
 
   // Compress image for profile picture
   const compressImage = (file) => {
@@ -1864,7 +1892,48 @@ function AdminDashboard() {
     return () => clearInterval(intervalId);
   }, [filterSeverity, filterStatus, searchQuery]);
 
-  const reportSource = (allReports && allReports.length > 0) ? allReports : reports;
+  const rawReportSource = (allReports && allReports.length > 0) ? allReports : reports;
+  const reportSource = (() => {
+    if (!rawReportSource || rawReportSource.length === 0) return [];
+    let days = 7;
+    if (dashboardTimeframe === "Last 30 Days") days = 30;
+    else if (dashboardTimeframe === "Last 90 Days") days = 90;
+    else if (dashboardTimeframe === "Last Year") days = 365;
+
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    return rawReportSource.filter(report => {
+      // 1. Date filter
+      if (report.createdAt) {
+        if (new Date(report.createdAt) < cutoff) return false;
+      }
+
+      // 2. Search query filter
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const id = String(report._id || report.id || '').toLowerCase();
+        const loc = (report.locationName || report.location || '').toLowerCase();
+        const type = (report.disasterType || '').toLowerCase();
+        const note = (report.note || report.description || '').toLowerCase();
+        const reporter = (report.reporterName || report.reporterEmail || report.name || '').toLowerCase();
+        const rescuer = (report.assignedRescuer?.rescuerName || '').toLowerCase();
+
+        if (
+          !id.includes(q) && 
+          !loc.includes(q) && 
+          !type.includes(q) && 
+          !note.includes(q) && 
+          !reporter.includes(q) && 
+          !rescuer.includes(q)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  })();
   const normalizeStatus = (status) => String(status || '').toLowerCase();
   const isResolvedStatus = (status) => ['resolved', 'done', 'completed'].includes(normalizeStatus(status));
   const isRespondedStatus = (status) => ['responded', 'in_progress', 'in-progress', 'ongoing', 'active'].includes(normalizeStatus(status));
@@ -1952,6 +2021,7 @@ function AdminDashboard() {
     high: 0,
     medium: 0,
     low: 0,
+    total: 0,
   }));
   reportSource.forEach(report => {
     if (!report?.createdAt) return;
@@ -1960,7 +2030,10 @@ function AdminDashboard() {
     const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dt.getDay()];
     const row = weeklySeverityTrendData.find(d => d.day === dayName);
     const sev = String(report.severity || 'low').toLowerCase();
-    if (row) row[sev] = (row[sev] || 0) + 1;
+    if (row) {
+      row[sev] = (row[sev] || 0) + 1;
+      row.total = (row.total || 0) + 1;
+    }
   });
 
   const responseTrendByMonthData = (() => {
@@ -2000,11 +2073,35 @@ function AdminDashboard() {
     });
 
     (reportSource || []).forEach(report => {
-      const assigned = report?.assignedTeam;
-      if (!assigned) return;
+      let teamId = null;
+      let teamName = null;
 
-      const teamId = typeof assigned === 'object' ? String(assigned._id || assigned.name || 'unknown') : String(assigned);
-      const teamName = typeof assigned === 'object' ? (assigned.name || 'Unknown Team') : 'Unknown Team';
+      // 1. Try to get team directly from report
+      if (report?.assignedTeam) {
+        const assigned = report.assignedTeam;
+        teamId = typeof assigned === 'object' ? String(assigned._id || assigned.name || 'unknown') : String(assigned);
+        teamName = typeof assigned === 'object' ? (assigned.name || 'Unknown Team') : 'Unknown Team';
+      } 
+      // 2. Fallback to finding the team of the assigned rescuer
+      else if (report?.assignedRescuer?.rescuerId) {
+        const rescuerId = String(report.assignedRescuer.rescuerId);
+        const teamObj = (dbTeams || []).find(team => {
+          const membersList = team.members || [];
+          const isMember = membersList.some(m => {
+            const mId = typeof m === 'object' ? String(m._id || m.id) : String(m);
+            return mId === rescuerId;
+          });
+          const leaderId = team.leader ? (typeof team.leader === 'object' ? String(team.leader._id || team.leader.id) : String(team.leader)) : null;
+          return isMember || leaderId === rescuerId;
+        });
+
+        if (teamObj) {
+          teamId = String(teamObj._id || teamObj.name);
+          teamName = teamObj.name || 'Unknown Team';
+        }
+      }
+
+      if (!teamId) return;
 
       if (!teamMap.has(teamId)) {
         teamMap.set(teamId, { team: teamName, resolved: 0, totalMinutes: 0, sampleCount: 0 });
@@ -2171,389 +2268,7 @@ function AdminDashboard() {
 
         {/* Content Area */}
         <div className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-900">
-          {activeTab === "dashboard" && (
-            <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
-              
-              {/* Row 1: KPI Stat Cards Grid (TailAdmin Style) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-                
-                {/* Stat Card 1 - Total Active Alerts */}
-                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
-                  <div className="flex items-start justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
-                      <AlertCircle className="w-6 h-6" />
-                    </div>
-                    <span className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50">
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                      11.01%
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Active Alerts</p>
-                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
-                      {activeReports.length || 0}
-                    </p>
-                  </div>
-                </Card>
 
-                {/* Stat Card 2 - Critical Emergency Alerts */}
-                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
-                  <div className="flex items-start justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
-                      <Flame className="w-6 h-6" />
-                    </div>
-                    <span className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-400 border border-red-200/60 dark:border-red-900/50">
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                      Critical
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Critical Emergencies</p>
-                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
-                      {severityCounts.critical || 0}
-                    </p>
-                  </div>
-                </Card>
-
-                {/* Stat Card 3 - Active Rescuers On-Duty */}
-                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
-                  <div className="flex items-start justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
-                      <Users className="w-6 h-6" />
-                    </div>
-                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      On-Duty
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Rescuers</p>
-                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
-                      {activeRescuersCount || 0}
-                    </p>
-                  </div>
-                </Card>
-
-                {/* Stat Card 4 - Ongoing Rescue Operations */}
-                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
-                  <div className="flex items-start justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
-                      <Truck className="w-6 h-6" />
-                    </div>
-                    <span className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50">
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                      Active
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ongoing Missions</p>
-                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
-                      {ongoingRescues.length || 0}
-                    </p>
-                  </div>
-                </Card>
-              </div>
-
-              {/* Row 2: Visualizations Grid (Charts 2/3 + Monthly Target Gauge 1/3) */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-                
-                {/* Left 8 Columns - Bar Chart & Response Statistics */}
-                <div className="lg:col-span-8 space-y-5">
-                  
-                  {/* Monthly Sales / Incident Volume Bar Chart */}
-                  <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs">
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
-                      <div>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white">Incident Trends</h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Emergency alert frequency timeline</p>
-                      </div>
-                      <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                        <button className="px-3 py-1 text-xs font-bold bg-white dark:bg-slate-700 text-blue-600 dark:text-white rounded-lg shadow-xs">Monthly</button>
-                        <button className="px-3 py-1 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white">Quarterly</button>
-                        <button className="px-3 py-1 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white">Annually</button>
-                      </div>
-                    </div>
-                    
-                    <div className="h-[280px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={alertsByTimeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                          <defs>
-                            <linearGradient id="barBlueGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
-                              <stop offset="100%" stopColor="#2563eb" stopOpacity={0.8} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                          <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
-                          <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
-                          <Tooltip 
-                            contentStyle={{ 
-                              backgroundColor: "#0f172a", 
-                              border: "none", 
-                              borderRadius: "12px", 
-                              color: "#fff",
-                              boxShadow: "0 10px 15px -3px rgba(0,0,0,0.3)" 
-                            }}
-                            cursor={{ fill: "rgba(241, 245, 249, 0.4)" }}
-                          />
-                          <Bar dataKey="count" fill="url(#barBlueGradient)" radius={[6, 6, 0, 0]} maxBarSize={38} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </Card>
-
-                  {/* Response Statistics Smooth Area Chart */}
-                  <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs">
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
-                      <div>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white">Response Time Analytics</h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Average dispatch to scene response time (minutes)</p>
-                      </div>
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
-                        Real-time Data
-                      </span>
-                    </div>
-
-                    <div className="h-[220px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={responseBySeverityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                          <defs>
-                            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.4} />
-                              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.0} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                          <XAxis dataKey="type" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
-                          <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
-                          <Tooltip 
-                            contentStyle={{ 
-                              backgroundColor: "#0f172a", 
-                              border: "none", 
-                              borderRadius: "12px", 
-                              color: "#fff" 
-                            }}
-                          />
-                          <Area type="monotone" dataKey="time" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#areaGradient)" />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </Card>
-                </div>
-
-                {/* Right 4 Columns - Monthly Target Arc Gauge & Alert Type breakdown */}
-                <div className="lg:col-span-4 space-y-5">
-                  
-                  {/* TailAdmin Gauge Arc Card */}
-                  <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs text-center flex flex-col items-center">
-                    <div className="w-full flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
-                      <div className="text-left">
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white">Monthly Target</h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Target set for rescue completion</p>
-                      </div>
-                      <button className="text-slate-400 hover:text-slate-600">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    {/* Arc Semi-Circle Radial Chart */}
-                    <div className="relative w-full h-[200px] flex items-center justify-center my-2">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={[
-                              { name: "Resolved Rate", value: resolvedCount || 75.55, fill: "#3b82f6" },
-                              { name: "Remaining Target", value: Math.max(0, 100 - (resolvedCount || 75.55)), fill: "#f1f5f9" }
-                            ]}
-                            cx="50%"
-                            cy="75%"
-                            startAngle={180}
-                            endAngle={0}
-                            innerRadius={70}
-                            outerRadius={95}
-                            paddingAngle={2}
-                            dataKey="value"
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-
-                      {/* Center Score Overlay */}
-                      <div className="absolute top-[52%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                        <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
-                          {resolvedCount ? Math.round((resolvedCount / Math.max(1, (resolvedCount + activeReports.length))) * 100) : 75.55}%
-                        </span>
-                        <span className="mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/50">
-                          +10%
-                        </span>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs leading-relaxed">
-                      You resolved <span className="font-bold text-slate-800 dark:text-slate-200">{resolvedCount} incidents</span> today, higher than last month. Keep up the good work!
-                    </p>
-
-                    {/* Footer KPI Metrics */}
-                    <div className="w-full grid grid-cols-3 gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-                      <div>
-                        <p className="text-[11px] font-semibold text-slate-400 uppercase">Target</p>
-                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5 inline-flex items-center gap-0.5">
-                          85% <ArrowDownRight className="w-3 h-3 text-red-500" />
-                        </p>
-                      </div>
-                      <div className="border-x border-slate-100 dark:border-slate-800 px-1">
-                        <p className="text-[11px] font-semibold text-slate-400 uppercase">Resolved</p>
-                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5 inline-flex items-center gap-0.5">
-                          {resolvedCount} <ArrowUpRight className="w-3 h-3 text-emerald-500" />
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-semibold text-slate-400 uppercase">Responded</p>
-                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5 inline-flex items-center gap-0.5">
-                          {respondedCount} <ArrowUpRight className="w-3 h-3 text-emerald-500" />
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-
-                  {/* Incident Type Breakdown Donut */}
-                  <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs">
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">Emergency Distribution</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Categorized incident proportion</p>
-
-                    <div className="h-[200px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={alertTypeDistributionData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={50}
-                            outerRadius={75}
-                            paddingAngle={3}
-                            dataKey="value"
-                          >
-                            <Cell fill="#ef4444" />
-                            <Cell fill="#f97316" />
-                            <Cell fill="#3b82f6" />
-                            <Cell fill="#10b981" />
-                            <Cell fill="#8b5cf6" />
-                          </Pie>
-                          <Tooltip 
-                            contentStyle={{ backgroundColor: "#0f172a", border: "none", borderRadius: "10px", color: "#fff" }}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 mt-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-                      {alertTypeDistributionData.map((item, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs">
-                          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: ["#ef4444", "#f97316", "#3b82f6", "#10b981", "#8b5cf6"][i % 5] }} />
-                          <span className="text-slate-600 dark:text-slate-400 truncate">{item.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </div>
-              </div>
-
-              {/* Row 3: Recent Active Alerts & Incidents Table */}
-              <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Active Emergency Stream</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Live emergency alerts requiring response or monitoring</p>
-                  </div>
-                  <button 
-                    onClick={() => setActiveTab("alerts")}
-                    className="text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-950/60 px-3 py-1.5 rounded-xl border border-blue-200/50 dark:border-blue-900/50 transition-colors"
-                  >
-                    View All Alerts ({reports.length})
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        <th className="px-6 py-3.5">Disaster Type</th>
-                        <th className="px-6 py-3.5">Location</th>
-                        <th className="px-6 py-3.5">Severity</th>
-                        <th className="px-6 py-3.5">Status</th>
-                        <th className="px-6 py-3.5">Time Reported</th>
-                        <th className="px-6 py-3.5 text-right">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
-                      {reports.filter(r => r.status !== 'Resolved' && r.status !== 'resolved').slice(0, 5).map((report) => (
-                        <tr key={report._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors group">
-                          <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
-                                <AlertCircle className="w-4 h-4" />
-                              </div>
-                              <span>{report.disasterType || "Emergency Alert"}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-slate-600 dark:text-slate-300 font-medium">
-                            {report.locationName || report.location || "Malaybalay City"}
-                          </td>
-                          <td className="px-6 py-4">
-                            <Badge 
-                              variant={
-                                report.severity === "critical" ? "critical" :
-                                report.severity === "high" ? "high" :
-                                report.severity === "medium" ? "medium" : "low"
-                              }
-                            >
-                              {toTitleCase(report.severity || "Standard")}
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4">
-                            <Badge 
-                              variant={
-                                (report.rescuerMissionStatus === 'resolved' && report.status !== 'resolved') ? "warning" :
-                                (report.status === "new" || report.status === "pending") ? "default" :
-                                (report.status === "acknowledged" || report.status === "on_the_way" || report.status === "in_progress") ? "info" :
-                                report.status === "ongoing" ? "high" :
-                                report.status === "resolved" ? "success" :
-                                "default"
-                              }
-                            >
-                              {getStatusDisplay(report.status, report.rescuerMissionStatus)}
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4 text-xs font-semibold text-slate-400">
-                            {report.createdAt ? new Date(report.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now"}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <button
-                              onClick={() => {
-                                setSelectedReportForDetails(report);
-                                setShowReportDetailsModal(true);
-                              }}
-                              className="px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors inline-flex items-center gap-1"
-                            >
-                              <Eye className="w-3.5 h-3.5" />
-                              Details
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                      {reports.filter(r => r.status !== 'Resolved' && r.status !== 'resolved').length === 0 && (
-                        <tr>
-                          <td colSpan={6} className="px-6 py-8 text-center text-slate-400 text-sm">
-                            No active emergency alerts recorded. All systems operational.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </Card>
-
-            </div>
-          )}
 
           {activeTab === "map" && (
             <div className="flex h-full w-full bg-slate-50 dark:bg-slate-900 relative">
@@ -2563,11 +2278,16 @@ function AdminDashboard() {
                 <div className="p-5 border-b border-slate-100 dark:border-slate-800 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-lg font-bold text-slate-900 dark:text-white">Active Alerts Stream</h2>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Active Alerts Stream</h2>
+                        <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                          {(reports || []).filter(a => !['resolved', 'declined', 'done', 'completed'].includes(String(a.status || '').toLowerCase())).length}
+                        </span>
+                      </div>
                       <p className="text-xs text-slate-400">Real-time incident map tracking</p>
                     </div>
                     {/* Groq AI Priority Analysis Button */}
-                    {reports.filter(r => r.severity === 'critical').length > 0 && (
+                    {(reports || []).filter(r => !['resolved', 'declined', 'done', 'completed'].includes(String(r.status || '').toLowerCase()) && r.severity === 'critical').length > 0 && (
                       <button
                         onClick={() => analyzeWithGroq('en')}
                         disabled={loadingGroqAnalysis}
@@ -2620,7 +2340,7 @@ function AdminDashboard() {
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Search location or incident..."
+                      placeholder="Search location, disaster, or notes..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full pl-3 pr-3 py-2 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
@@ -2636,7 +2356,7 @@ function AdminDashboard() {
                     <option value="All">All Severity Levels</option>
                     <option value="critical">Critical Severity</option>
                     <option value="high">High Severity</option>
-                    <option value="medium">Medium Severity</option>
+                    <option value="medium">Medium / Moderate Severity</option>
                     <option value="low">Low Severity</option>
                   </select>
                 </div>
@@ -2645,55 +2365,86 @@ function AdminDashboard() {
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
                   {reports && reports.length > 0 ? (
                     reports
-                      .filter(alert => alert.status !== 'Resolved' && alert.status !== 'resolved') // Hide resolved reports
+                      .filter(alert => !['resolved', 'declined', 'done', 'completed'].includes(String(alert.status || '').toLowerCase())) // Exclude resolved & declined
                       .filter(alert => {
-                        // Filter by search query (location)
-                        if (searchQuery && !((alert.locationName || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            (alert.location || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (alert.disasterType || '').toLowerCase().includes(searchQuery.toLowerCase()))) {
-                          return false;
+                        // Filter by search query (location, disaster type, or note)
+                        if (searchQuery) {
+                          const q = searchQuery.toLowerCase();
+                          const loc = (alert.locationName || alert.location || '').toLowerCase();
+                          const type = (alert.disasterType || '').toLowerCase();
+                          const note = (alert.note || alert.description || '').toLowerCase();
+                          if (!loc.includes(q) && !type.includes(q) && !note.includes(q)) return false;
                         }
-                        // Filter by severity
-                        if (filterSeverity && filterSeverity !== 'All' && alert.severity !== filterSeverity.toLowerCase()) {
-                          return false;
+                        // Filter by severity (normalize medium and moderate)
+                        if (filterSeverity && filterSeverity !== 'All') {
+                          const alertSev = String(alert.severity || '').toLowerCase();
+                          const targetSev = filterSeverity.toLowerCase();
+                          if (targetSev === 'medium') {
+                            if (alertSev !== 'medium' && alertSev !== 'moderate') return false;
+                          } else if (alertSev !== targetSev) {
+                            return false;
+                          }
                         }
                         return true;
                       })
                       .map((alert) => {
                       const getSeverityColor = (status) => {
-                        if (status === "Responded" || status === "resolved") return "bg-green-100 text-green-700";
-                        if (status === "Pending" || status === "pending") return "bg-blue-100 text-blue-700";
-                        return "bg-orange-100 text-orange-700";
+                        const s = String(status || '').toLowerCase();
+                        if (s === "responded" || s === "resolved") return "bg-green-100 text-green-700 dark:bg-green-950/80 dark:text-green-300";
+                        if (s === "pending" || s === "new") return "bg-blue-100 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300";
+                        if (s === "acknowledged" || s === "in_progress" || s === "on_the_way" || s === "ongoing") return "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300";
+                        return "bg-orange-100 text-orange-700 dark:bg-orange-950/80 dark:text-orange-300";
                       };
 
                       const getSeverityBadgeColor = (severity) => {
-                        if (severity === "critical") return "bg-red-100 text-red-700";
-                        if (severity === "high") return "bg-orange-100 text-orange-700";
-                        if (severity === "medium" || severity === "moderate") return "bg-yellow-100 text-yellow-700";
-                        return "bg-green-100 text-green-700";
+                        const sev = String(severity || '').toLowerCase();
+                        if (sev === "critical") return "bg-red-100 text-red-700 dark:bg-red-950/80 dark:text-red-300 border border-red-200 dark:border-red-900";
+                        if (sev === "high") return "bg-orange-100 text-orange-700 dark:bg-orange-950/80 dark:text-orange-300 border border-orange-200 dark:border-orange-900";
+                        if (sev === "medium" || sev === "moderate") return "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/80 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-900";
+                        return "bg-green-100 text-green-700 dark:bg-green-950/80 dark:text-green-300 border border-green-200 dark:border-green-900";
                       };
 
                       const mlConfidence = getAlertConfidence(alert);
                       const legitimacyScore = Math.round(mlConfidence * 100);
-                      const fakeAlarmRisk = 0; // Will be set after AI verification
+                      const isFakeAlarm = isLikelyTestReport(alert) || alert.mlPredictions?.isLegitimate === false || alert.mlPredictions?.overall?.recommendation === 'flag_false_alarm';
+                      const timeAgo = getTimeAgo(alert.createdAt);
 
                       return (
                         <div 
                           key={alert._id} 
-                          className="p-4 border border-slate-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                          id={`alert-card-${alert._id}`}
+                          className={`p-4 border rounded-xl transition-all duration-200 cursor-pointer relative ${
+                            selectedAlertId === alert._id
+                              ? "border-blue-500 bg-blue-50/40 dark:border-blue-500 dark:bg-blue-950/20 shadow-md ring-2 ring-blue-500/20"
+                              : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:scale-[1.01] hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/40"
+                          }`}
                           onClick={() => {
+                            setSelectedAlertId(alert._id);
                             if (mapRef.current && alert.lat && alert.lng) {
                               mapRef.current.setView([alert.lat, alert.lng], 17);
+                              // Open Leaflet popup programmatically with a slight delay to allow map transition
+                              setTimeout(() => {
+                                if (markerRefs.current[alert._id]) {
+                                  markerRefs.current[alert._id].openPopup();
+                                }
+                              }, 150);
                             }
                           }}
                           title={alert.message || alert.description || "No details available"}
                         >
-                          <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-start justify-between mb-2 gap-1.5">
                             <div>
-                              <p className="text-sm font-medium text-slate-700">{alert.disasterType || "Emergency"}</p>
+                              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                                <span>{alert.disasterType || "Emergency"}</span>
+                              </p>
                             </div>
-                            <div className="flex gap-2 items-center">
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityBadgeColor(alert.severity)}`}>
+                            <div className="flex gap-1.5 items-center flex-wrap justify-end">
+                              {timeAgo && (
+                                <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">
+                                  {timeAgo}
+                                </span>
+                              )}
+                              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${getSeverityBadgeColor(alert.severity)}`}>
                                 {toTitleCase(alert.severity || "Medium")}
                               </span>
                               
@@ -2704,7 +2455,7 @@ function AdminDashboard() {
                                     p => p.reportId === alert._id || p.report?._id === alert._id
                                   );
                                   return priorityItem ? (
-                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-bold bg-purple-200 text-purple-800 border border-purple-300" title={priorityItem.recommendation}>
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-purple-200 text-purple-800 border border-purple-300 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800" title={priorityItem.recommendation}>
                                       <span>#{priorityItem.priority}</span>
                                     </span>
                                   ) : null;
@@ -2712,24 +2463,40 @@ function AdminDashboard() {
                               )}
                             </div>
                           </div>
-                          <p className="text-xs text-slate-500 mb-2">{alert.locationName || alert.location || "Unknown location"}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2.5 truncate font-medium">
+                            📍 {alert.locationName || alert.location || "Unknown location"}
+                          </p>
                           
                           {/* AI Legitimacy Score */}
-                          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-2 rounded mb-2">
+                          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-2.5 rounded-lg mb-2.5">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-semibold text-slate-700">AI Detector:</span>
-                              <div className="flex items-center gap-1 relative">
+                              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">AI Detector:</span>
+                              <div className="flex items-center gap-1.5 relative">
                                 <span 
-                                  className={`px-2 py-0.5 rounded text-xs font-bold cursor-help transition-all ${legitimacyScore >= 70 ? 'bg-green-200 text-green-800' : legitimacyScore >= 50 ? 'bg-yellow-200 text-yellow-800' : 'bg-red-200 text-red-800'}`}
+                                  className={`px-2 py-0.5 rounded text-xs font-bold cursor-help transition-all ${
+                                    isFakeAlarm
+                                      ? 'bg-red-200 text-red-800 dark:bg-red-950 dark:text-red-300 border border-red-300 dark:border-red-800'
+                                      : legitimacyScore >= 70
+                                      ? 'bg-green-200 text-green-800 dark:bg-green-950 dark:text-green-300 border border-green-300 dark:border-green-800'
+                                      : legitimacyScore >= 50
+                                      ? 'bg-yellow-200 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300 border border-yellow-300 dark:border-yellow-800'
+                                      : 'bg-red-200 text-red-800 dark:bg-red-950 dark:text-red-300 border border-red-300 dark:border-red-800'
+                                  }`}
                                   onMouseEnter={() => setHoveredAlertId(alert._id)}
                                   onMouseLeave={() => setHoveredAlertId(null)}
                                 >
                                   {legitimacyScore}%
                                 </span>
+
+                                {isFakeAlarm && (
+                                  <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 border border-red-200 dark:border-red-900">
+                                    ⚠️ Fake / Drill
+                                  </span>
+                                )}
                                 
-                                {/* AI Summary Tooltip */}
+                                {/* AI Summary Tooltip - Anchored nicely below the badge */}
                                 {hoveredAlertId === alert._id && (
-                                  <div className="fixed z-[9999] w-80 bg-slate-900 text-white rounded-lg shadow-2xl border border-slate-700 p-3 text-xs leading-relaxed" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -100%)', marginTop: '-12px' }}>
+                                  <div className="absolute right-0 top-full mt-2 z-[9999] w-80 bg-slate-900/95 backdrop-blur-md text-white rounded-xl shadow-2xl border border-slate-700/80 p-3.5 text-xs leading-relaxed pointer-events-none transition-all">
                                     {generateAISummary(alert, reportSource).split('\n').map((line, idx) => (
                                       <div key={idx} className="mb-1">
                                         {line}
@@ -2737,25 +2504,27 @@ function AdminDashboard() {
                                     ))}
                                   </div>
                                 )}
-                                
-                                {fakeAlarmRisk > 0 && (
-                                  <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700">
-                                    {fakeAlarmRisk}% Fake
-                                  </span>
-                                )}
                               </div>
                             </div>
                           </div>
 
-                          <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${getSeverityColor(alert.status)}`}>
-                            {toTitleCase(alert.status || "Pending")}
-                          </span>
+                          <div className="flex items-center justify-between">
+                            <span className={`inline-block px-2.5 py-1 rounded text-xs font-semibold ${getSeverityColor(alert.status)}`}>
+                              {toTitleCase(alert.status || "Pending")}
+                            </span>
+                            {alert.assignedTeam && (
+                              <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-900">
+                                🚑 Team Assigned
+                              </span>
+                            )}
+                          </div>
                         </div>
                       );
                     })
                   ) : (
-                    <div className="flex items-center justify-center h-20 text-slate-500">
-                      <p className="text-sm">No active reports</p>
+                    <div className="flex flex-col items-center justify-center h-40 text-slate-400 text-center p-4">
+                      <span className="text-2xl mb-1">🛡️</span>
+                      <p className="text-xs font-semibold">No active incidents matching filter</p>
                     </div>
                   )}
                 </div>
@@ -2808,7 +2577,8 @@ function AdminDashboard() {
 
                     const mlConfidence = getAlertConfidence(alert);
                     const legitimacyScore = Math.round(mlConfidence * 100);
-                    const fakeAlarmRisk = 0; // Will be set after AI verification
+                    const isFakeAlarm = isLikelyTestReport(alert) || alert.mlPredictions?.isLegitimate === false || alert.mlPredictions?.overall?.recommendation === 'flag_false_alarm';
+                    const timeAgo = getTimeAgo(alert.createdAt);
                     const alertKey = getAlertKey(alert);
                     const nearestHydrantInfo = nearestHydrantByAlertKey[alertKey];
 
@@ -2840,8 +2610,16 @@ function AdminDashboard() {
                           key={alert._id}
                           position={[alert.lat, alert.lng]}
                           icon={severityIcon}
+                          ref={(el) => {
+                            if (el) {
+                              markerRefs.current[alert._id] = el;
+                            } else {
+                              delete markerRefs.current[alert._id];
+                            }
+                          }}
                           eventHandlers={{
                             click: () => {
+                              setSelectedAlertId(alert._id);
                               if (mapRef.current) {
                                 mapRef.current.setView([alert.lat, alert.lng], 17);
                               }
@@ -2850,47 +2628,52 @@ function AdminDashboard() {
                         >
                           <Popup>
                             <div className="w-56">
-                              <h3 className="font-semibold text-slate-900">
-                                {alert.disasterType || "Emergency"}
-                              </h3>
-                              <p className="text-xs text-slate-600 mt-2">
+                              <div className="flex items-center justify-between gap-1 mb-1">
+                                <h3 className="font-bold text-slate-900 text-sm">
+                                  {alert.disasterType || "Emergency"}
+                                </h3>
+                                {timeAgo && (
+                                  <span className="text-[10px] font-semibold text-slate-500">
+                                    {timeAgo}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-slate-600 mt-1.5">
                                 <strong>Location:</strong> {alert.locationName || alert.location || "Unknown"}
                               </p>
                               <p className="text-xs text-slate-600">
                                 <strong>Status:</strong> {toTitleCase(alert.status || "Pending")}
                               </p>
                               <p className="text-xs text-slate-600">
-                                <strong>Severity:</strong> <span className={`px-2 py-1 rounded text-xs font-medium ${alert.severity === "critical" ? "bg-red-100 text-red-700" : alert.severity === "high" ? "bg-orange-100 text-orange-700" : (alert.severity === "medium" || alert.severity === "moderate") ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>{toTitleCase(alert.severity || "Medium")}</span>
+                                <strong>Severity:</strong> <span className={`px-2 py-0.5 rounded text-xs font-semibold ${alert.severity === "critical" ? "bg-red-100 text-red-700" : alert.severity === "high" ? "bg-orange-100 text-orange-700" : (alert.severity === "medium" || alert.severity === "moderate") ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>{toTitleCase(alert.severity || "Medium")}</span>
                               </p>
 
                               {/* AI Detector Score in Popup */}
-                              <div className="bg-blue-50 p-2 rounded mt-2">
-                                <p className="text-xs font-semibold text-slate-700 mb-1">AI Detector:</p>
-                                <div className="flex gap-1 relative">
-                                  <span 
-                                    className={`px-2 py-0.5 rounded text-xs font-bold cursor-help transition-all ${legitimacyScore >= 70 ? 'bg-green-200 text-green-800' : legitimacyScore >= 50 ? 'bg-yellow-200 text-yellow-800' : 'bg-red-200 text-red-800'}`}
-                                    onMouseEnter={() => setHoveredAlertId(alert._id)}
-                                    onMouseLeave={() => setHoveredAlertId(null)}
-                                  >
-                                    {legitimacyScore}%
-                                  </span>
-                                  
-                                  {/* AI Summary Tooltip */}
-                                  {hoveredAlertId === alert._id && (
-                                    <div className="fixed z-[9999] w-80 bg-slate-900 text-white rounded-lg shadow-2xl border border-slate-700 p-3 text-xs leading-relaxed" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -100%)', marginTop: '-12px' }}>
-                                      {generateAISummary(alert, reportSource).split('\n').map((line, idx) => (
-                                        <div key={idx} className="mb-1">
-                                          {line}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                  
-                                  {fakeAlarmRisk > 0 && (
-                                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700">
-                                      {fakeAlarmRisk}% Fake
+                              <div className="bg-slate-50 border border-slate-200 p-2 rounded mt-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[11px] font-bold text-slate-700">AI Detector:</span>
+                                  <div className="flex items-center gap-1 relative">
+                                    <span 
+                                      className={`px-1.5 py-0.5 rounded text-[11px] font-bold cursor-help transition-all ${
+                                        isFakeAlarm
+                                          ? 'bg-red-200 text-red-800'
+                                          : legitimacyScore >= 70
+                                          ? 'bg-green-200 text-green-800'
+                                          : legitimacyScore >= 50
+                                          ? 'bg-yellow-200 text-yellow-800'
+                                          : 'bg-red-200 text-red-800'
+                                      }`}
+                                      onMouseEnter={() => setHoveredAlertId(alert._id)}
+                                      onMouseLeave={() => setHoveredAlertId(null)}
+                                    >
+                                      {legitimacyScore}%
                                     </span>
-                                  )}
+                                    {isFakeAlarm && (
+                                      <span className="px-1 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
+                                        Fake/Drill
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
 
@@ -5201,112 +4984,163 @@ function AdminDashboard() {
                   <p className="text-slate-600 text-sm mt-2">Performance metrics and insights inside Dashboard</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <select className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-700">
+                  <select 
+                    value={dashboardTimeframe}
+                    onChange={(e) => setDashboardTimeframe(e.target.value)}
+                    className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-700 bg-white"
+                  >
                     <option>Last 7 Days</option>
                     <option>Last 30 Days</option>
                     <option>Last 90 Days</option>
                     <option>Last Year</option>
                   </select>
-                  <button className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2 text-slate-700 font-medium">
+                  <button 
+                    onClick={handleExport}
+                    className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2 text-slate-700 font-medium bg-white"
+                  >
                     Export Report
                   </button>
                 </div>
               </div>
 
-              {/* KPI Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Alerts */}
-                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-2">
-                      <p className="text-slate-600 text-sm font-medium">Total Alerts</p>
+              {/* Row 1: KPI Stat Cards Grid (TailAdmin Style) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                
+                {/* Stat Card 1 - Total Active Alerts */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+                      <AlertCircle className="w-6 h-6" />
                     </div>
-                    <p className="text-4xl font-bold text-slate-900 mb-3">{totalAlerts}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500">live from reports</span>
-                    </div>
-                  </CardContent>
+                    <span className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50">
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                      11.01%
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Active Alerts</p>
+                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                      {activeReports.length || 0}
+                    </p>
+                  </div>
                 </Card>
 
-                {/* Response Rate */}
-                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-2">
-                      <p className="text-slate-600 text-sm font-medium">Response Rate</p>
+                {/* Stat Card 2 - Critical Emergency Alerts */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
+                      <Flame className="w-6 h-6" />
                     </div>
-                    <p className="text-4xl font-bold text-slate-900 mb-3">{responseRate}%</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500">(responded + resolved) / total</span>
-                    </div>
-                  </CardContent>
+                    <span className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-400 border border-red-200/60 dark:border-red-900/50">
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                      Critical
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Critical Emergencies</p>
+                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                      {severityCounts.critical || 0}
+                    </p>
+                  </div>
                 </Card>
 
-                {/* Avg Response Time */}
-                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-2">
-                      <p className="text-slate-600 text-sm font-medium">Avg Response Time</p>
+                {/* Stat Card 3 - Active Rescuers On-Duty */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                      <Users className="w-6 h-6" />
                     </div>
-                    <p className="text-4xl font-bold text-slate-900 mb-3">{avgResponseTimeMinutes.toFixed(1)} min</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500">from handled alerts</span>
-                    </div>
-                  </CardContent>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      On-Duty
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Rescuers</p>
+                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                      {activeRescuersCount || 0}
+                    </p>
+                  </div>
                 </Card>
 
-                {/* Active Rescuers */}
-                <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-2">
-                      <p className="text-slate-600 text-sm font-medium">Active Rescuers</p>
+                {/* Stat Card 4 - Ongoing Rescue Operations */}
+                <Card className="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all">
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                      <Truck className="w-6 h-6" />
                     </div>
-                    <p className="text-4xl font-bold text-slate-900 mb-3">{activeRescuersCount}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500">on-duty or online</span>
-                    </div>
-                  </CardContent>
+                    <span className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50">
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                      Active
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ongoing Missions</p>
+                    <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+                      {ongoingRescues.length || 0}
+                    </p>
+                  </div>
                 </Card>
               </div>
 
               {/* Charts Row 1 */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Alert Trends by Severity */}
+                {/* Weekly Alert Volume Area Chart */}
                 <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                   <CardHeader>
-                    <CardTitle className="text-slate-900">Alert Trends by Severity</CardTitle>
+                    <CardTitle className="text-slate-900 text-base font-bold">Weekly Alert Volume</CardTitle>
+                    <p className="text-xs text-slate-500">Total incoming emergency reports per day of week</p>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={weeklySeverityTrendData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                        <XAxis dataKey="day" stroke="#64748b" />
-                        <YAxis stroke="#64748b" />
-                        <Tooltip contentStyle={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px" }} />
-                        <Legend />
-                        <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} />
-                        <Line type="monotone" dataKey="high" stroke="#f97316" strokeWidth={2} />
-                        <Line type="monotone" dataKey="medium" stroke="#eab308" strokeWidth={2} />
-                        <Line type="monotone" dataKey="low" stroke="#16a34a" strokeWidth={2} />
-                      </LineChart>
+                      <AreaChart data={weeklySeverityTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="chartBlueGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.25} />
+                            <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                        <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
+                        <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "none", borderRadius: "12px", color: "#fff", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.3)" }} />
+                        <Area type="monotone" dataKey="total" stroke="#3b82f6" strokeWidth={3} fill="url(#chartBlueGradient)" />
+                      </AreaChart>
                     </ResponsiveContainer>
                   </CardContent>
                 </Card>
 
-                {/* Alerts by Location */}
+                {/* Top Incident Locations Progress List */}
                 <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                   <CardHeader>
-                    <CardTitle className="text-slate-900">Alerts by Location</CardTitle>
+                    <CardTitle className="text-slate-900 text-base font-bold">Top Incident Locations</CardTitle>
+                    <p className="text-xs text-slate-500">Barangays with highest emergency counts</p>
                   </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={alertsByLocationData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                        <XAxis type="number" stroke="#64748b" />
-                        <YAxis dataKey="location" type="category" stroke="#64748b" width={80} />
-                        <Tooltip contentStyle={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px" }} />
-                        <Bar dataKey="count" fill="#1d4ed8" radius={[0, 8, 8, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <CardContent className="space-y-4">
+                    {alertsByLocationData.length > 0 ? (
+                      alertsByLocationData.map((item, index) => {
+                        const maxCount = alertsByLocationData[0]?.count || 1;
+                        const percentage = Math.round((item.count / maxCount) * 100);
+                        return (
+                          <div key={index} className="space-y-1.5">
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[200px]">{item.location}</span>
+                              <span className="text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-0.5 rounded-full">{item.count} alerts</span>
+                            </div>
+                            <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                              <div 
+                                className="bg-blue-600 h-full rounded-full transition-all duration-500" 
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-center py-10 text-slate-400 text-sm">
+                        No location data available.
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>

@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const submitFeedback = async ({ message, category = "general" }) => {
   const token = await AsyncStorage.getItem("userToken");
 
-  const response = await fetch(`${BASE_URL}/api/feedback`, {
+  const response = await fetch(`${BASE_URL}/api/feedback/user-feedback`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -24,7 +24,7 @@ export const submitFeedback = async ({ message, category = "general" }) => {
 export const getAdminFeedbackList = async () => {
   const token = await AsyncStorage.getItem("userToken");
 
-  const response = await fetch(`${BASE_URL}/api/feedback`, {
+  const response = await fetch(`${BASE_URL}/api/feedback/user-feedback`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -41,7 +41,7 @@ export const getAdminFeedbackList = async () => {
 export const markFeedbackAsRead = async (feedbackId) => {
   const token = await AsyncStorage.getItem("userToken");
 
-  const response = await fetch(`${BASE_URL}/api/feedback/${feedbackId}/read`, {
+  const response = await fetch(`${BASE_URL}/api/feedback/user-feedback/${feedbackId}/read`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${token}`,

@@ -96,23 +96,30 @@ function Sidebar({
 
   return (
     <aside
-      className={`${
+      className={`relative ${
         sidebarOpen ? "w-64 sm:w-72" : "w-20"
       } bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col z-30 select-none shadow-sm`}
     >
+      {/* Sidebar Toggle Floating Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="absolute -right-3.5 top-5 w-7 h-7 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm transition-all duration-200 z-50 hover:scale-105"
+        title={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+      >
+        {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+      </button>
+
       {/* Brand Header */}
-      <div className="h-16 px-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80">
+      <div className={`h-16 flex items-center ${sidebarOpen ? "px-5" : "justify-center"} border-b border-slate-100 dark:border-slate-800/80`}>
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 p-0.5 flex-shrink-0 shadow-sm flex items-center justify-center">
-            <img
-              src="/salbalogo.png"
-              alt="SALBA Logo"
-              className="w-full h-full rounded-[10px] object-cover bg-white"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-          </div>
+          <img
+            src="/salbalogo.png"
+            alt="SALBA Logo"
+            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
           {sidebarOpen && (
             <div className="min-w-0">
               <h1 className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
@@ -124,15 +131,6 @@ function Sidebar({
             </div>
           )}
         </div>
-
-        {/* Toggle Collapse Button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
-        >
-          {sidebarOpen ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-        </button>
       </div>
 
       {/* Navigation Links */}

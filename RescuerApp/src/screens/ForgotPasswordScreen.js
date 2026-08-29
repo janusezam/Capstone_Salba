@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { API_URL } from '../config/api';
@@ -100,21 +101,44 @@ export default function ForgotPasswordScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.card}>
-          <Text style={styles.title}>Forgot Password</Text>
-          <Text style={styles.subtitle}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View style={styles.header}>
+          <View style={styles.logoContainer}>
+            <Image 
+              source={require('../../assets/CDRRMO_LOGO.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={styles.appTitle}>SALBA</Text>
+          <Text style={styles.subtitle}>Reset Password</Text>
+          <Text style={styles.description}>
+            Enter your rescuer account email to verify and reset your credentials.
+          </Text>
+        </View>
+
+        {/* Form Card Section */}
+        <View style={styles.formCard}>
+          <Text style={styles.welcomeText}>
+            {step === 'request' ? 'Request Reset Code' : 'Set New Password'}
+          </Text>
+          
+          <Text style={styles.formInstruction}>
             {step === 'request'
-              ? 'Enter your rescuer account email to receive a reset code.'
-              : 'Enter the code from your email and set a new password.'}
+              ? 'Provide your registered email address to receive a secure 6-digit verification code.'
+              : 'Enter the verification code sent to your email and choose a strong new password.'}
           </Text>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#DC2626" style={styles.inputIcon} />
+          <View style={[styles.inputContainer, step !== 'request' && styles.inputDisabled]}>
+            <Ionicons name="mail-outline" size={20} color="#991B1B" style={styles.inputIcon} />
             <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#999"
+              style={[styles.input, step !== 'request' && { color: '#9CA3AF' }]}
+              placeholder="Email Address"
+              placeholderTextColor="#9CA3AF"
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -126,11 +150,11 @@ export default function ForgotPasswordScreen({ navigation }) {
           {step === 'verify' && (
             <>
               <View style={styles.inputContainer}>
-                <Ionicons name="key-outline" size={20} color="#DC2626" style={styles.inputIcon} />
+                <Ionicons name="key-outline" size={20} color="#991B1B" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="6-digit code"
-                  placeholderTextColor="#999"
+                  placeholder="6-digit reset code"
+                  placeholderTextColor="#9CA3AF"
                   value={code}
                   onChangeText={setCode}
                   keyboardType="number-pad"
@@ -138,11 +162,11 @@ export default function ForgotPasswordScreen({ navigation }) {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="lock-closed-outline" size={20} color="#DC2626" style={styles.inputIcon} />
+                <Ionicons name="lock-closed-outline" size={20} color="#991B1B" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="New password"
-                  placeholderTextColor="#999"
+                  placeholder="New Password"
+                  placeholderTextColor="#9CA3AF"
                   value={newPassword}
                   onChangeText={setNewPassword}
                   secureTextEntry
@@ -150,11 +174,11 @@ export default function ForgotPasswordScreen({ navigation }) {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="lock-closed-outline" size={20} color="#DC2626" style={styles.inputIcon} />
+                <Ionicons name="lock-closed-outline" size={20} color="#991B1B" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Confirm new password"
-                  placeholderTextColor="#999"
+                  placeholder="Confirm New Password"
+                  placeholderTextColor="#9CA3AF"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secureTextEntry
@@ -162,30 +186,49 @@ export default function ForgotPasswordScreen({ navigation }) {
               </View>
 
               {devResetCode ? (
-                <Text style={styles.devCode}>Development code: {devResetCode}</Text>
+                <View style={styles.devCodeContainer}>
+                  <Text style={styles.devCodeLabel}>Development Helper Code:</Text>
+                  <Text style={styles.devCodeVal}>{devResetCode}</Text>
+                </View>
               ) : null}
             </>
           )}
 
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[styles.actionButton, loading && styles.actionButtonDisabled]}
             onPress={step === 'request' ? handleSendCode : handleResetPassword}
             disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.buttonText}>
-                {step === 'request' ? 'Send Code' : 'Reset Password'}
-              </Text>
+              <>
+                <Text style={styles.actionButtonText}>
+                  {step === 'request' ? 'Send Reset Code' : 'Update Password'}
+                </Text>
+                <Ionicons name="arrow-forward" size={18} color="#fff" />
+              </>
             )}
           </TouchableOpacity>
 
-          {step === 'verify' ? (
-            <TouchableOpacity onPress={() => setStep('request')}>
-              <Text style={styles.link}>Use another email</Text>
+          <View style={styles.backContainer}>
+            <TouchableOpacity 
+              onPress={() => step === 'verify' ? setStep('request') : navigation.navigate('Login')}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={16} color="#991B1B" />
+              <Text style={styles.backLinkText}>
+                {step === 'verify' ? 'Use another email' : 'Back to Log In'}
+              </Text>
             </TouchableOpacity>
-          ) : null}
+          </View>
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Malaybalay City CDRRMO SALBA App
+          </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -195,80 +238,166 @@ export default function ForgotPasswordScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#DC2626',
+    backgroundColor: '#F3F4F6',
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 40,
   },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
+  header: {
+    alignItems: 'center',
+    marginBottom: 24,
   },
-  title: {
-    fontSize: 24,
+  logoContainer: {
+    width: 120,
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+  },
+  appTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'center',
+    color: '#111827',
+    letterSpacing: 1,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 15,
+    color: '#4B5563',
+    fontWeight: '600',
+    marginTop: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  description: {
+    fontSize: 13,
+    color: '#6B7280',
     textAlign: 'center',
-    marginBottom: 18,
+    marginTop: 8,
+    lineHeight: 18,
+    paddingHorizontal: 20,
+  },
+  formCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  welcomeText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  formInstruction: {
+    fontSize: 13,
+    color: '#6B7280',
+    lineHeight: 18,
+    marginBottom: 20,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#E5E7EB',
     borderRadius: 10,
-    paddingHorizontal: 12,
-    marginBottom: 12,
-    backgroundColor: '#f9f9f9',
+    paddingHorizontal: 14,
+    marginBottom: 16,
+    backgroundColor: '#F9FAFB',
+  },
+  inputDisabled: {
+    backgroundColor: '#F3F4F6',
+    borderColor: '#E5E7EB',
   },
   inputIcon: {
-    marginRight: 8,
+    marginRight: 10,
   },
   input: {
     flex: 1,
-    height: 48,
-    fontSize: 16,
-    color: '#333',
+    height: 50,
+    fontSize: 15,
+    color: '#111827',
   },
-  button: {
-    backgroundColor: '#DC2626',
+  actionButton: {
+    backgroundColor: '#991B1B',
     borderRadius: 10,
     height: 50,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 6,
+    gap: 8,
+    shadowColor: '#991B1B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  buttonDisabled: {
+  actionButtonDisabled: {
     opacity: 0.7,
   },
-  buttonText: {
+  actionButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
-  link: {
-    marginTop: 14,
-    textAlign: 'center',
-    color: '#DC2626',
-    fontWeight: '600',
+  backContainer: {
+    alignItems: 'center',
+    marginTop: 20,
   },
-  devCode: {
-    color: '#8a6d3b',
-    backgroundColor: '#fcf8e3',
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+  },
+  backLinkText: {
+    color: '#991B1B',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  devCodeContainer: {
+    backgroundColor: '#FFFBEB',
     borderWidth: 1,
-    borderColor: '#faebcc',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
-    textAlign: 'center',
+    borderColor: '#FDE68A',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  devCodeLabel: {
+    fontSize: 11,
+    color: '#D97706',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  devCodeVal: {
+    fontSize: 18,
+    color: '#B45309',
+    fontWeight: '800',
+    marginTop: 2,
+    letterSpacing: 2,
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  footerText: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontWeight: '500',
   },
 });

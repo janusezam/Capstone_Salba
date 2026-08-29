@@ -12,6 +12,7 @@ import {
   Image,
   Platform,
   TextInput,
+  Pressable,
 } from "react-native";
 import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
@@ -40,6 +41,106 @@ import { useNavigation } from "@react-navigation/native";
 import { getNearestBarangay } from "../utils/locationHelper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../hooks/useAuth";
+
+const getReportStatusLabelAndColor = (status) => {
+  const normStatus = String(status || '').trim().toLowerCase();
+  switch (normStatus) {
+    case 'new':
+    case 'pending':
+      return { label: "Pending Review", color: "#B45309", bgColor: "#FEF3C7" };
+    case 'assigned':
+    case 'acknowledged':
+      return { label: "Rescuer Assigned", color: "#1D4ED8", bgColor: "#DBEAFE" };
+    case 'on_the_way':
+      return { label: "Rescuer On The Way", color: "#6D28D9", bgColor: "#EDE9FE" };
+    case 'ongoing':
+    case 'in_progress':
+      return { label: "Rescuer Arrived (Ongoing)", color: "#047857", bgColor: "#D1FAE5" };
+    case 'resolved':
+      return { label: "Resolved", color: "#065F46", bgColor: "#D1FAE5" };
+    case 'declined':
+      return { label: "Declined", color: "#B91C1C", bgColor: "#FEE2E2" };
+    default:
+      return { label: status || "Sent", color: "#374151", bgColor: "#F3F4F6" };
+  }
+};
+
+const getDisasterIconAndColor = (type) => {
+  const normType = String(type || '').trim().toLowerCase();
+  switch (normType) {
+    case 'flood':
+      return { name: "water", color: "#3B82F6", label: "Flood" };
+    case 'fire':
+      return { name: "flame", color: "#EF4444", label: "Fire" };
+    case 'earthquake':
+      return { name: "pulse", color: "#F59E0B", label: "Earthquake" };
+    case 'landslide':
+      return { name: "warning", color: "#78350F", label: "Landslide" };
+    case 'typhoon':
+      return { name: "thunderstorm", color: "#1E3A8A", label: "Typhoon" };
+    default:
+      return { name: "alert-circle", color: "#DC2626", label: type || "Emergency" };
+  }
+};
+
+const renderTimeline = (status) => {
+  const steps = [
+    { label: "Reported", statuses: ['new', 'pending'] },
+    { label: "Assigned", statuses: ['assigned', 'acknowledged'] },
+    { label: "En Route", statuses: ['on_the_way'] },
+    { label: "Arrived", statuses: ['ongoing', 'in_progress', 'resolved'] }
+  ];
+
+  const normStatus = String(status || '').trim().toLowerCase();
+  
+  let activeIndex = 0;
+  if (steps[1].statuses.includes(normStatus)) activeIndex = 1;
+  else if (steps[2].statuses.includes(normStatus)) activeIndex = 2;
+  else if (steps[3].statuses.includes(normStatus) || normStatus === 'resolved') activeIndex = 3;
+
+  return (
+    <View style={styles.timelineContainer}>
+      {steps.map((step, idx) => {
+        const isCompleted = idx < activeIndex;
+        const isActive = idx === activeIndex;
+        
+        return (
+          <React.Fragment key={idx}>
+            <View style={styles.timelineStep}>
+              <View style={[
+                styles.timelineDot,
+                isCompleted && styles.timelineDotCompleted,
+                isActive && styles.timelineDotActive
+              ]}>
+                {isCompleted ? (
+                  <Ionicons name="checkmark" size={14} color="#fff" />
+                ) : (
+                  <Text style={[
+                    styles.timelineDotText,
+                    isActive && styles.timelineDotTextActive
+                  ]}>{idx + 1}</Text>
+                )}
+              </View>
+              <Text style={[
+                styles.timelineLabel,
+                isActive && styles.timelineLabelActive,
+                isCompleted && styles.timelineLabelCompleted
+              ]}>
+                {step.label}
+              </Text>
+            </View>
+            {idx < steps.length - 1 && (
+              <View style={[
+                styles.timelineConnector,
+                isCompleted && styles.timelineConnectorCompleted
+              ]} />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </View>
+  );
+};
 
 export default function HomeScreen() {
   const ALERT_COOLDOWN_SECONDS = 60;
@@ -421,71 +522,173 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
-        {/* Notification Modal */}
+
+        {/* Redesigned Notification Modal */}
         <Modal
           visible={notificationModalVisible}
           transparent={true}
-          animationType="fade"
+          animationType="slide"
           onRequestClose={() => setNotificationModalVisible(false)}
         >
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={() => setNotificationModalVisible(false)}
-          >
-            <View style={styles.notificationModalContainer}>
+          <View style={styles.notificationModalOverlay}>
+            <Pressable
+              style={StyleSheet.absoluteFillObject}
+              onPress={() => setNotificationModalVisible(false)}
+            />
+            <View 
+              style={styles.notificationModalContainerLarge}
+            >
               <View style={styles.notificationModalHeader}>
-                <Text style={styles.notificationModalTitle}>Emergency Report Status</Text>
+                <Text style={styles.notificationModalTitle}>Rescue Tracking</Text>
                 <TouchableOpacity onPress={() => setNotificationModalVisible(false)}>
-                  <Ionicons name="close" size={24} color="#333" />
+                  <Ionicons name="close-circle" size={28} color="#666" />
                 </TouchableOpacity>
               </View>
 
               {!activeReport ? (
-                <View style={styles.notificationModalContent}>
-                  <Ionicons name="checkmark-circle-outline" size={48} color="#10b981" />
-                  <Text style={styles.notificationModalEmpty}>No active reports at the moment.</Text>
+                <View style={styles.notificationModalContentEmpty}>
+                  <Ionicons name="checkmark-circle" size={60} color="#10b981" />
+                  <Text style={styles.notificationModalEmpty}>No active rescue missions.</Text>
+                  <Text style={styles.notificationModalEmptyDesc}>Any alerts you submit will show real-time tracking here.</Text>
                 </View>
               ) : (
-                <View style={styles.notificationModalContent}>
-                  <Text style={styles.reportStatusType}>{activeReport.type || 'Emergency'} Alert</Text>
-                  
-                  <View style={styles.statusBadgeContainer}>
-                    <Text style={styles.statusBadgeText}>
-                      {activeReport.status === 'pending' && "Pending Review"}
-                      {activeReport.status === 'acknowledged' && "Acknowledged"}
-                      {activeReport.status === 'on_the_way' && "Rescuer On The Way"}
-                      {activeReport.status === 'ongoing' && "Rescuer Arrived"}
-                    </Text>
+                <ScrollView 
+                  style={styles.modalScrollBody}
+                  contentContainerStyle={styles.modalScrollContent}
+                  showsVerticalScrollIndicator={true}
+                >
+                  {/* Status Card */}
+                  <View style={styles.modalStatusCard}>
+                    <View style={styles.modalStatusHeader}>
+                      <View style={styles.disasterBadge}>
+                        <Ionicons 
+                          name={getDisasterIconAndColor(activeReport.disasterType || activeReport.type).name} 
+                          size={24} 
+                          color={getDisasterIconAndColor(activeReport.disasterType || activeReport.type).color} 
+                        />
+                        <Text style={styles.disasterBadgeText}>
+                          {(activeReport.disasterType || activeReport.type || 'Emergency')} Alert
+                        </Text>
+                      </View>
+                      <View style={[
+                        styles.statusBadgeLarge, 
+                        { backgroundColor: getReportStatusLabelAndColor(activeReport.status).bgColor }
+                      ]}>
+                        <Text style={[
+                          styles.statusTextLarge, 
+                          { color: getReportStatusLabelAndColor(activeReport.status).color }
+                        ]}>
+                          {getReportStatusLabelAndColor(activeReport.status).label}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Timeline */}
+                    {renderTimeline(activeReport.status)}
                   </View>
 
-                  {activeReport.status === 'on_the_way' && (
-                    <View style={styles.distanceContainer}>
-                      <Ionicons name="bicycle" size={32} color="#0284c7" />
-                      <Text style={styles.distanceText}>{getDistanceText()}</Text>
-                      <Text style={styles.distanceSubtext}>
-                        {activeReport.assignedRescuer?.rescuerName ? `${activeReport.assignedRescuer.rescuerName} is moving towards your location.` : "A rescuer is moving towards your location."}
-                      </Text>
+                  {/* Rescuer Card if Assigned */}
+                  {(activeReport.status === 'on_the_way' || activeReport.status === 'ongoing' || activeReport.status === 'in_progress') && (
+                    <View style={styles.rescuerCard}>
+                      <Text style={styles.cardSectionTitle}>Assigned Responder</Text>
+                      <View style={styles.rescuerInfoRow}>
+                        <View style={styles.rescuerAvatar}>
+                          <Ionicons name="person" size={28} color="#007AFF" />
+                        </View>
+                        <View style={styles.rescuerNameCol}>
+                          <Text style={styles.rescuerName}>
+                            {activeReport.assignedRescuer?.rescuerName || 'CDRRMO Rescue Team'}
+                          </Text>
+                          <Text style={styles.rescuerRole}>Field Emergency Responder</Text>
+                        </View>
+                      </View>
+
+                      {activeReport.status === 'on_the_way' && (
+                        <View style={styles.modalDistanceContainer}>
+                          <View style={styles.distanceBadgeLarge}>
+                            <Ionicons name="bicycle" size={20} color="#0284c7" />
+                            <Text style={styles.modalDistanceText}>{getDistanceText()}</Text>
+                          </View>
+                          <Text style={styles.modalDistanceSubtext}>
+                            {activeReport.assignedRescuer?.rescuerName ? `${activeReport.assignedRescuer.rescuerName} is moving towards your location.` : "A rescuer is moving towards your location."}
+                          </Text>
+                        </View>
+                      )}
+
+                      {activeReport.status === 'ongoing' && (
+                        <View style={styles.modalDistanceContainerSuccess}>
+                          <View style={styles.distanceBadgeLargeSuccess}>
+                            <Ionicons name="location" size={20} color="#10b981" />
+                            <Text style={styles.modalDistanceTextSuccess}>Arrived at Scene</Text>
+                          </View>
+                          <Text style={styles.modalDistanceSubtextSuccess}>
+                            {activeReport.assignedRescuer?.rescuerName ? `${activeReport.assignedRescuer.rescuerName} is currently on-scene assisting you.` : "The rescue team has arrived at your location."}
+                          </Text>
+                        </View>
+                      )}
                     </View>
                   )}
 
-                  {activeReport.status === 'ongoing' && (
-                    <View style={styles.distanceContainer}>
-                      <Ionicons name="location" size={32} color="#10b981" />
-                      <Text style={styles.distanceText}>Arrived at Scene</Text>
-                      <Text style={styles.distanceSubtext}>
-                        {activeReport.assignedRescuer?.rescuerName ? `${activeReport.assignedRescuer.rescuerName} has arrived at your location.` : "A rescuer has arrived at your location."}
+                  {/* Report Details Card */}
+                  <View style={styles.detailsCard}>
+                    <Text style={styles.cardSectionTitle}>Incident Details</Text>
+                    
+                    <View style={styles.detailItem}>
+                      <Ionicons name="location-outline" size={18} color="#666" style={styles.detailItemIcon} />
+                      <View style={styles.detailItemContent}>
+                        <Text style={styles.detailItemLabel}>Incident Location</Text>
+                        <Text style={styles.detailItemVal}>{activeReport.locationName || 'Location Pinned'}</Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.detailItem}>
+                      <Ionicons name="time-outline" size={18} color="#666" style={styles.detailItemIcon} />
+                      <View style={styles.detailItemContent}>
+                        <Text style={styles.detailItemLabel}>Reported Time</Text>
+                        <Text style={styles.detailItemVal}>
+                          {new Date(activeReport.createdAt).toLocaleString()}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {activeReport.note ? (
+                      <View style={styles.detailItem}>
+                        <Ionicons name="document-text-outline" size={18} color="#666" style={styles.detailItemIcon} />
+                        <View style={styles.detailItemContent}>
+                          <Text style={styles.detailItemLabel}>Incident Note</Text>
+                          <Text style={styles.detailItemVal}>{activeReport.note}</Text>
+                        </View>
+                      </View>
+                    ) : null}
+
+                    {activeReport.photoUrl ? (
+                      <View style={styles.detailItem}>
+                        <Ionicons name="image-outline" size={18} color="#666" style={styles.detailItemIcon} />
+                        <View style={styles.detailItemContent}>
+                          <Text style={styles.detailItemLabel}>Uploaded Photo</Text>
+                          <Image 
+                            source={{ uri: activeReport.photoUrl }} 
+                            style={styles.uploadedPhotoPreview} 
+                            resizeMode="cover"
+                          />
+                        </View>
+                      </View>
+                    ) : null}
+                  </View>
+
+                  <View style={styles.safetyCard}>
+                    <Ionicons name="shield-checkmark" size={24} color="#059669" />
+                    <View style={styles.safetyTextContainer}>
+                      <Text style={styles.safetyTitle}>Safety Instructions</Text>
+                      <Text style={styles.safetyDesc}>
+                        Stay calm. If safe, remain at your pinned location so the rescue team can find you easily. If you must move, keep your phone with you.
                       </Text>
                     </View>
-                  )}
-                  
-                  <Text style={styles.reportTimeText}>
-                    Reported on {new Date(activeReport.createdAt).toLocaleString()}
-                  </Text>
-                </View>
+                  </View>
+                </ScrollView>
               )}
             </View>
-          </TouchableOpacity>
+          </View>
         </Modal>
 
         {/* Burger Menu Modal */}
@@ -1253,15 +1456,94 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#aaa",
   },
-  notificationModalContainer: {
-    width: "85%",
+  // Active Rescue Banner on Home Screen
+  activeReportBanner: {
+    width: "90%",
     backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
-    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  bannerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  bannerTypeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  bannerTypeText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#1F2937",
+  },
+  bannerStatusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  bannerStatusText: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  bannerDesc: {
+    fontSize: 13,
+    color: "#4B5563",
+    lineHeight: 18,
+    marginBottom: 12,
+  },
+  bannerFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#F3F4F6",
+    paddingTop: 8,
+  },
+  bannerTimeText: {
+    fontSize: 11,
+    color: "#9CA3AF",
+  },
+  bannerActionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  bannerActionBtnText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#007AFF",
+  },
+
+  // Redesigned Modal Containers
+  notificationModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  notificationModalContainerLarge: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    width: "100%",
+    maxHeight: "85%",
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
     shadowRadius: 10,
-    elevation: 10,
+    elevation: 12,
   },
   notificationModalHeader: {
     flexDirection: 'row',
@@ -1273,60 +1555,306 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   notificationModalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
   },
-  notificationModalContent: {
-    alignItems: 'center',
-    paddingVertical: 10,
+  notificationModalContentEmpty: {
+    alignItems: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 20,
   },
   notificationModalEmpty: {
     marginTop: 10,
-    fontSize: 16,
-    color: '#666',
+    fontSize: 18,
+    color: '#333',
+    fontWeight: '700',
     textAlign: 'center',
   },
-  reportStatusType: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#111',
-    marginBottom: 10,
+  notificationModalEmptyDesc: {
+    fontSize: 13,
+    color: "#888",
+    textAlign: "center",
+    marginTop: 8,
+    lineHeight: 18,
   },
-  statusBadgeContainer: {
-    backgroundColor: '#fef3c7',
-    paddingHorizontal: 15,
+  modalScrollBody: {
+    marginVertical: 10,
+  },
+  modalScrollContent: {
+    paddingBottom: 40,
+  },
+  modalStatusCard: {
+    backgroundColor: "#F9FAFB",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#F3F4F6",
+  },
+  modalStatusHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  disasterBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  disasterBadgeText: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#111827",
+  },
+  statusBadgeLarge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  statusTextLarge: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+
+  // Timeline styling
+  timelineContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  timelineStep: {
+    alignItems: "center",
+    flex: 1,
+  },
+  timelineDot: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#E5E7EB",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 6,
+    borderWidth: 2,
+    borderColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  timelineDotCompleted: {
+    backgroundColor: "#10B981",
+    borderColor: "#10B981",
+  },
+  timelineDotActive: {
+    backgroundColor: "#3B82F6",
+    borderColor: "#DBEAFE",
+    transform: [{ scale: 1.15 }],
+  },
+  timelineDotText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#9CA3AF",
+  },
+  timelineDotTextActive: {
+    color: "#fff",
+  },
+  timelineLabel: {
+    fontSize: 10,
+    fontWeight: "500",
+    color: "#9CA3AF",
+    textAlign: "center",
+  },
+  timelineLabelActive: {
+    color: "#3B82F6",
+    fontWeight: "700",
+  },
+  timelineLabelCompleted: {
+    color: "#4B5563",
+    fontWeight: "600",
+  },
+  timelineConnector: {
+    height: 3,
+    backgroundColor: "#E5E7EB",
+    flex: 1,
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  timelineConnectorCompleted: {
+    backgroundColor: "#10B981",
+  },
+
+  // Rescuer styling
+  rescuerCard: {
+    backgroundColor: "#EFF6FF",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
+  },
+  cardSectionTitle: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#4B5563",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 12,
+  },
+  rescuerInfoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 12,
+  },
+  rescuerAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#DBEAFE",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  rescuerNameCol: {
+    flex: 1,
+  },
+  rescuerName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1E3A8A",
+  },
+  rescuerRole: {
+    fontSize: 12,
+    color: "#3B82F6",
+    fontWeight: "500",
+  },
+  modalDistanceContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E0F2FE",
+  },
+  modalDistanceContainerSuccess: {
+    backgroundColor: "#ECFDF5",
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#D1FAE5",
+  },
+  distanceBadgeLarge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E0F2FE",
+    paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    marginBottom: 20,
+    gap: 6,
+    marginBottom: 6,
   },
-  statusBadgeText: {
-    color: '#d97706',
-    fontWeight: '700',
-    fontSize: 14,
+  distanceBadgeLargeSuccess: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#D1FAE5",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
+    marginBottom: 6,
   },
-  distanceContainer: {
-    alignItems: 'center',
-    backgroundColor: '#f0f9ff',
-    padding: 15,
-    borderRadius: 15,
-    width: '100%',
-    marginBottom: 15,
+  modalDistanceText: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#0369a1",
   },
-  distanceText: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#0284c7',
-    marginVertical: 5,
+  modalDistanceTextSuccess: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#065f46",
   },
-  distanceSubtext: {
-    fontSize: 13,
-    color: '#0369a1',
-    textAlign: 'center',
-  },
-  reportTimeText: {
+  modalDistanceSubtext: {
     fontSize: 12,
-    color: '#999',
-    marginTop: 10,
+    color: "#0284c7",
+    textAlign: "center",
+    lineHeight: 16,
+  },
+  modalDistanceSubtextSuccess: {
+    fontSize: 12,
+    color: "#047857",
+    textAlign: "center",
+    lineHeight: 16,
+  },
+
+  // Details card styling
+  detailsCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  detailItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 14,
+  },
+  detailItemIcon: {
+    marginTop: 2,
+    marginRight: 10,
+  },
+  detailItemContent: {
+    flex: 1,
+  },
+  detailItemLabel: {
+    fontSize: 11,
+    color: "#6B7280",
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  detailItemVal: {
+    fontSize: 14,
+    color: "#1F2937",
+    fontWeight: "500",
+    marginTop: 2,
+  },
+  uploadedPhotoPreview: {
+    width: "100%",
+    height: 150,
+    borderRadius: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+
+  // Safety card
+  safetyCard: {
+    flexDirection: "row",
+    backgroundColor: "#ECFDF5",
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
+  },
+  safetyTextContainer: {
+    flex: 1,
+  },
+  safetyTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#065F46",
+    marginBottom: 4,
+  },
+  safetyDesc: {
+    fontSize: 12,
+    color: "#047857",
+    lineHeight: 16,
   },
 });

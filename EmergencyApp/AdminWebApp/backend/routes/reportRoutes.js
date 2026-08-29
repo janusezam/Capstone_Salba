@@ -7,6 +7,8 @@ const PredictionCache = require('../models/PredictionCache');
 const malaybalayLocations = require('../utils/malaybalayLocations');
 const { authMiddleware, requireAdmin } = require('../middleware/authMiddleware');
 const mlServiceClient = require('../utils/mlServiceClient');
+const groqService = require('../utils/groqService');
+const enhancedML = require('../utils/enhancedMLModel');
 const { resolveLocationName } = require('../utils/locationResolver');
 
 const router = express.Router();
@@ -297,40 +299,113 @@ router.post('/', authMiddleware, async (req, res) => {
           return;
         }
         
-        // Step 2: Try fast-mode endpoint first (100-300ms)
-        let mlResult = await mlServiceClient.evaluateReportFast({
-          description,
-          latitude: lat,
-          longitude: lng,
-          textLength: description.length,
-          disasterType: disasterType || '',
-        });
+        // Step 2: Try Python ML service, Groq LLM, or local heuristics in sequence
+        let basePredictions = null;
 
-        if (mlResult.success) {
-          const basePredictions = {
-            disasterType: mlResult.classification?.disaster_type,
-            disasterTypeConfidence: mlResult.classification?.confidence,
-            severity: mlResult.severity?.level,
-            severityConfidence: mlResult.severity?.confidence,
-            isLegitimate: mlResult.verification?.is_legitimate,
-            legitimacyConfidence: mlResult.verification?.confidence,
-            overall: mlResult.overall,
-          };
+        // 2a. Try local Python ML service first if running
+        try {
+          let mlResult = await mlServiceClient.evaluateReportFast({
+            description,
+            latitude: lat,
+            longitude: lng,
+            textLength: description.length,
+            disasterType: disasterType || '',
+          });
 
-          const predictions = applySuspiciousOverride(basePredictions);
-          
-          if (predictions.severity) {
-            r.severity = predictions.severity;
+          if (mlResult && mlResult.success) {
+            basePredictions = {
+              disasterType: mlResult.classification?.disaster_type || disasterType,
+              disasterTypeConfidence: mlResult.classification?.confidence || 0.85,
+              severity: mlResult.severity?.level || resolvedSeverity,
+              severityConfidence: mlResult.severity?.confidence || 0.85,
+              isLegitimate: mlResult.verification?.is_legitimate !== false,
+              legitimacyConfidence: mlResult.verification?.confidence || 0.9,
+              overall: mlResult.overall || {
+                confidence: 0.85,
+                recommendation: mlResult.verification?.is_legitimate !== false ? 'admin_review' : 'flag_false_alarm'
+              },
+            };
           }
+        } catch (mlErr) {
+          console.log('[AI] Python ML service not available, attempting Groq LLM fallback');
+        }
+
+        // 2b. If Python ML service unavailable, evaluate with Groq LLM
+        if (!basePredictions) {
+          try {
+            const recentReports = await Report.find({
+              lat: { $gte: lat - 0.05, $lte: lat + 0.05 },
+              lng: { $gte: lng - 0.05, $lte: lng + 0.05 },
+              createdAt: { $gte: new Date(Date.now() - 1000 * 60 * 30) },
+              _id: { $ne: r._id }
+            }).lean();
+
+            const aiEvaluation = await groqService.evaluateReportAI(
+              { disasterType, reportText: description || resolvedLocationName, lat, lng },
+              recentReports
+            );
+
+            if (aiEvaluation && aiEvaluation.success) {
+              basePredictions = {
+                disasterType: aiEvaluation.classification || disasterType,
+                disasterTypeConfidence: 0.9,
+                severity: aiEvaluation.severity || resolvedSeverity,
+                severityConfidence: aiEvaluation.confidence || 0.85,
+                isLegitimate: aiEvaluation.isLegitimate !== false,
+                legitimacyConfidence: aiEvaluation.confidence || 0.85,
+                overall: {
+                  confidence: aiEvaluation.confidence || 0.85,
+                  recommendation: aiEvaluation.isLegitimate !== false ? 'admin_review' : 'flag_false_alarm',
+                  reason: aiEvaluation.reason
+                }
+              };
+            }
+          } catch (groqErr) {
+            console.warn('[AI] Groq evaluation failed, using local enhanced ML heuristic:', groqErr.message);
+          }
+        }
+
+        // 2c. If Groq also unavailable, fall back to local rule-based intelligence
+        if (!basePredictions) {
+          const recentReports = await Report.find({
+            lat: { $gte: lat - 0.05, $lte: lat + 0.05 },
+            lng: { $gte: lng - 0.05, $lte: lng + 0.05 },
+            createdAt: { $gte: new Date(Date.now() - 1000 * 60 * 30) },
+            _id: { $ne: r._id }
+          }).lean();
+
+          const verification = enhancedML.verifyReport(
+            { lat, lng, disasterType, reportText: description || resolvedLocationName, userId: req.user.id },
+            recentReports
+          );
+          const assessment = enhancedML.assessSeverity(disasterType, lat, lng, description || resolvedLocationName);
+          
+          basePredictions = {
+            disasterType: disasterType,
+            disasterTypeConfidence: 0.8,
+            severity: assessment.severity || resolvedSeverity,
+            severityConfidence: 0.8,
+            isLegitimate: verification.isValid !== false,
+            legitimacyConfidence: Math.max(0.5, Math.min(0.99, Number(verification.confidence || 0.7))),
+            overall: {
+              confidence: Number(verification.confidence || 0.7),
+              recommendation: verification.recommendation || 'admin_review',
+              reason: verification.issues?.join(', ') || null
+            }
+          };
+        }
+
+        if (basePredictions) {
+          const predictions = applySuspiciousOverride(basePredictions);
           r.mlPredictions = predictions;
           r.mlProcessedAt = new Date();
           await r.save();
           
           // Cache result for future use
           await PredictionCache.setCache(description, lat, lng, basePredictions);
-          console.log('✓ ML predictions completed (fast mode) - Updated severity to:', r.severity);
+          console.log('[AI] ML predictions completed successfully for report:', r._id);
 
-          // Broadcast to connected admins that ML predictions and severity have been updated
+          // Broadcast to connected admins that ML predictions have been updated
           if (req.io) {
             const populated = await Report.findById(r._id).populate('userId', 'name email').lean();
             req.io.to('admins').emit('report_ml_updated', populated);

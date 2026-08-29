@@ -1,21 +1,501 @@
-description,disaster_type,severity,latitude,longitude,created_at,text_length,word_count,has_urgency_keywords,has_prank_keywords
-Major earthquake reported critical,Earthquake,high,8.108498449338835,125.02142781848002,2026-03-07T12:09:35.758001,34,4,1,0
-Strong typhoon winds reported,Typhoon,moderate,8.050345280379803,124.92702734357697,2026-02-27T04:09:35.758001,29,4,0,0
-prank Strong typhoon winds reported,Typhoon,moderate,8.226609274778204,125.22235249773789,2026-02-26T21:09:35.758001,35,5,0,1
-hoax Rivers overflowing banks urgent,Flood,moderate,8.140237428834494,125.10635860941697,2026-02-24T07:09:35.758001,36,5,1,1
-Strong quake building damage severe,Earthquake,critical,8.107901687279657,125.09292381141273,2026-02-27T20:09:35.758001,35,5,1,0
-Tremor with aftershocks,Earthquake,moderate,8.302766431167703,125.29681548893846,2026-02-20T17:09:35.758001,23,3,0,0
-House fire with multiple structures burning,Fire,high,8.052597141675086,124.97814919479862,2026-03-04T14:09:35.758001,43,6,0,0
-Uncontrolled fire outbreak severe,Fire,critical,8.257516448632366,125.26893482023807,2026-03-02T06:09:35.758001,33,4,1,0
-Hillside collapse reported,Landslide,high,8.036615660653498,124.95093436387558,2026-03-03T13:09:35.758001,26,3,0,0
-Large landslide blocking road,Landslide,moderate,8.257960980393376,125.20512135748277,2026-02-17T01:09:35.758001,29,4,0,0
-Typhoon approaching region critical,Typhoon,moderate,8.226074782266185,125.22592175158437,2026-02-10T01:09:35.758001,35,4,1,0
-Tremor with aftershocks emergency,Earthquake,moderate,8.017880261333412,124.9018136605669,2026-02-17T07:09:35.758001,33,4,1,0
-Severe flooding and landslides,Flood,critical,8.139461972643964,125.04864190313481,2026-02-08T18:09:35.758001,30,4,1,0
-prank Ground movement detected,Landslide,critical,8.274154865690042,125.33349893145926,2026-02-15T20:09:35.758001,30,4,0,1
-Serious landslide event,Landslide,high,8.202883856727706,125.24274757861829,2026-03-04T13:09:35.758001,23,3,0,0
-test Tremor with aftershocks,Earthquake,moderate,8.31973783250077,125.28300939865967,2026-02-10T20:09:35.758001,28,4,0,1
-prank Flash flood warning,Flood,low,8.27007131818634,125.29580139943991,2026-02-27T04:09:35.758001,25,4,0,1
-Strong quake building damage,Earthquake,critical,8.29831058978044,125.15921924374604,2026-02-24T10:09:35.758001,28,4,0,0
-prank Strong typhoon winds reported emergency,Typhoon,moderate,8.173095768681254,125.08359601815245,2026-03-11T04:09:35.758001,45,6,1,1
-Typhoon damage assessment,Typhoon,moderate,8.21647311090918,125.15248529843171,2026-03-02T15:09:35.758001,25,3,0,0
+report_id,report_text,disaster_type,severity,latitude,longitude,barangay,created_at,has_user_note,text_length,word_count,has_urgency,note_urgency_score,note_downgrade_score,has_prank_keywords,is_false_alarm,is_hotspot,historical_incident_count,hazard_zone_risk,hazard_zone_distance_km
+REP-CLUSTER-2332,"Fire breaking out in commercial store, smoke filling area",Fire,critical,8.07503659053842,125.1419911494309,Simaya,2025-01-25T08:58:00,1,57,9,0,0,0,0,0,0,15,NONE,7.27
+REP-ONETAP-1189,Earthquake - Barangay 1,Earthquake,moderate,8.161258525502138,125.12646717567127,Barangay 1,2025-10-21T12:45:00,0,23,4,0,0,0,0,0,0,15,LOW,0.44
+REP-EXT-0029,Floodwater already waist deep,Flood,moderate,8.158309,125.129721,Barangay 9,2016-06-07T00:00:00,1,29,4,0,0,0,0,0,0,19,HIGH,0.22
+REP-TEXT-1541,Uncontrolled fire outbreak in residential neighborhood,Fire,moderate,8.152327346278687,125.12901735062509,Barangay 4,2025-03-09T06:46:00,1,54,6,0,0,1,0,0,0,15,MEDIUM,0.18
+REP-ONETAP-1218,,Landslide,moderate,8.160307778642307,125.12378283156276,Bangcud,2025-09-15T11:15:00,0,0,0,0,0,0,0,0,1,29,MEDIUM,0.38
+REP-TEXT-2031,Typhoon signal 3 destructive winds continuous heavy rainfall,Typhoon,high,8.155393879528093,125.12780682615542,Barangay 3,2025-10-22T17:08:00,1,60,8,0,0,0,0,0,0,15,HIGH,0.16
+REP-EXT-0795,Heavy rain triggered landslide near homes,Landslide,high,8.150022,125.138757,Violeta,2017-12-26T00:00:00,1,41,6,0,0,0,0,0,1,30,HIGH,0.23
+REP-EXT-0946,Market stall caught fire,Fire,critical,8.154183,125.13195,San Jose,2019-05-09T00:00:00,1,24,4,0,0,0,0,0,1,29,HIGH,0.14
+REP-ONETAP-1417,Fire - Linabo,Fire,moderate,8.082563578608827,125.15816971900561,Linabo,2025-06-12T04:24:00,0,13,3,0,0,0,0,0,0,15,NONE,7.12
+REP-EXT-0170,Water rising quickly near our house,Flood,high,8.155576,125.125691,Barangay 10,2017-02-06T00:00:00,1,35,6,0,0,0,0,0,1,32,LOW,0.32
+REP-TEXT-2095,Mild windy weather with occasional light rain,Typhoon,high,8.07531893277022,125.13930078086457,Simaya,2025-06-04T03:58:00,1,45,7,0,0,0,0,0,0,15,NONE,7.18
+REP-TEXT-1677,Main drainage backed up causing severe street flooding,Flood,high,8.149886439267668,125.12814177361274,Barangay 7,2025-12-18T10:59:00,1,54,8,1,1,0,0,0,0,15,MEDIUM,0.31
+REP-ONETAP-1198,,Fire,critical,8.14594514393704,125.13997045491867,Violeta,2025-05-27T02:41:00,0,0,0,0,0,0,0,0,1,27,HIGH,0.29
+REP-TEXT-1543,Electrical fire spreading across building roof,Fire,high,8.082985078218496,125.158751392543,Linabo,2025-01-25T21:06:00,1,46,6,1,1,0,0,0,0,15,NONE,7.11
+REP-ONETAP-1254,Typhoon - Malaybalay Proper,Typhoon,high,8.156146706199282,125.12855013416869,Malaybalay Proper,2025-09-15T20:10:00,0,27,4,0,0,0,0,0,0,15,HIGH,0.06
+REP-ONETAP-1277,,Fire,moderate,8.073453179360847,125.14243542162842,Simaya,2025-08-14T10:26:00,0,0,0,0,0,0,0,0,0,15,NONE,7.46
+REP-EXT-0913,Heavy rain triggered landslide near homes,Landslide,moderate,8.157179,125.128471,Malaybalay Proper,2015-12-05T00:00:00,1,41,6,0,0,0,0,0,0,21,HIGH,0.05
+REP-EXT-0492,Road covered by landslide debris,Landslide,moderate,8.157622,125.125069,Barangay 10,2023-08-29T00:00:00,1,32,5,0,0,0,0,0,0,22,LOW,0.3
+REP-EXT-0954,Landslide damaged farm area,Landslide,high,8.156343,125.132714,San Jose,2017-11-23T00:00:00,1,27,4,0,0,0,0,0,1,28,HIGH,0.11
+REP-ONETAP-1098,Earthquake - San Jose,Earthquake,moderate,8.158379788783757,125.13260233083655,San Jose,2025-05-19T09:16:00,0,21,4,0,0,0,0,0,1,29,HIGH,0.33
+REP-ONETAP-1033,Fire - Sumpong,Fire,high,8.153914657193063,125.1283878227284,Sumpong,2025-05-16T14:18:00,0,14,3,0,0,0,0,0,0,24,HIGH,0.31
+REP-EXT-0588,Landslide damaged farm area,Landslide,high,8.14878,125.140267,Violeta,2017-10-26T00:00:00,1,27,4,0,0,0,0,0,1,30,HIGH,0.03
+REP-EXT-0751,Water rising quickly near our house,Flood,moderate,8.152879,125.131014,Sumpong,2015-11-16T00:00:00,1,35,6,0,0,0,0,0,0,22,MEDIUM,0.17
+REP-EXT-0658,Road blocked due to floodwater,Flood,moderate,8.161655,125.125085,Casisang,2021-09-14T00:00:00,1,30,5,0,0,0,0,0,0,18,LOW,0.55
+REP-TEXT-1867,Large rockslide crushed vehicles and blocked main highway completely,Landslide,moderate,8.148980433699032,125.13417071269681,Barangay 8,2025-04-14T06:04:00,1,68,9,0,0,0,0,0,0,15,MEDIUM,0.5
+REP-EXT-0235,River overflow causing flooding in the area,Flood,high,8.156136,125.128383,Barangay 10,2019-10-31T00:00:00,1,43,7,0,0,0,0,0,1,32,HIGH,0.06
+REP-EXT-0733,Smoke and flames seen in residential area,Fire,high,8.15955,125.127188,Casisang,2018-06-02T00:00:00,1,41,7,0,0,0,0,0,1,25,LOW,0.24
+REP-CLUSTER-2493,Road covered by landslide debris heavy equipment needed to clear,Landslide,critical,8.149309239026648,125.13978679365603,Violeta,2025-10-23T15:44:00,1,64,10,0,0,0,0,0,1,30,HIGH,0.1
+REP-ONETAP-1187,Landslide - Barangay 9,Landslide,moderate,8.155436682787306,125.12621990606223,Barangay 9,2025-03-31T04:24:00,0,22,4,0,0,0,0,0,0,12,HIGH,0.29
+REP-ONETAP-1157,,Typhoon,high,8.157226069092921,125.12389628461047,Bangcud,2026-01-16T23:09:00,0,0,0,0,0,0,0,0,0,15,MEDIUM,0.31
+REP-CLUSTER-2454,Floodwater already waist deep entering living rooms,Flood,critical,8.075739706135916,125.14202982800325,Simaya,2025-11-23T10:01:00,1,51,7,0,0,0,0,0,0,15,NONE,7.2
+REP-ONETAP-1247,,Typhoon,moderate,8.115826200135384,125.16676217830307,Santo Niño,2025-04-13T04:15:00,0,0,0,0,0,0,0,0,0,15,NONE,4.66
+REP-CLUSTER-2449,Destructive ground shaking multiple structures damaged people injured,Earthquake,critical,8.149083573073257,125.13995133160654,Violeta,2025-08-31T10:38:00,1,69,8,1,1,0,0,0,1,32,HIGH,0.07
+REP-EXT-0935,Road blocked due to floodwater,Flood,high,8.158486,125.128513,Barangay 10,2022-10-13T00:00:00,1,30,5,0,0,0,0,0,1,32,LOW,0.13
+REP-ONETAP-1210,,Typhoon,moderate,8.160158356635256,125.13020818879295,Barangay 11,2025-03-25T05:53:00,0,0,0,0,0,0,0,0,0,15,LOW,0.4
+REP-ONETAP-1066,,Landslide,moderate,8.082454025396457,125.159310075493,Linabo,2025-05-05T04:41:00,0,0,0,0,0,0,0,0,0,15,NONE,7.19
+REP-TEXT-1717,Slight water buildup on roadside drainage working fine,Flood,moderate,8.151312443632715,125.12922830340972,Sumpong,2025-10-21T08:11:00,1,54,8,0,0,1,0,0,0,22,MEDIUM,0.13
+REP-EXT-0109,Minor tremor felt in the barangay,Earthquake,moderate,8.15523,125.130781,San Jose,2024-04-11T00:00:00,1,33,6,0,0,1,0,0,1,29,HIGH,0.17
+REP-ONETAP-1063,Flood - Bangcud,Flood,moderate,8.15905376339914,125.12126704398125,Bangcud,2025-05-26T16:42:00,0,15,3,0,0,0,0,0,0,23,MEDIUM,0.12
+REP-EXT-0569,Fire spreading to nearby houses,Fire,high,8.156725,125.127996,Barangay 9,2022-12-17T00:00:00,1,31,5,1,1,0,0,0,1,25,HIGH,0.06
+REP-ONETAP-1168,,Fire,high,8.149283791259004,125.11755764171568,Aglayan,2025-08-16T02:57:00,0,0,0,0,0,0,0,0,1,28,MEDIUM,0.24
+REP-ONETAP-1175,,Landslide,moderate,8.157870100289419,125.1288200795884,Malaybalay Proper,2025-12-07T13:55:00,0,0,0,0,0,0,0,0,0,21,LOW,0.12
+REP-TEXT-1589,Smoke coming from residential backyard,Fire,high,8.15876929851235,125.12971761950801,San Jose,2025-10-24T05:46:00,1,38,5,0,0,0,0,0,1,29,LOW,0.25
+REP-TEXT-1508,Huge blaze engulfing commercial warehouse people trapped inside,Fire,critical,8.081792777652236,125.15505851272627,Linabo,2025-03-30T19:51:00,1,63,8,1,2,0,0,0,0,15,NONE,7.04
+REP-ONETAP-1493,Fire - Barangay 4,Fire,moderate,8.157049569000556,125.12757610255687,Barangay 4,2025-10-02T11:56:00,0,17,4,0,0,0,0,0,0,15,LOW,0.06
+REP-EXT-0891,Strong earthquake alarmed residents,Earthquake,moderate,8.158446,125.126757,Barangay 10,2020-11-06T00:00:00,1,35,4,0,0,0,0,0,1,29,LOW,0.16
+REP-EXT-0948,Road blocked due to floodwater,Flood,high,8.157696,125.128662,Malaybalay Proper,2016-11-21T00:00:00,1,30,5,0,0,0,0,0,1,27,LOW,0.1
+REP-ONETAP-1049,Fire - Barangay 10,Fire,critical,8.156387909091963,125.12959852806311,Barangay 10,2025-04-18T21:15:00,0,18,4,0,0,0,0,0,1,25,HIGH,0.13
+REP-TEXT-2058,Tropical depression bringing steady rainfall and breezy conditions,Typhoon,high,8.159561086735293,125.13034003217398,Barangay 5,2025-02-14T13:54:00,1,66,8,0,0,0,0,0,0,15,LOW,0.36
+REP-EXT-0885,Fire spreading to nearby houses,Fire,high,8.157316,125.122086,Bangcud,2022-07-08T00:00:00,1,31,5,1,1,0,0,0,1,26,MEDIUM,0.12
+REP-EXT-0144,Minor tremor felt in the barangay,Earthquake,moderate,8.157538,125.128709,Barangay 11,2015-05-18T00:00:00,1,33,6,0,0,1,0,0,1,26,HIGH,0.1
+REP-CLUSTER-2453,Flash flood water rising to second floor residents trapped on roofs,Flood,critical,8.148058935060368,125.14059852924274,Violeta,2025-08-20T19:43:00,1,67,11,1,1,0,0,0,0,13,HIGH,0.07
+REP-EXT-0851,Electrical short circuit started a fire,Fire,high,8.157581,125.126187,Barangay 10,2020-10-05T00:00:00,1,39,6,0,0,0,0,0,1,25,LOW,0.18
+REP-EXT-0718,Fire spreading to nearby houses,Fire,high,8.157667,125.129303,Barangay 9,2023-04-20T00:00:00,1,31,5,1,1,0,0,0,1,25,HIGH,0.14
+REP-CLUSTER-2372,Kitchen fire ignited wall spreading to second floor,Fire,critical,8.156518185870372,125.12316483702205,Barangay 3,2025-04-27T03:07:00,1,51,8,1,1,0,0,0,0,15,MEDIUM,0.27
+REP-EXT-0265,Fire spreading to nearby houses,Fire,high,8.149249,125.139075,Violeta,2016-06-16T00:00:00,1,31,5,1,1,0,0,0,1,27,HIGH,0.15
+REP-EXT-0076,Earthquake caused cracks in the wall,Earthquake,high,8.154547,125.133322,San Jose,2020-12-26T00:00:00,1,36,6,0,0,0,0,0,1,29,HIGH,0.15
+REP-EXT-0396,Earthquake caused cracks in the wall,Earthquake,high,8.150454,125.138696,Violeta,2016-04-18T00:00:00,1,36,6,0,0,0,0,0,1,32,HIGH,0.27
+REP-FA-2118,lol this is just a prank fire,Earthquake,low,8.157510439678902,125.1314328304481,Barangay 11,2025-01-28T08:23:00,1,29,7,0,0,1,1,1,1,26,HIGH,0.25
+REP-CLUSTER-2336,Strong tremor caused panic visible fissures in concrete pavement,Earthquake,critical,8.161685061541158,125.1292525942167,Barangay 1,2025-05-07T03:30:00,1,64,9,0,0,0,0,0,0,15,LOW,0.49
+REP-EXT-0397,Water rising quickly near our house,Flood,high,8.158758,125.130813,Barangay 11,2018-12-21T00:00:00,1,35,6,0,0,0,0,0,1,27,HIGH,0.34
+REP-ONETAP-1366,,Typhoon,high,8.157134460579321,125.12974379081349,San Jose,2025-07-25T17:32:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.15
+REP-TEXT-2078,Overcast skies and light drizzle no strong winds,Typhoon,high,8.148561812654282,125.13068981524118,Barangay 7,2025-09-27T03:30:00,1,48,8,0,0,0,0,0,0,15,MEDIUM,0.33
+REP-TEXT-1904,Road covered by landslide debris heavy equipment needed to clear,Landslide,moderate,8.158954860859975,125.12944003562974,Barangay 11,2025-04-03T19:14:00,1,64,10,0,0,0,0,0,0,16,LOW,0.24
+REP-EXT-0596,Heavy rain triggered landslide near homes,Landslide,moderate,8.155623,125.130425,Barangay 9,2022-03-08T00:00:00,1,41,6,0,0,0,0,0,0,12,HIGH,0.21
+REP-ONETAP-1297,,Flood,moderate,8.152515535120461,125.12850868720628,Sumpong,2025-05-08T00:16:00,0,0,0,0,0,0,0,0,0,22,MEDIUM,0.24
+REP-TEXT-1822,Ground shaking felt for 10 seconds slight vibration,Earthquake,moderate,8.149737133600372,125.11733217370094,Aglayan,2025-03-03T07:47:00,1,51,8,0,0,1,0,0,1,30,MEDIUM,0.29
+REP-EXT-0873,Electrical short circuit started a fire,Fire,high,8.145385,125.116985,Aglayan,2015-01-10T00:00:00,1,39,6,0,0,0,0,0,1,28,MEDIUM,0.23
+REP-TEXT-1549,"Fire breaking out in commercial store, smoke filling area",Fire,high,8.172589173293652,125.11259799508916,Kalasungay,2025-05-15T16:12:00,1,57,9,0,0,0,0,0,0,15,NONE,1.88
+REP-EXT-0037,Strong earthquake alarmed residents,Earthquake,moderate,8.147937,125.119412,Aglayan,2021-08-01T00:00:00,1,35,4,0,0,0,0,0,1,30,MEDIUM,0.18
+REP-FA-2274,sample test report for capstone evaluation,Earthquake,low,8.161235463641907,125.13001551043858,Malaybalay Proper,2025-01-05T08:57:00,1,42,6,0,0,1,1,1,0,24,LOW,0.48
+REP-FA-2124,fake report test only,Typhoon,low,8.154515735547871,125.1357510673804,Barangay 8,2025-12-20T16:54:00,1,21,4,0,0,1,1,1,0,15,HIGH,0.39
+REP-EXT-0978,Heavy rain triggered landslide near homes,Landslide,high,8.156785,125.131666,San Jose,2020-01-11T00:00:00,1,41,6,0,0,0,0,0,1,28,HIGH,0.17
+REP-TEXT-1572,Small brush fire burning near perimeter fence,Fire,low,8.155827134533578,125.13326116039026,Barangay 11,2025-01-26T16:14:00,1,45,7,1,1,1,0,0,1,26,HIGH,0.12
+REP-ONETAP-1123,Typhoon - Santo Niño,Typhoon,moderate,8.1149082707817,125.16217321665465,Santo Niño,2025-12-30T05:19:00,0,20,4,0,0,0,0,0,0,15,NONE,4.45
+REP-TEXT-1893,Heavy rain triggered landslide near homes blocking access road,Landslide,moderate,8.157759456733883,125.12962474172342,Barangay 1,2025-11-05T09:21:00,1,62,9,0,0,0,0,0,0,15,HIGH,0.17
+REP-EXT-0676,Smoke and flames seen in residential area,Fire,high,8.149673,125.131459,Sumpong,2024-01-28T00:00:00,1,41,7,0,0,0,0,0,0,24,MEDIUM,0.23
+REP-EXT-0729,Strong earthquake alarmed residents,Earthquake,moderate,8.158722,125.129728,Malaybalay Proper,2024-09-17T00:00:00,1,35,4,0,0,0,0,0,0,24,LOW,0.25
+REP-EXT-0413,Flood entering homes after heavy rain,Flood,moderate,8.156402,125.121188,Bangcud,2023-12-11T00:00:00,1,37,6,0,0,0,0,0,0,23,MEDIUM,0.18
+REP-TEXT-1517,Forest fire moving rapidly towards community high wind spreading flames,Fire,critical,8.073556685905501,125.13911943606861,Simaya,2025-01-14T20:31:00,1,71,10,1,2,0,0,0,0,15,NONE,7.37
+REP-TEXT-1650,Severe flooding elderly residents unable to evacuate trapped inside,Flood,critical,8.073443774371562,125.14241337460928,Simaya,2025-03-31T20:38:00,1,67,9,1,2,0,0,0,0,15,NONE,7.46
+REP-EXT-0826,Soil and rocks falling from hillside,Landslide,high,8.151497,125.129863,Sumpong,2024-02-29T00:00:00,1,36,6,0,0,0,0,0,1,26,MEDIUM,0.06
+REP-EXT-0617,Smoke and flames seen in residential area,Fire,critical,8.150009,125.140558,Violeta,2020-01-28T00:00:00,1,41,7,0,0,0,0,0,1,27,HIGH,0.17
+REP-EXT-0115,Landslide blocking the road,Landslide,high,8.156738,125.122159,Bangcud,2023-08-05T00:00:00,1,27,4,0,0,0,0,0,1,29,MEDIUM,0.18
+REP-EXT-0418,Soil and rocks falling from hillside,Landslide,high,8.160087,125.126965,Casisang,2017-08-26T00:00:00,1,36,6,0,0,0,0,0,1,29,LOW,0.3
+REP-TEXT-1626,Flash flood water rising to second floor residents trapped on roofs,Flood,critical,8.15833141447339,125.1293020337122,Barangay 1,2025-12-26T23:49:00,1,67,11,1,1,0,0,0,0,15,LOW,0.19
+REP-CLUSTER-2451,Major violent earthquake building collapsed people trapped under rubble,Earthquake,critical,8.151256871396464,125.12951448308789,Sumpong,2025-02-21T00:29:00,1,71,9,1,2,0,0,0,0,23,MEDIUM,0.1
+REP-EXT-0090,Flood entering homes after heavy rain,Flood,moderate,8.148902,125.11946,Aglayan,2022-07-05T00:00:00,1,37,6,0,0,0,0,0,0,18,MEDIUM,0.25
+REP-TEXT-2083,Gentle rain without gusty winds,Typhoon,high,8.156865501114853,125.12951820957797,Barangay 9,2025-05-31T13:43:00,1,31,5,0,0,0,0,0,0,15,HIGH,0.11
+REP-EXT-0754,Heavy rain triggered landslide near homes,Landslide,moderate,8.156957,125.128223,Barangay 11,2022-10-05T00:00:00,1,41,6,0,0,0,0,0,0,16,HIGH,0.04
+REP-TEXT-1631,River overflowing rapidly sweeping away vehicles people stranded,Flood,high,8.162631381971853,125.12994679487129,Barangay 1,2026-01-23T23:37:00,1,64,8,1,1,0,0,0,0,15,LOW,0.62
+REP-EXT-0012,Water rising quickly near our house,Flood,moderate,8.150857,125.129858,Sumpong,2020-06-29T00:00:00,1,35,6,0,0,0,0,0,0,22,MEDIUM,0.09
+REP-EXT-0285,River overflow causing flooding in the area,Flood,moderate,8.158074,125.119423,Bangcud,2015-09-27T00:00:00,1,43,7,0,0,0,0,0,0,23,MEDIUM,0.2
+REP-ONETAP-1067,Fire - Santo Niño,Fire,moderate,8.112033268908828,125.16650578685972,Santo Niño,2025-04-23T05:51:00,0,17,4,0,0,0,0,0,0,15,NONE,4.98
+REP-ONETAP-1192,,Earthquake,moderate,8.156174600181156,125.12286164737101,Barangay 3,2026-02-03T05:04:00,0,0,0,0,0,0,0,0,0,15,MEDIUM,0.27
+REP-ONETAP-1441,Earthquake - Simaya,Earthquake,moderate,8.077785309648396,125.14042063040844,Simaya,2025-07-21T22:53:00,0,19,3,0,0,0,0,0,0,15,NONE,6.94
+REP-CLUSTER-2338,Steep mountain slide swept away structures active soil movement,Landslide,critical,8.175239133111218,125.11552819714092,Kalasungay,2025-03-05T02:03:00,1,63,9,0,0,0,0,0,0,15,NONE,2.02
+REP-CLUSTER-2410,Intense earthquake caused severe structural failure in commercial building,Earthquake,critical,8.15542500020128,125.1329312486727,San Jose,2025-11-17T06:39:00,1,74,9,1,1,0,0,0,1,29,HIGH,0.07
+REP-FA-2258,joke lang walang sunog testing lang,Landslide,low,8.174921857349643,125.1179348245573,Kalasungay,2025-05-01T06:35:00,1,35,6,0,0,1,1,1,0,15,NONE,1.92
+REP-TEXT-1569,Small brush fire burning near perimeter fence,Fire,low,8.188631235622458,125.15098923561806,Canayan,2025-10-13T19:03:00,1,45,7,1,1,1,0,0,0,15,NONE,4.23
+REP-FA-2144,sample test report for capstone evaluation,Fire,low,8.162552903155419,125.04107853329246,Cabangahan,2025-04-12T10:12:00,1,42,6,0,0,1,1,1,0,15,HIGH,0.71
+REP-TEXT-1688,Water rising slowly near our house gutter overflowing,Flood,high,8.154142628831849,125.1230575524196,Barangay 10,2025-12-02T06:44:00,1,53,8,0,0,0,0,0,1,32,MEDIUM,0.48
+REP-EXT-0852,Buildings shaking for several seconds,Earthquake,moderate,8.155899,125.126582,Malaybalay Proper,2020-07-23T00:00:00,1,37,5,0,0,0,0,0,0,24,LOW,0.22
+REP-EXT-0896,House on fire please send help,Fire,critical,8.155985,125.127221,Barangay 10,2022-10-07T00:00:00,1,30,6,0,0,0,0,0,1,25,HIGH,0.16
+REP-EXT-0497,Floodwater already waist deep,Flood,high,8.157004,125.134166,San Jose,2018-09-03T00:00:00,1,29,4,0,0,0,0,0,1,32,HIGH,0.27
+REP-TEXT-1783,Strong ground motion caused ceiling damage and deep wall cracks,Earthquake,moderate,8.16024679027615,125.12797578482386,Barangay 3,2025-11-17T01:03:00,1,63,10,0,0,0,0,0,0,15,LOW,0.31
+REP-EXT-0336,Market stall caught fire,Fire,high,8.158733,125.127062,Malaybalay Proper,2015-09-03T00:00:00,1,24,4,0,0,0,0,0,0,22,LOW,0.16
+REP-EXT-0516,Market stall caught fire,Fire,critical,8.157051,125.128948,Barangay 11,2023-06-26T00:00:00,1,24,4,0,0,0,0,0,1,26,HIGH,0.06
+REP-ONETAP-1349,Landslide - Kalasungay,Landslide,moderate,8.176614033920194,125.11772915038148,Kalasungay,2025-06-17T00:40:00,0,22,3,0,0,0,0,0,0,15,NONE,2.1
+REP-ONETAP-1016,Fire - Malaybalay Proper,Fire,moderate,8.159664678213408,125.12486888613165,Malaybalay Proper,2025-10-02T08:49:00,0,24,4,0,0,0,0,0,0,22,LOW,0.4
+REP-CLUSTER-2432,Floodwaters entering homes rapidly after heavy downpour,Flood,critical,8.157173312698525,125.12943851696245,Barangay 11,2025-01-03T00:55:00,1,55,7,1,1,0,0,0,1,27,HIGH,0.12
+REP-TEXT-1782,Heavy shaking felt for 30 seconds items fell from shelves cracks on road,Earthquake,moderate,8.160167801922007,125.12930216543009,Barangay 11,2025-11-02T04:23:00,1,72,13,0,0,0,0,0,1,26,LOW,0.34
+REP-TEXT-1786,Strong ground motion caused ceiling damage and deep wall cracks,Earthquake,moderate,8.145978541910978,125.12113436761133,Aglayan,2026-01-11T06:01:00,1,63,10,0,0,0,0,0,1,30,MEDIUM,0.37
+REP-TEXT-2071,Passing light rain shower with mild breeze,Typhoon,high,8.159001534753125,125.12514767233256,Barangay 9,2025-06-21T23:59:00,1,42,7,0,0,0,0,0,0,15,LOW,0.34
+REP-EXT-0357,Flood entering homes after heavy rain,Flood,high,8.157323,125.132376,San Jose,2016-02-23T00:00:00,1,37,6,0,0,0,0,0,1,32,HIGH,0.21
+REP-CLUSTER-2379,Hillside erosion threatening foundation of roadside homes,Landslide,critical,8.149657585948262,125.13168385955538,Barangay 7,2025-08-13T14:54:00,1,57,7,0,0,0,0,0,0,15,MEDIUM,0.25
+REP-ONETAP-1313,,Flood,moderate,8.158566672034151,125.03649160165098,Cabangahan,2025-06-27T04:17:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.04
+REP-TEXT-1636,Torrential floodwater chest deep currents strong rescue boat needed,Flood,moderate,8.17338445202573,125.11809582495177,Kalasungay,2026-01-09T20:23:00,1,67,9,0,0,0,0,0,0,15,NONE,1.74
+REP-EXT-0551,Flood entering homes after heavy rain,Flood,high,8.155211,125.130857,San Jose,2020-09-24T00:00:00,1,37,6,0,0,0,0,0,1,32,HIGH,0.16
+REP-ONETAP-1228,Typhoon - Cabangahan,Typhoon,high,8.159242626400065,125.03392198320499,Cabangahan,2025-06-20T04:02:00,0,20,3,0,0,0,0,0,0,15,HIGH,0.28
+REP-FA-2231,prank call fake alarm haha,Landslide,low,8.158509943596142,125.13343867783445,San Jose,2025-02-17T01:32:00,1,26,5,0,0,1,1,1,1,28,HIGH,0.37
+REP-EXT-0958,Road covered by landslide debris,Landslide,high,8.15304,125.130299,Sumpong,2018-12-19T00:00:00,1,32,5,0,0,0,0,0,1,26,MEDIUM,0.17
+REP-TEXT-1774,Strong earthquake alarmed residents cracked walls and shattered windows,Earthquake,high,8.158132314303522,125.13483800579199,San Jose,2025-01-07T03:49:00,1,71,9,0,0,0,0,0,1,29,HIGH,0.41
+REP-ONETAP-1009,Fire - Casisang,Fire,critical,8.13705704218463,125.12580186693229,Casisang,2025-03-29T17:46:00,0,15,3,0,0,0,0,0,1,25,HIGH,0.25
+REP-ONETAP-1093,,Earthquake,moderate,8.15841909786807,125.12220913082267,Bangcud,2025-06-16T05:31:00,0,0,0,0,0,0,0,0,1,26,MEDIUM,0.12
+REP-FA-2225,sample test report for capstone evaluation,Earthquake,low,8.183793201983821,125.15743278843826,Canayan,2025-01-29T23:04:00,1,42,6,0,0,1,1,1,0,15,NONE,4.2
+REP-EXT-0997,Road covered by landslide debris,Landslide,high,8.161747,125.125496,Casisang,2019-08-23T00:00:00,1,32,5,0,0,0,0,0,1,29,LOW,0.54
+REP-TEXT-1680,Main drainage backed up causing severe street flooding,Flood,high,8.146558360101373,125.115196489549,Aglayan,2025-02-19T05:30:00,1,54,8,1,1,0,0,0,0,18,MEDIUM,0.32
+REP-EXT-0154,Fire spreading to nearby houses,Fire,high,8.146655,125.117627,Aglayan,2022-01-14T00:00:00,1,31,5,1,1,0,0,0,1,28,MEDIUM,0.07
+REP-EXT-0581,Earthquake caused cracks in the wall,Earthquake,moderate,8.157074,125.12587,Barangay 10,2017-06-30T00:00:00,1,36,6,0,0,0,0,0,1,29,LOW,0.22
+REP-ONETAP-1471,,Earthquake,moderate,8.158729970832571,125.12502014742668,Barangay 3,2025-05-16T06:15:00,0,0,0,0,0,0,0,0,0,15,LOW,0.34
+REP-EXT-0704,House on fire please send help,Fire,critical,8.148135,125.141595,Violeta,2023-11-11T00:00:00,1,30,6,0,0,0,0,0,1,27,HIGH,0.16
+REP-ONETAP-1213,Landslide - Malaybalay Proper,Landslide,moderate,8.155935010983473,125.13059357982316,Malaybalay Proper,2025-04-10T11:43:00,0,29,4,0,0,0,0,0,0,21,HIGH,0.2
+REP-EXT-0897,House on fire please send help,Fire,critical,8.149208,125.139393,Violeta,2016-04-12T00:00:00,1,30,6,0,0,0,0,0,1,27,HIGH,0.12
+REP-EXT-0488,Strong shaking felt in our area,Earthquake,high,8.149445,125.140417,Violeta,2017-01-23T00:00:00,1,31,6,0,0,0,0,0,1,32,HIGH,0.11
+REP-EXT-0560,Water rising quickly near our house,Flood,high,8.15631,125.133449,San Jose,2018-12-11T00:00:00,1,35,6,0,0,0,0,0,1,32,HIGH,0.16
+REP-ONETAP-1142,,Typhoon,high,8.156450378701624,125.12307339374665,Barangay 3,2025-08-06T22:16:00,0,0,0,0,0,0,0,0,0,15,MEDIUM,0.27
+REP-ONETAP-1120,Fire - Bangcud,Fire,high,8.155528358756655,125.11971439310565,Bangcud,2025-07-26T16:52:00,0,14,3,0,0,0,0,0,1,26,MEDIUM,0.32
+REP-EXT-0513,Smoke and flames seen in residential area,Fire,critical,8.157174,125.130341,Barangay 9,2022-03-08T00:00:00,1,41,7,0,0,0,0,0,1,25,HIGH,0.21
+REP-EXT-0634,Fire spreading to nearby houses,Fire,high,8.15883,125.127232,Barangay 10,2021-12-11T00:00:00,1,31,5,1,1,0,0,0,1,25,LOW,0.16
+REP-FA-2151,dummy alert testing gps coordinates,Landslide,low,8.155019317544516,125.12282093233301,Bangcud,2025-05-14T17:21:00,1,35,5,0,0,1,1,1,1,29,MEDIUM,0.38
+REP-TEXT-1665,Street submerged under 3 feet of water cars stalling,Flood,moderate,8.081010630248349,125.16125793941157,Linabo,2025-09-22T12:22:00,1,52,9,0,0,0,0,0,0,15,NONE,7.44
+REP-ONETAP-1013,Landslide - Malaybalay Proper,Landslide,moderate,8.157733863738004,125.1292820828699,Malaybalay Proper,2025-07-24T11:14:00,0,29,4,0,0,0,0,0,0,21,HIGH,0.14
+REP-TEXT-1932,Small mudslide on hillside after continuous rainfall,Landslide,low,8.154819002342615,125.12154022971096,Bangcud,2025-10-09T10:17:00,1,52,7,0,0,1,0,0,1,29,MEDIUM,0.36
+REP-ONETAP-1151,,Fire,high,8.159725395231627,125.1293099883331,Barangay 11,2025-04-26T21:46:00,0,0,0,0,0,0,0,0,1,26,LOW,0.3
+REP-CLUSTER-2341,Hillside erosion threatening foundation of roadside homes,Landslide,critical,8.151303366126058,125.13063460395264,Sumpong,2025-11-03T21:39:00,1,57,7,0,0,0,0,0,1,26,MEDIUM,0.03
+REP-EXT-0117,Soil and rocks falling from hillside,Landslide,moderate,8.158713,125.127949,Barangay 11,2021-06-16T00:00:00,1,36,6,0,0,0,0,0,0,16,LOW,0.14
+REP-EXT-0741,Earthquake caused cracks in the wall,Earthquake,high,8.156145,125.132987,San Jose,2020-02-03T00:00:00,1,36,6,0,0,0,0,0,1,29,HIGH,0.11
+REP-CLUSTER-2305,Heavy shaking felt for 30 seconds items fell from shelves cracks on road,Earthquake,critical,8.162219296820878,125.12863476487074,Barangay 1,2025-02-28T03:34:00,1,72,13,0,0,0,0,0,0,15,LOW,0.53
+REP-TEXT-1975,Small soil erosion in vacant lot no hazard,Landslide,low,8.085228682180855,125.15828026609293,Linabo,2025-01-06T15:29:00,1,42,8,0,0,1,0,0,0,15,NONE,6.87
+REP-ONETAP-1082,,Earthquake,moderate,8.158536514287535,125.03929944697106,Cabangahan,2025-02-05T20:02:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.33
+REP-TEXT-1811,Noticeable tremor felt by people indoors doors rattling,Earthquake,moderate,8.152425780449102,125.12756500991667,Barangay 4,2025-07-12T17:59:00,1,55,8,0,0,0,0,0,0,15,MEDIUM,0.33
+REP-EXT-0831,House on fire please send help,Fire,high,8.159324,125.12811,Malaybalay Proper,2021-03-17T00:00:00,1,30,6,0,0,0,0,0,0,22,LOW,0.21
+REP-EXT-0120,Heavy rain triggered landslide near homes,Landslide,moderate,8.156499,125.12876,Barangay 10,2022-11-18T00:00:00,1,41,6,0,0,0,0,0,0,22,HIGH,0.04
+REP-EXT-0657,Strong earthquake alarmed residents,Earthquake,moderate,8.148264,125.118509,Aglayan,2017-05-26T00:00:00,1,35,4,0,0,0,0,0,1,30,MEDIUM,0.13
+REP-CLUSTER-2378,Massive hillside collapse buried 2 houses people trapped,Landslide,critical,8.158015242598486,125.12824502070269,Malaybalay Proper,2025-02-13T10:54:00,1,56,8,1,3,0,0,0,0,21,LOW,0.08
+REP-FA-2240,prank call fake alarm haha,Fire,low,8.16312186187834,125.03389317672786,Cabangahan,2025-10-01T00:00:00,1,26,5,0,0,1,1,1,0,15,HIGH,0.6
+REP-CLUSTER-2445,Floodwaters entering homes rapidly after heavy downpour,Flood,critical,8.149171276083603,125.12991796412989,Barangay 7,2025-05-13T13:28:00,1,55,7,1,1,0,0,0,0,15,MEDIUM,0.26
+REP-EXT-0636,House on fire please send help,Fire,high,8.145302,125.116469,Aglayan,2015-04-01T00:00:00,1,30,6,0,0,0,0,0,1,28,MEDIUM,0.27
+REP-EXT-0370,Strong earthquake alarmed residents,Earthquake,high,8.158325,125.131361,Barangay 11,2015-03-08T00:00:00,1,35,4,0,0,0,0,0,1,26,HIGH,0.34
+REP-EXT-0269,Landslide damaged farm area,Landslide,high,8.156721,125.120656,Bangcud,2017-06-19T00:00:00,1,27,4,0,0,0,0,0,1,29,MEDIUM,0.15
+REP-EXT-0047,Road covered by landslide debris,Landslide,high,8.16285,125.126908,Casisang,2016-09-26T00:00:00,1,32,5,0,0,0,0,0,1,29,LOW,0.6
+REP-EXT-0992,Landslide blocking the road,Landslide,moderate,8.146851,125.119554,Aglayan,2020-01-29T00:00:00,1,27,4,0,0,0,0,0,0,23,MEDIUM,0.18
+REP-EXT-0877,Fire spreading to nearby houses,Fire,high,8.147911,125.119975,Aglayan,2019-02-19T00:00:00,1,31,5,1,1,0,0,0,1,28,MEDIUM,0.23
+REP-EXT-0774,Smoke and flames seen in residential area,Fire,high,8.15278,125.129483,Sumpong,2024-07-22T00:00:00,1,41,7,0,0,0,0,0,0,24,MEDIUM,0.17
+REP-ONETAP-1220,Earthquake - Barangay 11,Earthquake,moderate,8.159648283824893,125.12732559752635,Barangay 11,2025-08-30T22:53:00,0,24,4,0,0,0,0,0,1,26,LOW,0.24
+REP-ONETAP-1127,Earthquake - Cabangahan,Earthquake,moderate,8.16057595753088,125.03848416160658,Cabangahan,2025-08-01T10:59:00,0,23,3,0,0,0,0,0,0,15,HIGH,0.35
+REP-EXT-0005,Flood entering homes after heavy rain,Flood,moderate,8.159101,125.12594,Casisang,2019-03-17T00:00:00,1,37,6,0,0,0,0,0,0,18,LOW,0.27
+REP-TEXT-1596,Small trash can fire already contained by neighbors,Fire,low,8.152400691102455,125.13646661162244,Barangay 8,2025-09-15T17:44:00,1,51,8,0,0,3,0,0,0,15,HIGH,0.57
+REP-ONETAP-1078,Flood - Simaya,Flood,moderate,8.07607485131017,125.14142590001482,Simaya,2025-03-07T19:34:00,0,14,3,0,0,0,0,0,0,15,NONE,7.15
+REP-EXT-0838,Fire spreading to nearby houses,Fire,high,8.146738,125.117081,Aglayan,2021-06-07T00:00:00,1,31,5,1,1,0,0,0,1,28,MEDIUM,0.11
+REP-EXT-0682,Landslide blocking the road,Landslide,high,8.153156,125.132116,Sumpong,2021-06-21T00:00:00,1,27,4,0,0,0,0,0,1,26,HIGH,0.25
+REP-TEXT-1716,Minor street puddle after light shower subsiding quickly,Flood,low,8.071077785533715,125.14465741635938,Simaya,2025-05-08T09:05:00,1,56,8,0,0,2,0,0,0,15,NONE,7.77
+REP-ONETAP-1149,Typhoon - Cabangahan,Typhoon,high,8.157793018560513,125.0345047687679,Cabangahan,2025-07-07T16:32:00,0,20,3,0,0,0,0,0,0,15,HIGH,0.21
+REP-EXT-0575,Fire spreading to nearby houses,Fire,high,8.152843,125.131925,Sumpong,2018-10-14T00:00:00,1,31,5,1,1,0,0,0,0,24,MEDIUM,0.22
+REP-EXT-0051,Heavy rain triggered landslide near homes,Landslide,high,8.152275,125.128866,Sumpong,2015-11-30T00:00:00,1,41,6,0,0,0,0,0,1,26,MEDIUM,0.19
+REP-EXT-0854,Soil and rocks falling from hillside,Landslide,moderate,8.158675,125.128005,Barangay 11,2016-11-27T00:00:00,1,36,6,0,0,0,0,0,0,16,LOW,0.13
+REP-TEXT-1983,Violent super typhoon winds ripping off roofs trees falling on houses,Typhoon,high,8.148030572317518,125.12128105190943,Aglayan,2026-01-14T04:42:00,1,69,11,0,0,0,0,0,0,15,MEDIUM,0.37
+REP-TEXT-1824,Ground shaking felt for 10 seconds slight vibration,Earthquake,moderate,8.08305754896298,125.15443302359013,Linabo,2025-09-26T01:20:00,1,51,8,0,0,1,0,0,0,15,NONE,6.89
+REP-EXT-0834,River overflow causing flooding in the area,Flood,high,8.157579,125.126225,Barangay 10,2024-03-18T00:00:00,1,43,7,0,0,0,0,0,1,32,LOW,0.17
+REP-ONETAP-1116,Earthquake - Barangay 1,Earthquake,moderate,8.164497434501264,125.13003368950582,Barangay 1,2026-01-26T05:30:00,0,23,4,0,0,0,0,0,0,15,LOW,0.82
+REP-ONETAP-1167,,Typhoon,moderate,8.172260190221396,125.11669936197588,Kalasungay,2025-11-26T00:03:00,0,0,0,0,0,0,0,0,0,15,NONE,1.66
+REP-TEXT-1907,Road covered by landslide debris heavy equipment needed to clear,Landslide,moderate,8.188422463953435,125.15311705674017,Canayan,2025-01-24T10:22:00,1,64,10,0,0,0,0,0,0,15,NONE,4.33
+REP-EXT-0972,Landslide damaged farm area,Landslide,high,8.162461,125.125858,Casisang,2015-09-18T00:00:00,1,27,4,0,0,0,0,0,1,29,LOW,0.59
+REP-EXT-0400,Strong earthquake alarmed residents,Earthquake,moderate,8.15567,125.126715,Barangay 9,2020-09-17T00:00:00,1,35,4,0,0,0,0,0,0,24,HIGH,0.23
+REP-EXT-0020,Landslide blocking the road,Landslide,moderate,8.15627,125.126677,Malaybalay Proper,2019-10-04T00:00:00,1,27,4,0,0,0,0,0,0,21,LOW,0.18
+REP-EXT-0685,Strong shaking felt in our area,Earthquake,high,8.147259,125.139611,Violeta,2022-01-13T00:00:00,1,31,6,0,0,0,0,0,1,32,HIGH,0.15
+REP-EXT-0036,Flood entering homes after heavy rain,Flood,moderate,8.157906,125.126525,Barangay 9,2020-02-29T00:00:00,1,37,6,0,0,0,0,0,0,19,LOW,0.15
+REP-CLUSTER-2363,Hillside erosion threatening foundation of roadside homes,Landslide,critical,8.157445702983834,125.12920300527675,Barangay 9,2026-01-08T02:50:00,1,57,7,0,0,0,0,0,0,12,HIGH,0.11
+REP-EXT-0525,Strong shaking felt in our area,Earthquake,moderate,8.158984,125.126766,Malaybalay Proper,2019-03-11T00:00:00,1,31,6,0,0,0,0,0,0,24,LOW,0.2
+REP-EXT-0921,Flood entering homes after heavy rain,Flood,high,8.154481,125.134171,San Jose,2016-10-02T00:00:00,1,37,6,0,0,0,0,0,1,32,HIGH,0.23
+REP-TEXT-1842,Very slight vibration barely noticeable no damage,Earthquake,moderate,8.157108226735996,125.12384785606,Barangay 5,2025-03-29T01:18:00,1,49,7,0,0,1,0,0,0,15,MEDIUM,0.31
+REP-TEXT-1891,Heavy rain triggered landslide near homes blocking access road,Landslide,moderate,8.175958128310958,125.11546038918614,Kalasungay,2025-04-17T01:11:00,1,62,9,0,0,0,0,0,0,15,NONE,2.09
+REP-EXT-0538,River overflow causing flooding in the area,Flood,high,8.156873,125.13325,San Jose,2020-02-17T00:00:00,1,43,7,0,0,0,0,0,1,32,HIGH,0.19
+REP-TEXT-1706,Moderate water accumulation on low-lying purok road,Flood,moderate,8.157395404321171,125.1267489373755,Barangay 6,2025-02-16T17:18:00,1,51,7,0,0,0,0,0,0,15,LOW,0.12
+REP-CLUSTER-2444,Dam overflowing sudden massive surge of water entering all homes,Flood,critical,8.155908094393228,125.12959604105781,Barangay 6,2025-02-26T14:36:00,1,64,10,1,1,0,0,0,0,15,HIGH,0.15
+REP-EXT-0246,Floodwater already waist deep,Flood,high,8.157244,125.127532,Barangay 10,2018-09-26T00:00:00,1,29,4,0,0,0,0,0,1,32,LOW,0.04
+REP-EXT-0785,Strong shaking felt in our area,Earthquake,moderate,8.158152,125.128085,Barangay 10,2017-06-07T00:00:00,1,31,6,0,0,0,0,0,1,29,LOW,0.08
+REP-ONETAP-1410,Landslide - Barangay 11,Landslide,moderate,8.157105370137735,125.12829553196447,Barangay 11,2026-01-21T04:41:00,0,23,4,0,0,0,0,0,0,16,HIGH,0.05
+REP-EXT-0155,Landslide damaged farm area,Landslide,moderate,8.158179,125.127658,Malaybalay Proper,2019-07-08T00:00:00,1,27,4,0,0,0,0,0,0,21,LOW,0.08
+REP-TEXT-1687,Water rising slowly near our house gutter overflowing,Flood,moderate,8.154312168109744,125.12567319069764,Barangay 3,2025-01-04T18:33:00,1,53,8,0,0,0,0,0,0,15,HIGH,0.41
+REP-EXT-0626,Road blocked due to floodwater,Flood,moderate,8.155343,125.127105,Barangay 9,2022-09-16T00:00:00,1,30,5,0,0,0,0,0,0,19,HIGH,0.22
+REP-CLUSTER-2397,Torrential floodwater chest deep currents strong rescue boat needed,Flood,critical,8.157196087985136,125.12444481877836,Barangay 3,2025-07-30T17:07:00,1,67,9,0,0,0,0,0,0,15,MEDIUM,0.37
+REP-ONETAP-1347,Landslide - Sumpong,Landslide,moderate,8.15256220979526,125.13064337458603,Sumpong,2025-03-13T22:46:00,0,19,3,0,0,0,0,0,1,26,MEDIUM,0.12
+REP-EXT-0570,Fire spreading to nearby houses,Fire,high,8.151315,125.129508,Sumpong,2015-11-14T00:00:00,1,31,5,1,1,0,0,0,0,24,MEDIUM,0.1
+REP-TEXT-1759,Intense earthquake caused severe structural failure in commercial building,Earthquake,high,8.15404574031255,125.12008444654941,Barangay 3,2025-09-25T04:22:00,1,74,9,1,1,0,0,0,0,15,MEDIUM,0.46
+REP-TEXT-1817,Moderate earthquake felt across barangay no visible damage,Earthquake,moderate,8.155407265547812,125.0352366631442,Cabangahan,2025-10-26T07:14:00,1,58,8,0,0,0,0,0,0,15,HIGH,0.34
+REP-TEXT-2066,Rainy weather with occasional strong gusts,Typhoon,high,8.147094422668417,125.130474262694,Barangay 7,2025-10-20T23:37:00,1,42,6,0,0,0,0,0,0,15,MEDIUM,0.49
+REP-EXT-0128,Landslide damaged farm area,Landslide,moderate,8.157272,125.129736,Barangay 9,2019-01-27T00:00:00,1,27,4,0,0,0,0,0,0,12,HIGH,0.15
+REP-CLUSTER-2480,Road covered by landslide debris heavy equipment needed to clear,Landslide,critical,8.156351970673446,125.12939209546381,Barangay 6,2025-01-27T03:32:00,1,64,10,0,0,0,0,0,0,15,HIGH,0.11
+REP-TEXT-2007,Catastrophic typhoon damage roofs blown away people injured,Typhoon,high,8.160535375841176,125.12610535291495,Barangay 9,2025-07-21T05:41:00,1,59,8,1,1,0,0,0,0,15,LOW,0.39
+REP-EXT-0981,Floodwater already waist deep,Flood,moderate,8.159908,125.12433,Casisang,2023-12-01T00:00:00,1,29,4,0,0,0,0,0,0,18,MEDIUM,0.4
+REP-EXT-0191,Market stall caught fire,Fire,high,8.155238,125.125977,Barangay 10,2021-10-27T00:00:00,1,24,4,0,0,0,0,0,1,25,LOW,0.32
+REP-ONETAP-1140,,Typhoon,high,8.152218262211225,125.12884497875113,Sumpong,2025-08-25T20:16:00,0,0,0,0,0,0,0,0,0,15,MEDIUM,0.19
+REP-EXT-0993,Road blocked due to floodwater,Flood,moderate,8.147474,125.11753,Aglayan,2022-09-12T00:00:00,1,30,5,0,0,0,0,0,0,18,MEDIUM,0.06
+REP-EXT-0700,Strong earthquake alarmed residents,Earthquake,moderate,8.159724,125.127965,Casisang,2019-03-08T00:00:00,1,35,4,0,0,0,0,0,1,33,LOW,0.25
+REP-EXT-0607,Landslide blocking the road,Landslide,moderate,8.158377,125.127356,Barangay 10,2017-01-24T00:00:00,1,27,4,0,0,0,0,0,0,22,LOW,0.11
+REP-EXT-0181,Road covered by landslide debris,Landslide,high,8.162564,125.124621,Casisang,2024-05-25T00:00:00,1,32,5,0,0,0,0,0,1,29,MEDIUM,0.63
+REP-EXT-0302,Road blocked due to floodwater,Flood,moderate,8.156515,125.122039,Bangcud,2023-03-26T00:00:00,1,30,5,0,0,0,0,0,0,23,MEDIUM,0.19
+REP-ONETAP-1061,Flood - Barangay 7,Flood,moderate,8.149322678002639,125.13344218202437,Barangay 7,2025-06-04T12:35:00,0,18,4,0,0,0,0,0,0,15,MEDIUM,0.41
+REP-CLUSTER-2355,Hillside erosion threatening foundation of roadside homes,Landslide,critical,8.161609383212257,125.12828480394619,Barangay 1,2025-11-20T18:58:00,1,57,7,0,0,0,0,0,0,15,LOW,0.46
+REP-CLUSTER-2398,Severe seismic shaking cracked bridge collapsed school wall,Earthquake,critical,8.137953067272237,125.12641044912196,Casisang,2025-08-19T05:16:00,1,59,8,1,2,0,0,0,1,33,HIGH,0.13
+REP-ONETAP-1070,,Typhoon,high,8.160652121778046,125.03586044454114,Cabangahan,2025-03-23T23:55:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.27
+REP-FA-2206,system test drill for cdrrmo rescuers,Typhoon,low,8.174509766914497,125.11248317959678,Kalasungay,2025-02-13T00:30:00,1,37,6,0,0,1,1,1,0,15,NONE,2.07
+REP-ONETAP-1244,,Landslide,moderate,8.156287422552541,125.12187126309658,Bangcud,2025-03-11T02:28:00,0,0,0,0,0,0,0,0,1,29,MEDIUM,0.2
+REP-EXT-0017,Strong shaking felt in our area,Earthquake,moderate,8.159805,125.126809,Casisang,2016-11-04T00:00:00,1,31,6,0,0,0,0,0,1,33,LOW,0.28
+REP-CLUSTER-2483,Mudflow blocked purok entrance soil continuing to loosen,Landslide,critical,8.075317037702941,125.14255546162222,Simaya,2025-11-20T20:28:00,1,56,8,0,0,0,0,0,0,15,NONE,7.26
+REP-EXT-0547,Smoke and flames seen in residential area,Fire,critical,8.157165,125.130498,San Jose,2024-06-03T00:00:00,1,41,7,0,0,0,0,0,1,29,HIGH,0.23
+REP-EXT-0659,Flood entering homes after heavy rain,Flood,high,8.157271,125.128912,Barangay 11,2019-04-10T00:00:00,1,37,6,0,0,0,0,0,1,27,HIGH,0.08
+REP-FA-2252,system test drill for cdrrmo rescuers,Landslide,low,8.185658501502369,125.14943510568946,Canayan,2025-03-01T15:39:00,1,37,6,0,0,1,1,1,0,15,NONE,3.86
+REP-FA-2282,sample test report for capstone evaluation,Landslide,low,8.155979611126515,125.12356858695784,Bangcud,2025-05-01T23:37:00,1,42,6,0,0,1,1,1,1,29,MEDIUM,0.34
+REP-TEXT-1505,Massive structure fire spreading to adjacent residential houses URGENT HELP,Fire,critical,8.161155935362498,125.12319168907588,Bangcud,2025-12-19T02:18:00,1,75,10,1,3,0,0,0,1,26,MEDIUM,0.41
+REP-EXT-0960,Strong earthquake alarmed residents,Earthquake,high,8.155431,125.131801,San Jose,2023-09-05T00:00:00,1,35,4,0,0,0,0,0,1,29,HIGH,0.06
+REP-EXT-0798,Floodwater already waist deep,Flood,high,8.159332,125.12941,Malaybalay Proper,2019-02-04T00:00:00,1,29,4,0,0,0,0,0,1,27,LOW,0.27
+REP-EXT-0226,Road blocked due to floodwater,Flood,high,8.158404,125.129117,Malaybalay Proper,2024-06-29T00:00:00,1,30,5,0,0,0,0,0,1,27,LOW,0.18
+REP-TEXT-2075,Passing light rain shower with mild breeze,Typhoon,high,8.187986065668424,125.15598860406904,Canayan,2025-03-12T10:15:00,1,42,7,0,0,0,0,0,0,15,NONE,4.46
+REP-TEXT-1800,Strong tremor caused panic visible fissures in concrete pavement,Earthquake,moderate,8.15804762899386,125.1235669916876,Barangay 10,2025-04-17T20:31:00,1,64,9,0,0,0,0,0,1,29,MEDIUM,0.26
+REP-CLUSTER-2469,Massive hillside collapse buried 2 houses people trapped,Landslide,critical,8.150413171845605,125.13181837704388,Barangay 8,2025-03-16T09:53:00,1,56,8,1,3,0,0,0,0,15,MEDIUM,0.2
+REP-TEXT-2086,Gentle rain without gusty winds,Typhoon,high,8.150174349606155,125.11585862450808,Aglayan,2025-09-24T20:21:00,1,31,5,0,0,0,0,0,0,15,MEDIUM,0.41
+REP-TEXT-1694,Street flooding making road impassable for small vehicles,Flood,low,8.160339991382589,125.129074262793,Malaybalay Proper,2026-01-18T07:28:00,1,57,8,0,0,1,0,0,1,27,LOW,0.35
+REP-ONETAP-1046,Earthquake - San Jose,Earthquake,moderate,8.157376088536234,125.1295645205708,San Jose,2025-11-23T08:10:00,0,21,4,0,0,0,0,0,1,29,HIGH,0.14
+REP-EXT-0470,Landslide blocking the road,Landslide,high,8.150717,125.128529,Sumpong,2015-09-09T00:00:00,1,27,4,0,0,0,0,0,1,26,MEDIUM,0.22
+REP-EXT-0955,Smoke and flames seen in residential area,Fire,high,8.152394,125.130204,Sumpong,2015-09-01T00:00:00,1,41,7,0,0,0,0,0,0,24,MEDIUM,0.1
+REP-CLUSTER-2479,Electrical fire spreading across building roof,Fire,critical,8.158602475989001,125.03602445155272,Cabangahan,2025-07-12T13:43:00,1,46,6,1,1,0,0,0,0,15,HIGH,0.05
+REP-EXT-0640,Earthquake caused cracks in the wall,Earthquake,moderate,8.15751,125.129017,Malaybalay Proper,2019-12-01T00:00:00,1,36,6,0,0,0,0,0,0,24,HIGH,0.11
+REP-CLUSTER-2317,Kitchen fire ignited wall spreading to second floor,Fire,critical,8.157522832610297,125.1258681785727,Barangay 2,2025-02-15T12:44:00,1,51,8,1,1,0,0,0,0,15,LOW,0.21
+REP-ONETAP-1219,,Fire,high,8.154467152107431,125.1296494760405,Sumpong,2025-02-20T22:41:00,0,0,0,0,0,0,0,0,0,24,HIGH,0.28
+REP-ONETAP-1159,Flood - Casisang,Flood,moderate,8.137103618108185,125.12686817515868,Casisang,2025-02-20T21:23:00,0,16,3,0,0,0,0,0,0,18,HIGH,0.19
+REP-ONETAP-1416,,Flood,moderate,8.15765050609539,125.03717701864784,Cabangahan,2025-02-27T07:31:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.12
+REP-FA-2261,sample test report for capstone evaluation,Earthquake,low,8.154740956387398,125.12537822141003,Malaybalay Proper,2026-01-29T01:49:00,1,42,6,0,0,1,1,1,0,24,LOW,0.41
+REP-TEXT-1528,Gas station explosion and uncontrolled fire spreading fast,Fire,moderate,8.190466793170824,125.15100622760876,Canayan,2025-04-13T10:26:00,1,58,8,1,1,1,0,0,0,15,NONE,4.41
+REP-CLUSTER-2461,Mudflow blocked purok entrance soil continuing to loosen,Landslide,critical,8.160820470555558,125.12985793471823,Barangay 1,2025-04-23T23:16:00,1,56,8,0,0,0,0,0,0,15,LOW,0.43
+REP-ONETAP-1301,,Landslide,moderate,8.173325095439813,125.11774416322113,Kalasungay,2026-01-18T19:23:00,0,0,0,0,0,0,0,0,0,15,NONE,1.75
+REP-CLUSTER-2391,Torrential floodwater chest deep currents strong rescue boat needed,Flood,critical,8.07491791287475,125.14140340545784,Simaya,2025-02-02T12:38:00,1,67,9,0,0,0,0,0,0,15,NONE,7.27
+REP-TEXT-1604,Small grass fire controlled with garden hose,Fire,low,8.155815948548733,125.13061187848935,Barangay 4,2025-07-18T13:50:00,1,44,7,0,0,2,0,0,0,15,HIGH,0.19
+REP-EXT-0161,Market stall caught fire,Fire,critical,8.157124,125.128863,Barangay 10,2018-07-08T00:00:00,1,24,4,0,0,0,0,0,1,25,HIGH,0.06
+REP-TEXT-1705,Moderate water accumulation on low-lying purok road,Flood,moderate,8.16285729637117,125.1282436077348,Barangay 1,2025-04-13T16:00:00,1,51,7,0,0,0,0,0,0,15,LOW,0.6
+REP-EXT-0957,Road blocked due to floodwater,Flood,high,8.155538,125.131535,San Jose,2016-09-26T00:00:00,1,30,5,0,0,0,0,0,1,32,HIGH,0.09
+REP-CLUSTER-2431,Catastrophic slope failure covered residential road casualties feared,Landslide,critical,8.1514273024694,125.13030720621173,Sumpong,2025-11-07T15:04:00,1,69,8,1,1,0,0,0,1,26,MEDIUM,0.01
+REP-EXT-0878,Road covered by landslide debris,Landslide,high,8.147734,125.138263,Violeta,2020-09-18T00:00:00,1,32,5,0,0,0,0,0,1,30,HIGH,0.23
+REP-TEXT-1920,Mudflow blocked purok entrance soil continuing to loosen,Landslide,moderate,8.174976435475175,125.11290113797018,Kalasungay,2025-08-20T09:13:00,1,56,8,0,0,0,0,0,0,15,NONE,2.1
+REP-TEXT-1885,Steep mountain slide swept away structures active soil movement,Landslide,moderate,8.152930934117386,125.13189637990304,Barangay 6,2025-08-03T09:19:00,1,63,9,0,0,0,0,0,0,15,MEDIUM,0.23
+REP-FA-2201,joke lang walang sunog testing lang,Typhoon,low,8.150997829645949,125.13138004049576,Barangay 6,2025-03-18T02:23:00,1,35,6,0,0,1,1,1,0,15,MEDIUM,0.12
+REP-EXT-0099,Market stall caught fire,Fire,critical,8.15564,125.128657,Barangay 10,2017-06-01T00:00:00,1,24,4,0,0,0,0,0,1,25,HIGH,0.12
+REP-CLUSTER-2361,Hillside erosion threatening foundation of roadside homes,Landslide,critical,8.151888707792375,125.13003590321837,Sumpong,2025-01-24T19:37:00,1,57,7,0,0,0,0,0,1,26,MEDIUM,0.06
+REP-EXT-0254,Heavy rain triggered landslide near homes,Landslide,high,8.14694,125.140494,Violeta,2018-03-04T00:00:00,1,41,6,0,0,0,0,0,1,30,HIGH,0.18
+REP-EXT-0104,Water rising quickly near our house,Flood,high,8.154275,125.133935,San Jose,2017-07-21T00:00:00,1,35,6,0,0,0,0,0,1,32,HIGH,0.22
+REP-ONETAP-1446,,Typhoon,moderate,8.113489312736768,125.16413445653303,Santo Niño,2025-06-03T08:52:00,0,0,0,0,0,0,0,0,0,15,NONE,4.7
+REP-ONETAP-1444,,Earthquake,moderate,8.141587808333501,125.12544581735366,Casisang,2025-03-03T02:10:00,0,0,0,0,0,0,0,0,1,33,HIGH,0.37
+REP-TEXT-1649,Severe flooding elderly residents unable to evacuate trapped inside,Flood,critical,8.156652503602379,125.12103963176386,Bangcud,2025-08-17T11:49:00,1,67,9,1,2,0,0,0,0,23,MEDIUM,0.15
+REP-EXT-0587,Buildings shaking for several seconds,Earthquake,moderate,8.158505,125.128056,Malaybalay Proper,2015-11-06T00:00:00,1,37,5,0,0,0,0,0,0,24,LOW,0.12
+REP-EXT-0628,Flood entering homes after heavy rain,Flood,high,8.154745,125.134107,San Jose,2022-11-10T00:00:00,1,37,6,0,0,0,0,0,1,32,HIGH,0.21
+REP-TEXT-1697,Street flooding making road impassable for small vehicles,Flood,low,8.158176515573668,125.12491642237669,Barangay 9,2025-07-19T20:00:00,1,57,8,0,0,1,0,0,0,19,LOW,0.33
+REP-FA-2102,sample test report for capstone evaluation,Fire,low,8.178408769162028,125.11445972691159,Kalasungay,2025-01-29T19:41:00,1,42,6,0,0,1,1,1,0,15,NONE,2.39
+REP-FA-2200,system test drill for cdrrmo rescuers,Fire,low,8.158971066893042,125.12906627357518,Malaybalay Proper,2025-04-12T08:44:00,1,37,6,0,0,1,1,1,0,22,LOW,0.21
+REP-EXT-0404,Fire spreading to nearby houses,Fire,high,8.157481,125.126421,Malaybalay Proper,2018-08-30T00:00:00,1,31,5,1,1,0,0,0,0,22,LOW,0.15
+REP-ONETAP-1155,Earthquake - Barangay 3,Earthquake,moderate,8.157612423534268,125.12378560521793,Barangay 3,2025-03-01T04:02:00,0,23,4,0,0,0,0,0,0,15,MEDIUM,0.29
+REP-FA-2256,system test drill for cdrrmo rescuers,Earthquake,low,8.156098033682769,125.13373080745795,Sumpong,2025-03-24T19:13:00,1,37,6,0,0,1,1,1,0,23,HIGH,0.18
+REP-TEXT-1683,Flood entering yard after heavy rain knee deep water,Flood,moderate,8.158376353837292,125.12476301960199,Barangay 2,2025-01-23T22:33:00,1,52,9,0,0,0,0,0,0,15,LOW,0.35
+REP-TEXT-2057,Tropical depression bringing steady rainfall and breezy conditions,Typhoon,high,8.141116375720177,125.12830399371104,Casisang,2025-11-10T05:36:00,1,66,8,0,0,0,0,0,0,15,HIGH,0.28
+REP-CLUSTER-2374,Vigorous shaking caused power outage and superficial structure damage,Earthquake,critical,8.157690422693127,125.12753696570819,Barangay 10,2025-12-28T19:08:00,1,69,9,0,0,0,0,0,1,29,LOW,0.04
+REP-EXT-0453,Fire spreading to nearby houses,Fire,high,8.156037,125.128454,Malaybalay Proper,2024-08-21T00:00:00,1,31,5,1,1,0,0,0,0,22,HIGH,0.07
+REP-ONETAP-1328,,Earthquake,moderate,8.156483970466237,125.12720190076449,Barangay 10,2025-07-04T16:56:00,0,0,0,0,0,0,0,0,1,29,LOW,0.13
+REP-TEXT-2050,Strong wind and intermittent rain small branches broken,Typhoon,low,8.1118810629443,125.16282225651135,Santo Niño,2025-05-02T23:26:00,1,55,8,0,0,1,0,0,0,15,NONE,4.77
+REP-EXT-0881,Market stall caught fire,Fire,high,8.159307,125.127821,Casisang,2016-08-28T00:00:00,1,24,4,0,0,0,0,0,1,25,LOW,0.2
+REP-CLUSTER-2433,Large rockslide crushed vehicles and blocked main highway completely,Landslide,critical,8.148960737283906,125.13994851562815,Violeta,2025-07-22T23:23:00,1,68,9,0,0,0,0,0,1,30,HIGH,0.06
+REP-EXT-0624,Heavy rain triggered landslide near homes,Landslide,moderate,8.155571,125.129235,Malaybalay Proper,2023-07-01T00:00:00,1,41,6,0,0,0,0,0,0,21,HIGH,0.15
+REP-CLUSTER-2312,Main drainage backed up causing severe street flooding,Flood,critical,8.151725956594268,125.13310310181954,Barangay 8,2025-10-18T13:28:00,1,54,8,1,1,0,0,0,0,15,MEDIUM,0.3
+REP-TEXT-1788,Strong ground motion caused ceiling damage and deep wall cracks,Earthquake,high,8.154215908341724,125.13115300783141,Barangay 11,2025-10-14T09:34:00,1,63,10,0,0,0,0,0,1,26,HIGH,0.18
+REP-EXT-0263,Road covered by landslide debris,Landslide,moderate,8.148968,125.116685,Aglayan,2016-02-01T00:00:00,1,32,5,0,0,0,0,0,0,23,MEDIUM,0.24
+REP-TEXT-1635,Torrential floodwater chest deep currents strong rescue boat needed,Flood,moderate,8.160674163496346,125.03909573950443,Cabangahan,2025-06-01T20:09:00,1,67,9,0,0,0,0,0,0,15,HIGH,0.41
+REP-ONETAP-1439,,Earthquake,moderate,8.153583724831588,125.13291855531095,Barangay 8,2026-01-18T02:37:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.21
+REP-FA-2199,fake report test only,Landslide,low,8.154075995631658,125.13123494180414,San Jose,2025-04-25T00:01:00,1,21,4,0,0,1,1,1,1,28,HIGH,0.19
+REP-TEXT-1970,Few rocks rolled down roadside ditch,Landslide,moderate,8.165325867595545,125.12954519662162,Barangay 1,2025-12-27T11:07:00,1,36,6,0,0,0,0,0,0,15,LOW,0.89
+REP-TEXT-1803,Buildings shaking for several seconds hanging lights swinging,Earthquake,moderate,8.08467565198564,125.15462348299889,Linabo,2025-04-21T16:06:00,1,61,8,0,0,0,0,0,0,15,NONE,6.73
+REP-EXT-0641,Market stall caught fire,Fire,critical,8.155554,125.126829,Barangay 10,2019-08-02T00:00:00,1,24,4,0,0,0,0,0,1,25,HIGH,0.22
+REP-CLUSTER-2459,Road covered by landslide debris heavy equipment needed to clear,Landslide,critical,8.07599260947926,125.14297443921677,Simaya,2025-08-17T03:30:00,1,64,10,0,0,0,0,0,0,15,NONE,7.2
+REP-TEXT-1960,Small gravel and soil fell from slope safely cleared,Landslide,low,8.1370576739708,125.12344947793694,Casisang,2025-08-10T22:37:00,1,52,9,0,0,1,0,0,1,29,HIGH,0.46
+REP-EXT-0489,Strong shaking felt in our area,Earthquake,moderate,8.159182,125.121679,Bangcud,2015-05-12T00:00:00,1,31,6,0,0,0,0,0,1,26,MEDIUM,0.14
+REP-TEXT-1844,Small tremor recorded mild shaking,Earthquake,low,8.116303853085762,125.16830295024278,Santo Niño,2025-07-04T03:01:00,1,34,5,0,0,1,0,0,0,15,NONE,4.73
+REP-TEXT-1735,Minor drainage overflow contained on street side,Flood,low,8.161771860702071,125.12752581797751,Barangay 1,2025-09-07T09:16:00,1,48,7,0,0,2,0,0,0,15,LOW,0.48
+REP-EXT-0147,Earthquake caused cracks in the wall,Earthquake,moderate,8.156303,125.128876,Malaybalay Proper,2015-03-05T00:00:00,1,36,6,0,0,0,0,0,0,24,HIGH,0.06
+REP-TEXT-1535,House fire with heavy black smoke visible from street,Fire,high,8.161800548923855,125.12893605113757,Barangay 2,2026-01-23T16:12:00,1,53,9,0,0,0,0,0,0,15,LOW,0.49
+REP-TEXT-1987,Severe tropical storm with destructive winds power lines down fires starting,Typhoon,high,8.1560220591506,125.1350346642819,San Jose,2025-01-28T20:16:00,1,76,11,1,1,0,0,0,0,15,HIGH,0.31
+REP-ONETAP-1370,Typhoon - Barangay 4,Typhoon,high,8.153052430222422,125.12726405744316,Barangay 4,2025-12-19T18:14:00,0,20,4,0,0,0,0,0,0,15,MEDIUM,0.39
+REP-CLUSTER-2448,Gas station explosion and uncontrolled fire spreading fast,Fire,critical,8.153519013152437,125.12673216150033,Barangay 4,2025-01-22T03:13:00,1,58,8,1,1,1,0,0,0,15,HIGH,0.4
+REP-EXT-0660,Buildings shaking for several seconds,Earthquake,moderate,8.147885,125.119505,Aglayan,2018-12-16T00:00:00,1,37,5,0,0,0,0,0,1,30,MEDIUM,0.18
+REP-TEXT-1795,Strong tremor caused panic visible fissures in concrete pavement,Earthquake,high,8.147080800319303,125.14132723143827,Violeta,2025-02-26T03:33:00,1,64,9,0,0,0,0,0,1,32,HIGH,0.2
+REP-EXT-0187,Soil and rocks falling from hillside,Landslide,moderate,8.155776,125.128072,Barangay 10,2020-03-16T00:00:00,1,36,6,0,0,0,0,0,0,22,HIGH,0.11
+REP-ONETAP-1148,Earthquake - Barangay 10,Earthquake,moderate,8.158931662904061,125.12420018718747,Barangay 10,2025-02-16T09:20:00,0,24,4,0,0,0,0,0,1,29,MEDIUM,0.35
+REP-EXT-0609,Road blocked due to floodwater,Flood,high,8.153464,125.132725,San Jose,2022-12-01T00:00:00,1,30,5,0,0,0,0,0,1,32,HIGH,0.22
+REP-FA-2192,system test drill for cdrrmo rescuers,Landslide,low,8.15594036525685,125.12160094559664,Barangay 2,2026-01-13T13:59:00,1,37,6,0,0,1,1,1,0,15,MEDIUM,0.23
+REP-TEXT-1931,Small mudslide on hillside after continuous rainfall,Landslide,low,8.155159968118289,125.1264156831512,Barangay 11,2025-11-15T17:32:00,1,52,7,0,0,1,0,0,0,16,HIGH,0.29
+REP-EXT-0198,Road covered by landslide debris,Landslide,high,8.146704,125.141979,Violeta,2017-06-17T00:00:00,1,32,5,0,0,0,0,0,1,30,HIGH,0.28
+REP-EXT-0294,Landslide damaged farm area,Landslide,moderate,8.158986,125.129312,Malaybalay Proper,2023-07-17T00:00:00,1,27,4,0,0,0,0,0,0,21,LOW,0.23
+REP-EXT-0767,Strong shaking felt in our area,Earthquake,moderate,8.160759,125.126481,Casisang,2019-12-30T00:00:00,1,31,6,0,0,0,0,0,1,33,LOW,0.39
+REP-EXT-0401,Floodwater already waist deep,Flood,high,8.156758,125.128739,Barangay 11,2017-03-03T00:00:00,1,29,4,0,0,0,0,0,1,27,HIGH,0.03
+REP-EXT-0123,Market stall caught fire,Fire,critical,8.14804,125.138226,Violeta,2016-08-31T00:00:00,1,24,4,0,0,0,0,0,1,27,HIGH,0.22
+REP-EXT-0203,Flood entering homes after heavy rain,Flood,moderate,8.148693,125.118691,Aglayan,2017-06-07T00:00:00,1,37,6,0,0,0,0,0,0,18,MEDIUM,0.18
+REP-EXT-0836,River overflow causing flooding in the area,Flood,high,8.15822,125.128284,Barangay 10,2016-04-02T00:00:00,1,43,7,0,0,0,0,0,1,32,LOW,0.1
+REP-FA-2295,testing the app and button response,Earthquake,low,8.158187936562456,125.03252327905503,Cabangahan,2025-01-23T13:30:00,1,35,6,0,0,1,1,1,0,15,HIGH,0.42
+REP-ONETAP-1440,,Landslide,moderate,8.154532566583166,125.1280232940802,Barangay 4,2025-10-18T01:27:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.25
+REP-TEXT-1734,Puddle of rain water drying up slowly,Flood,high,8.16035046990996,125.12536850571308,Malaybalay Proper,2026-01-14T04:30:00,1,37,7,0,0,0,0,0,1,27,LOW,0.41
+REP-TEXT-1696,Street flooding making road impassable for small vehicles,Flood,low,8.146404487251406,125.11670750277047,Aglayan,2025-10-09T19:44:00,1,57,8,0,0,1,0,0,0,18,MEDIUM,0.17
+REP-TEXT-1708,Moderate water accumulation on low-lying purok road,Flood,moderate,8.160406301320524,125.12671206278958,Barangay 9,2025-11-07T06:29:00,1,51,7,0,0,0,0,0,0,19,LOW,0.34
+REP-CLUSTER-2429,Heavy rain triggered landslide near homes blocking access road,Landslide,critical,8.15592064892882,125.13293920761576,San Jose,2026-01-26T12:27:00,1,62,9,0,0,0,0,0,1,28,HIGH,0.09
+REP-ONETAP-1154,,Typhoon,moderate,8.073402931413268,125.13915014789788,Simaya,2025-11-09T07:41:00,0,0,0,0,0,0,0,0,0,15,NONE,7.39
+REP-TEXT-1662,Heavy continuous rain caused river to overflow into streets,Flood,moderate,8.155137147598358,125.12657149966002,Barangay 6,2025-11-29T10:06:00,1,59,9,0,0,0,0,0,0,15,HIGH,0.27
+REP-TEXT-1760,Intense earthquake caused severe structural failure in commercial building,Earthquake,high,8.156294097987962,125.12148079110433,Bangcud,2025-12-19T15:48:00,1,74,9,1,1,0,0,0,1,26,MEDIUM,0.19
+REP-EXT-0855,House on fire please send help,Fire,high,8.157632,125.126842,Barangay 9,2020-10-19T00:00:00,1,30,6,0,0,0,0,0,1,25,LOW,0.11
+REP-TEXT-1590,Smoke coming from residential backyard,Fire,high,8.16072195323279,125.12262843168898,Barangay 2,2025-12-03T19:38:00,1,38,5,0,0,0,0,0,0,15,MEDIUM,0.34
+REP-FA-2268,sample test report for capstone evaluation,Landslide,low,8.145212617955002,125.13786015629265,Violeta,2025-11-19T21:15:00,1,42,6,0,0,1,1,1,1,30,HIGH,0.45
+REP-EXT-0642,River overflow causing flooding in the area,Flood,high,8.153991,125.132058,San Jose,2021-08-25T00:00:00,1,43,7,0,0,0,0,0,1,32,HIGH,0.16
+REP-EXT-0002,Heavy rain triggered landslide near homes,Landslide,high,8.150505,125.130272,Sumpong,2015-03-31T00:00:00,1,41,6,0,0,0,0,0,1,26,MEDIUM,0.11
+REP-FA-2161,sample test report for capstone evaluation,Typhoon,low,8.15334471296501,125.12369779241232,Barangay 10,2025-01-20T14:42:00,1,42,6,0,0,1,1,1,0,15,MEDIUM,0.59
+REP-EXT-0699,Buildings shaking for several seconds,Earthquake,high,8.148134,125.141919,Violeta,2023-09-20T00:00:00,1,37,5,0,0,0,0,0,1,32,HIGH,0.19
+REP-TEXT-1637,Torrential floodwater chest deep currents strong rescue boat needed,Flood,moderate,8.160459133192866,125.12008920166215,Barangay 3,2025-10-12T04:07:00,1,67,9,0,0,0,0,0,0,15,MEDIUM,0.3
+REP-ONETAP-1292,Earthquake - Sumpong,Earthquake,moderate,8.153227763779256,125.12851786979152,Sumpong,2025-01-05T09:36:00,0,20,3,0,0,0,0,0,0,23,MEDIUM,0.28
+REP-CLUSTER-2383,Large rockslide crushed vehicles and blocked main highway completely,Landslide,critical,8.158036381769625,125.13009829155509,Barangay 11,2025-04-15T12:04:00,1,68,9,0,0,0,0,0,0,16,HIGH,0.23
+REP-TEXT-1521,Multiple houses on fire with children trapped send rescue immediately,Fire,critical,8.190263353953958,125.15652510955678,Canayan,2025-10-13T05:18:00,1,69,10,1,2,0,0,0,0,15,NONE,4.71
+REP-TEXT-1854,Brief mild rumble felt on second floor only,Earthquake,moderate,8.158481611765952,125.13169218650027,Barangay 6,2025-08-02T07:36:00,1,43,8,0,0,0,0,0,0,15,HIGH,0.35
+REP-ONETAP-1137,,Fire,high,8.155842275984615,125.03917002636932,Cabangahan,2025-12-22T09:57:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.42
+REP-CLUSTER-2416,Soil and large boulders falling from hillside into road,Landslide,critical,8.114635933950217,125.16570310842495,Santo Niño,2025-06-21T00:38:00,1,55,9,0,0,0,0,0,0,15,NONE,4.7
+REP-TEXT-1632,River overflowing rapidly sweeping away vehicles people stranded,Flood,high,8.154364134830288,125.12398600991204,Bangcud,2025-07-03T16:06:00,1,64,8,1,1,0,0,0,0,23,MEDIUM,0.51
+REP-TEXT-1999,Extreme storm surge combined with gale force winds devastating coastal/river area,Typhoon,high,8.153655055292756,125.12775310865977,Barangay 10,2025-04-22T19:40:00,1,81,11,0,0,0,0,0,0,15,HIGH,0.35
+REP-EXT-0664,Minor tremor felt in the barangay,Earthquake,moderate,8.157678,125.128247,Barangay 11,2015-08-06T00:00:00,1,33,6,0,0,1,0,0,1,26,LOW,0.05
+REP-EXT-0684,Buildings shaking for several seconds,Earthquake,moderate,8.15571,125.126151,Barangay 10,2018-09-06T00:00:00,1,37,5,0,0,0,0,0,1,29,LOW,0.27
+REP-ONETAP-1258,Flood - Barangay 10,Flood,moderate,8.158051443735808,125.12581256467773,Barangay 10,2025-12-17T12:19:00,0,19,4,0,0,0,0,0,1,32,LOW,0.23
+REP-EXT-0318,Smoke and flames seen in residential area,Fire,high,8.149614,125.130284,Sumpong,2017-02-04T00:00:00,1,41,7,0,0,0,0,0,0,24,MEDIUM,0.21
+REP-EXT-0649,Landslide damaged farm area,Landslide,moderate,8.146471,125.116454,Aglayan,2021-10-03T00:00:00,1,27,4,0,0,0,0,0,0,23,MEDIUM,0.19
+REP-ONETAP-1435,Flood - Canayan,Flood,moderate,8.190331146470905,125.15678672269759,Canayan,2025-10-07T07:09:00,0,15,3,0,0,0,0,0,0,15,NONE,4.73
+REP-ONETAP-1480,,Fire,moderate,8.187797975801223,125.15374568965525,Canayan,2025-08-07T02:18:00,0,0,0,0,0,0,0,0,0,15,NONE,4.31
+REP-EXT-0710,Flood entering homes after heavy rain,Flood,high,8.158943,125.13039,Barangay 11,2019-02-16T00:00:00,1,37,6,0,0,0,0,0,1,27,HIGH,0.32
+REP-ONETAP-1283,Typhoon - Santo Niño,Typhoon,moderate,8.114934018477069,125.16487882053922,Santo Niño,2026-01-05T08:18:00,0,20,4,0,0,0,0,0,0,15,NONE,4.62
+REP-TEXT-1769,Strong tremor caused building facade collapse road cracked open,Earthquake,high,8.145987500785132,125.13701818790925,Violeta,2025-05-18T04:45:00,1,63,9,1,1,0,0,0,1,32,HIGH,0.45
+REP-EXT-0973,Landslide blocking the road,Landslide,high,8.147579,125.139803,Violeta,2018-11-16T00:00:00,1,27,4,0,0,0,0,0,1,30,HIGH,0.11
+REP-ONETAP-1307,,Fire,high,8.157274269834435,125.12964149211533,Malaybalay Proper,2025-01-02T23:13:00,0,0,0,0,0,0,0,0,0,22,HIGH,0.14
+REP-ONETAP-1401,,Typhoon,moderate,8.114149336376046,125.16237998411637,Santo Niño,2025-08-08T06:31:00,0,0,0,0,0,0,0,0,0,15,NONE,4.53
+REP-ONETAP-1409,,Flood,critical,8.156564186006733,125.13216620144863,San Jose,2026-01-10T03:06:00,0,0,0,0,0,0,0,0,1,32,HIGH,0.13
+REP-FA-2238,fake report test only,Earthquake,low,8.155962515616176,125.12604378554953,Barangay 3,2026-01-06T14:48:00,1,21,4,0,0,1,1,1,0,15,LOW,0.26
+REP-ONETAP-1497,,Flood,moderate,8.1493494086994,125.1191091121628,Aglayan,2026-01-16T14:49:00,0,0,0,0,0,0,0,0,0,18,MEDIUM,0.27
+REP-TEXT-2039,Dangerous wind gusts breaking tree branches and smashing windows,Typhoon,high,8.153796250596002,125.13070471688357,Barangay 4,2025-11-09T22:02:00,1,64,9,1,1,0,0,0,0,15,HIGH,0.25
+REP-TEXT-1530,Gas station explosion and uncontrolled fire spreading fast,Fire,moderate,8.160899151546696,125.11864285415285,Bangcud,2025-02-11T15:21:00,1,58,8,1,1,1,0,0,1,26,MEDIUM,0.43
+REP-TEXT-1664,Street submerged under 3 feet of water cars stalling,Flood,moderate,8.1492014305981,125.14338581294032,Violeta,2025-02-09T16:16:00,1,52,9,0,0,0,0,0,0,13,HIGH,0.36
+REP-ONETAP-1355,Earthquake - Malaybalay Proper,Earthquake,moderate,8.15505838556276,125.12838826278676,Malaybalay Proper,2025-01-07T09:26:00,0,30,4,0,0,0,0,0,0,24,HIGH,0.18
+REP-CLUSTER-2439,Multiple houses on fire with children trapped send rescue immediately,Fire,critical,8.115833765706187,125.16479533384303,Santo Niño,2025-04-07T13:10:00,1,69,10,1,2,0,0,0,0,15,NONE,4.53
+REP-CLUSTER-2455,Destructive ground shaking multiple structures damaged people injured,Earthquake,critical,8.081720411224268,125.15709150856688,Linabo,2025-04-30T19:31:00,1,69,8,1,1,0,0,0,0,15,NONE,7.15
+REP-TEXT-1644,Dam overflowing sudden massive surge of water entering all homes,Flood,critical,8.152425721172769,125.13354378384558,San Jose,2025-02-21T09:39:00,1,64,10,1,1,0,0,0,1,32,HIGH,0.36
+REP-ONETAP-1052,,Flood,moderate,8.159594318976886,125.1289702789993,Barangay 11,2025-12-26T03:24:00,0,0,0,0,0,0,0,0,1,27,LOW,0.27
+REP-EXT-0796,Smoke and flames seen in residential area,Fire,high,8.16211,125.126077,Casisang,2022-03-08T00:00:00,1,41,7,0,0,0,0,0,1,25,LOW,0.55
+REP-TEXT-1598,Minor burning of garbage contained in metal drum,Fire,low,8.159882949787013,125.13223111441933,Barangay 11,2025-05-27T13:51:00,1,48,8,1,1,2,0,0,1,26,HIGH,0.5
+REP-TEXT-1820,Ground shaking felt for 10 seconds slight vibration,Earthquake,moderate,8.157938036984229,125.12029897276942,Barangay 3,2025-10-23T12:05:00,1,51,8,0,0,1,0,0,0,15,MEDIUM,0.1
+REP-TEXT-1723,Small puddles formed in driveway no property threat,Flood,low,8.150150150684997,125.11792644281284,Aglayan,2026-01-27T16:17:00,1,51,8,0,0,1,0,0,0,18,MEDIUM,0.33
+REP-ONETAP-1184,,Landslide,moderate,8.074544088638678,125.14264245604464,Simaya,2026-01-22T16:07:00,0,0,0,0,0,0,0,0,0,15,NONE,7.34
+REP-ONETAP-1060,,Earthquake,moderate,8.15724273502421,125.12800135742464,Barangay 10,2025-06-01T17:08:00,0,0,0,0,0,0,0,0,1,29,LOW,0.04
+REP-EXT-0541,Market stall caught fire,Fire,critical,8.156126,125.133518,San Jose,2016-01-20T00:00:00,1,24,4,0,0,0,0,0,1,29,HIGH,0.16
+REP-TEXT-1679,Main drainage backed up causing severe street flooding,Flood,high,8.17205770558766,125.11113250101818,Kalasungay,2025-09-25T16:43:00,1,54,8,1,1,0,0,0,0,15,NONE,1.92
+REP-CLUSTER-2407,Hillside erosion threatening foundation of roadside homes,Landslide,critical,8.15839641070075,125.12489732938964,Barangay 2,2025-05-08T11:58:00,1,57,7,0,0,0,0,0,0,15,LOW,0.33
+REP-TEXT-1758,Destructive ground shaking multiple structures damaged people injured,Earthquake,high,8.175270273048262,125.11827138521356,Kalasungay,2025-09-04T17:14:00,1,69,8,1,1,0,0,0,0,15,NONE,1.95
+REP-TEXT-1924,Landslide blocking one lane of road soil slowly sliding,Landslide,moderate,8.153118703612286,125.12935585117768,Barangay 4,2025-02-20T16:43:00,1,55,9,0,0,0,0,0,0,15,MEDIUM,0.21
+REP-EXT-0096,House on fire please send help,Fire,high,8.157895,125.128372,Malaybalay Proper,2023-11-14T00:00:00,1,30,6,0,0,0,0,0,0,22,LOW,0.08
+REP-ONETAP-1021,Fire - Barangay 8,Fire,high,8.153468057595223,125.13548169667179,Barangay 8,2025-02-05T17:49:00,0,17,4,0,0,0,0,0,0,15,HIGH,0.41
+REP-EXT-0564,Electrical short circuit started a fire,Fire,critical,8.156691,125.129248,Barangay 9,2022-06-06T00:00:00,1,39,6,0,0,0,0,0,1,25,HIGH,0.08
+REP-EXT-0864,Soil and rocks falling from hillside,Landslide,high,8.147168,125.141655,Violeta,2020-09-29T00:00:00,1,36,6,0,0,0,0,0,1,30,HIGH,0.22
+REP-ONETAP-1485,,Typhoon,high,8.15201424387104,125.12626274831928,Barangay 4,2026-01-23T18:14:00,0,0,0,0,0,0,0,0,0,15,MEDIUM,0.46
+REP-TEXT-1882,Catastrophic slope failure covered residential road casualties feared,Landslide,critical,8.148488353734685,125.12731331951059,Sumpong,2025-08-19T20:23:00,1,69,8,1,1,0,0,0,1,26,MEDIUM,0.48
+REP-ONETAP-1039,,Landslide,moderate,8.076297150804736,125.1404321157157,Simaya,2025-11-27T09:29:00,0,0,0,0,0,0,0,0,0,15,NONE,7.1
+REP-EXT-0207,Fire spreading to nearby houses,Fire,high,8.156036,125.131808,San Jose,2020-03-19T00:00:00,1,31,5,1,1,0,0,0,1,29,HIGH,0.09
+REP-EXT-0393,Buildings shaking for several seconds,Earthquake,moderate,8.157225,125.122708,Bangcud,2021-05-26T00:00:00,1,37,5,0,0,0,0,0,1,26,MEDIUM,0.19
+REP-EXT-0871,House on fire please send help,Fire,critical,8.155908,125.129986,Barangay 11,2024-09-27T00:00:00,1,30,6,0,0,0,0,0,1,26,HIGH,0.19
+REP-EXT-0398,Landslide blocking the road,Landslide,moderate,8.156771,125.128061,Malaybalay Proper,2015-02-01T00:00:00,1,27,4,0,0,0,0,0,0,21,HIGH,0.05
+REP-CLUSTER-2401,Huge mudslide continuing to move towards village emergency evacuation needed,Landslide,critical,8.155454220725153,125.12799735205567,Barangay 5,2025-02-04T02:35:00,1,76,10,1,2,0,0,0,0,15,HIGH,0.15
+REP-ONETAP-1029,,Fire,high,8.155625027123394,125.0372207329296,Cabangahan,2026-01-08T10:51:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.31
+REP-ONETAP-1486,,Typhoon,high,8.154865902476347,125.12712263658128,Malaybalay Proper,2025-10-02T21:55:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.25
+REP-EXT-0961,Strong shaking felt in our area,Earthquake,moderate,8.162084,125.125607,Casisang,2015-11-12T00:00:00,1,31,6,0,0,0,0,0,1,33,LOW,0.56
+REP-TEXT-1571,Small brush fire burning near perimeter fence,Fire,low,8.151166679446066,125.13012323098629,Barangay 8,2026-01-20T15:20:00,1,45,7,1,1,1,0,0,0,15,MEDIUM,0.05
+REP-TEXT-1896,Heavy rain triggered landslide near homes blocking access road,Landslide,moderate,8.1572782607071,125.12899741757974,Barangay 9,2025-08-22T23:37:00,1,62,9,0,0,0,0,0,0,12,HIGH,0.08
+REP-FA-2147,system test drill for cdrrmo rescuers,Flood,low,8.156375232017378,125.1305141451507,Sumpong,2025-02-25T03:16:00,1,37,6,0,0,1,1,1,0,22,HIGH,0.22
+REP-EXT-0805,Water rising quickly near our house,Flood,moderate,8.152719,125.130472,Sumpong,2015-07-01T00:00:00,1,35,6,0,0,0,0,0,0,22,MEDIUM,0.14
+REP-TEXT-1752,Severe seismic shaking cracked bridge collapsed school wall,Earthquake,critical,8.13689961811412,125.124442194896,Casisang,2025-12-02T12:19:00,1,59,8,1,2,0,0,0,1,33,HIGH,0.37
+REP-EXT-0503,House on fire please send help,Fire,high,8.156777,125.119741,Bangcud,2024-11-11T00:00:00,1,30,6,0,0,0,0,0,1,26,MEDIUM,0.21
+REP-EXT-0780,Minor tremor felt in the barangay,Earthquake,moderate,8.156278,125.129296,Barangay 9,2020-07-12T00:00:00,1,33,6,0,0,1,0,0,0,24,HIGH,0.1
+REP-TEXT-1864,Massive hillside collapse buried 2 houses people trapped,Landslide,critical,8.156074090676276,125.12850513027786,Barangay 10,2025-09-02T04:32:00,1,56,8,1,3,0,0,0,0,22,HIGH,0.07
+REP-EXT-0201,Road blocked due to floodwater,Flood,high,8.157927,125.128226,Barangay 10,2022-01-24T00:00:00,1,30,5,0,0,0,0,0,1,32,LOW,0.07
+REP-FA-2183,prank call fake alarm haha,Typhoon,low,8.15723190884342,125.12533410329291,Barangay 4,2026-01-19T23:15:00,1,26,5,0,0,1,1,1,0,15,LOW,0.27
+REP-TEXT-2089,Light precipitation weather clearing up,Typhoon,high,8.155014255504861,125.12597521853272,Barangay 10,2025-05-28T01:09:00,1,39,5,0,0,0,0,0,0,15,HIGH,0.34
+REP-FA-2279,test emergency alert system please ignore,Flood,low,8.155622524136405,125.12620708879805,Malaybalay Proper,2025-01-15T17:37:00,1,41,6,0,0,1,1,1,1,27,LOW,0.27
+REP-TEXT-1797,Strong tremor caused panic visible fissures in concrete pavement,Earthquake,moderate,8.143450190031652,125.11485644134791,Aglayan,2025-04-09T03:02:00,1,64,9,0,0,0,0,0,1,30,MEDIUM,0.54
+REP-EXT-0379,Road blocked due to floodwater,Flood,moderate,8.147368,125.139441,Violeta,2022-04-15T00:00:00,1,30,5,0,0,0,0,0,0,13,HIGH,0.15
+REP-CLUSTER-2337,Intense earthquake caused severe structural failure in commercial building,Earthquake,critical,8.152117605315755,125.1334650350251,Barangay 8,2025-05-02T02:49:00,1,74,9,1,1,0,0,0,0,15,MEDIUM,0.34
+REP-EXT-0419,Road covered by landslide debris,Landslide,high,8.153898,125.130374,San Jose,2022-01-13T00:00:00,1,32,5,0,0,0,0,0,1,28,MEDIUM,0.27
+REP-TEXT-1699,Creek water level high reaching road shoulder,Flood,moderate,8.157672230889665,125.12579595770742,Barangay 3,2025-07-25T19:41:00,1,45,7,0,0,0,0,0,0,15,LOW,0.22
+REP-EXT-0392,Road blocked due to floodwater,Flood,moderate,8.157205,125.119322,Bangcud,2016-12-20T00:00:00,1,30,5,0,0,0,0,0,0,23,MEDIUM,0.22
+REP-TEXT-1523,Multiple houses on fire with children trapped send rescue immediately,Fire,critical,8.150272253248867,125.1341009981026,Barangay 7,2025-12-15T10:41:00,1,69,10,1,2,0,0,0,0,15,MEDIUM,0.43
+REP-ONETAP-1163,Earthquake - Barangay 5,Earthquake,moderate,8.157531862525666,125.12807588981104,Barangay 5,2025-03-16T04:34:00,0,23,4,0,0,0,0,0,0,15,LOW,0.03
+REP-ONETAP-1496,,Earthquake,moderate,8.159674498919035,125.12832500989744,Barangay 2,2025-06-05T09:17:00,0,0,0,0,0,0,0,0,0,15,LOW,0.25
+REP-TEXT-2028,Fierce winds causing trees to fall across main roads and houses,Typhoon,high,8.157737298804959,125.12976591378413,Barangay 4,2025-02-19T14:39:00,1,63,11,0,0,0,0,0,0,15,HIGH,0.18
+REP-ONETAP-1153,Earthquake - Malaybalay Proper,Earthquake,moderate,8.155241532420582,125.12701151395169,Malaybalay Proper,2025-11-23T11:06:00,0,30,4,0,0,0,0,0,0,24,HIGH,0.23
+REP-ONETAP-1368,,Earthquake,moderate,8.154456216551466,125.12248938581307,Barangay 3,2025-11-10T01:36:00,0,0,0,0,0,0,0,0,0,15,MEDIUM,0.42
+REP-EXT-0065,Buildings shaking for several seconds,Earthquake,moderate,8.150409,125.129265,Sumpong,2016-06-29T00:00:00,1,37,5,0,0,0,0,0,0,23,MEDIUM,0.17
+REP-TEXT-2063,Moderate storm winds blowing loose signs and tarpaulins,Typhoon,high,8.114834154713733,125.16738414011579,Santo Niño,2025-02-20T14:31:00,1,55,8,0,0,0,0,0,0,15,NONE,4.79
+REP-ONETAP-1181,,Fire,moderate,8.154651247924908,125.12479903207593,Barangay 3,2025-09-29T06:24:00,0,0,0,0,0,0,0,0,0,15,LOW,0.46
+REP-EXT-0493,Road covered by landslide debris,Landslide,high,8.159145,125.12227,Bangcud,2023-08-05T00:00:00,1,32,5,0,0,0,0,0,1,29,MEDIUM,0.17
+REP-EXT-0380,Heavy rain triggered landslide near homes,Landslide,high,8.146975,125.140919,Violeta,2022-12-31T00:00:00,1,41,6,0,0,0,0,0,1,30,HIGH,0.19
+REP-FA-2236,sample test report for capstone evaluation,Earthquake,low,8.159608552539371,125.12188478210366,Bangcud,2025-05-11T18:05:00,1,42,6,0,0,1,1,1,1,26,MEDIUM,0.19
+REP-EXT-0764,Earthquake caused cracks in the wall,Earthquake,moderate,8.160298,125.124565,Casisang,2020-01-16T00:00:00,1,36,6,0,0,0,0,0,1,33,MEDIUM,0.45
+REP-FA-2265,system test drill for cdrrmo rescuers,Earthquake,low,8.153909857705358,125.12737032547356,Barangay 7,2026-01-26T16:31:00,1,37,6,0,0,1,1,1,0,15,HIGH,0.33
+REP-EXT-0792,Road blocked due to floodwater,Flood,moderate,8.155517,125.129478,Barangay 9,2020-09-09T00:00:00,1,30,5,0,0,0,0,0,0,19,HIGH,0.17
+REP-ONETAP-1077,,Earthquake,moderate,8.177386868084396,125.11492937686529,Kalasungay,2025-01-15T12:21:00,0,0,0,0,0,0,0,0,0,15,NONE,2.26
+REP-EXT-0879,Landslide damaged farm area,Landslide,moderate,8.147962,125.119144,Aglayan,2018-02-16T00:00:00,1,27,4,0,0,0,0,0,0,23,MEDIUM,0.15
+REP-EXT-0338,Water rising quickly near our house,Flood,moderate,8.151707,125.131145,Sumpong,2021-07-10T00:00:00,1,35,6,0,0,0,0,0,0,22,MEDIUM,0.09
+REP-CLUSTER-2344,Gas station explosion and uncontrolled fire spreading fast,Fire,critical,8.153705379307453,125.12739035021534,Barangay 4,2025-04-10T18:08:00,1,58,8,1,1,1,0,0,0,15,HIGH,0.35
+REP-ONETAP-1017,,Flood,moderate,8.081041052838186,125.15676100077188,Linabo,2026-01-05T23:16:00,0,0,0,0,0,0,0,0,0,15,NONE,7.2
+REP-ONETAP-1276,Typhoon - Aglayan,Typhoon,high,8.145223072370479,125.11877415144687,Aglayan,2025-07-14T04:52:00,0,17,3,0,0,0,0,0,0,15,MEDIUM,0.24
+REP-EXT-0456,Strong shaking felt in our area,Earthquake,moderate,8.151394,125.131794,Sumpong,2023-12-31T00:00:00,1,31,6,0,0,0,0,0,0,23,MEDIUM,0.15
+REP-EXT-0816,Market stall caught fire,Fire,high,8.150216,125.131935,Sumpong,2019-07-14T00:00:00,1,24,4,0,0,0,0,0,0,24,MEDIUM,0.22
+REP-CLUSTER-2318,Severe seismic shaking cracked bridge collapsed school wall,Earthquake,critical,8.155160996215637,125.12765014756258,Barangay 4,2025-04-18T19:32:00,1,59,8,1,2,0,0,0,0,15,HIGH,0.2
+REP-EXT-0996,Water rising quickly near our house,Flood,moderate,8.146431,125.11959,Aglayan,2017-04-12T00:00:00,1,35,6,0,0,0,0,0,0,18,MEDIUM,0.19
+REP-TEXT-1982,Violent super typhoon winds ripping off roofs trees falling on houses,Typhoon,high,8.15544777545185,125.12986286707263,Barangay 10,2025-01-08T23:07:00,1,69,11,0,0,0,0,0,0,15,HIGH,0.2
+REP-EXT-0202,Heavy rain triggered landslide near homes,Landslide,moderate,8.158572,125.129118,Malaybalay Proper,2021-05-10T00:00:00,1,41,6,0,0,0,0,0,0,21,LOW,0.19
+REP-EXT-0162,Landslide damaged farm area,Landslide,high,8.160665,125.12419,Casisang,2016-07-28T00:00:00,1,27,4,0,0,0,0,0,1,29,MEDIUM,0.44
+REP-TEXT-1580,Bonfire unattended spreading slightly to dry grass,Fire,moderate,8.159974559608633,125.12727397686255,Barangay 11,2025-06-24T11:53:00,1,50,7,1,1,1,0,0,1,26,LOW,0.28
+REP-EXT-0703,Earthquake caused cracks in the wall,Earthquake,moderate,8.157943,125.129424,Barangay 9,2024-10-27T00:00:00,1,36,6,0,0,0,0,0,0,24,HIGH,0.17
+REP-TEXT-1501,Massive structure fire spreading to adjacent residential houses URGENT HELP,Fire,critical,8.15314424855473,125.13243707156175,Barangay 7,2025-05-21T11:52:00,1,75,10,1,3,0,0,0,0,15,HIGH,0.25
+REP-ONETAP-1130,Flood - Barangay 11,Flood,critical,8.160117610099404,125.13238464778799,Barangay 11,2025-04-30T13:02:00,0,19,4,0,0,0,0,0,1,27,HIGH,0.52
+REP-ONETAP-1022,,Typhoon,high,8.153570348786998,125.12735169426858,Barangay 5,2025-09-28T19:27:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.37
+REP-TEXT-1586,Smoke coming from residential backyard,Fire,high,8.118134034839303,125.16465910301558,Santo Niño,2025-10-29T16:08:00,1,38,5,0,0,0,0,0,0,15,NONE,4.32
+REP-TEXT-1956,Minor soil runoff along road gutter no blockage,Landslide,moderate,8.15507727814887,125.12784529345522,Barangay 6,2025-06-12T09:36:00,1,47,8,0,0,1,0,0,0,15,HIGH,0.19
+REP-FA-2254,fake report test only,Flood,low,8.145638473898032,125.11532103113142,Aglayan,2025-12-17T10:58:00,1,21,4,0,0,1,1,1,0,18,MEDIUM,0.34
+REP-EXT-0035,Strong shaking felt in our area,Earthquake,moderate,8.155327,125.126986,Barangay 9,2019-01-12T00:00:00,1,31,6,0,0,0,0,0,0,24,HIGH,0.23
+REP-EXT-0776,Flood entering homes after heavy rain,Flood,high,8.157858,125.127025,Barangay 10,2017-07-15T00:00:00,1,37,6,0,0,0,0,0,1,32,LOW,0.09
+REP-ONETAP-1479,,Earthquake,moderate,8.160853441601843,125.03654075258963,Cabangahan,2025-02-19T01:25:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.29
+REP-ONETAP-1391,,Landslide,moderate,8.157948199478374,125.03461125161006,Cabangahan,2025-12-01T07:19:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.19
+REP-FA-2140,fake report test only,Landslide,low,8.157837127986232,125.1283478111687,Barangay 11,2026-01-12T09:43:00,1,21,4,0,0,1,1,1,0,16,LOW,0.07
+REP-ONETAP-1364,,Flood,critical,8.154661496652052,125.12916328018285,Malaybalay Proper,2025-05-30T22:04:00,0,0,0,0,0,0,0,0,1,27,HIGH,0.24
+REP-TEXT-2042,Typhoon approaching region moderate continuous rains and gusty winds,Typhoon,high,8.141701848480768,125.1310942569816,Casisang,2025-09-17T07:29:00,1,68,9,0,0,0,0,0,0,15,HIGH,0.54
+REP-EXT-0242,Soil and rocks falling from hillside,Landslide,high,8.16123,125.124003,Casisang,2015-06-13T00:00:00,1,36,6,0,0,0,0,0,1,29,MEDIUM,0.47
+REP-TEXT-2062,Moderate storm winds blowing loose signs and tarpaulins,Typhoon,high,8.18936781041435,125.15383373062811,Canayan,2025-08-06T16:25:00,1,55,8,0,0,0,0,0,0,15,NONE,4.46
+REP-CLUSTER-2364,Dam overflowing sudden massive surge of water entering all homes,Flood,critical,8.147781994439118,125.11822977289654,Aglayan,2025-07-18T20:48:00,1,64,10,1,1,0,0,0,0,18,MEDIUM,0.07
+REP-EXT-0601,Earthquake caused cracks in the wall,Earthquake,high,8.156632,125.131971,San Jose,2019-05-16T00:00:00,1,36,6,0,0,0,0,0,1,29,HIGH,0.14
+REP-CLUSTER-2436,Large rockslide crushed vehicles and blocked main highway completely,Landslide,critical,8.082376978790286,125.15839291082409,Linabo,2026-01-12T07:15:00,1,68,9,0,0,0,0,0,0,15,NONE,7.15
+REP-ONETAP-1298,,Earthquake,moderate,8.14991312751681,125.13192253991069,Sumpong,2026-01-06T18:00:00,0,0,0,0,0,0,0,0,0,23,MEDIUM,0.24
+REP-FA-2215,lol this is just a prank fire,Landslide,low,8.15725775368606,125.12614983818796,Barangay 11,2025-10-12T21:40:00,1,29,7,0,0,1,1,1,0,16,LOW,0.18
+REP-TEXT-2069,Rainy weather with occasional strong gusts,Typhoon,high,8.158831216504181,125.1230109091914,Barangay 10,2025-11-18T02:24:00,1,42,6,0,0,0,0,0,0,15,MEDIUM,0.22
+REP-EXT-0647,Water rising quickly near our house,Flood,moderate,8.145233,125.117683,Aglayan,2015-03-12T00:00:00,1,35,6,0,0,0,0,0,0,18,MEDIUM,0.22
+REP-TEXT-1529,Gas station explosion and uncontrolled fire spreading fast,Fire,moderate,8.161097532795036,125.13014276098647,Barangay 10,2025-08-23T04:20:00,1,58,8,1,1,1,0,0,1,25,LOW,0.48
+REP-ONETAP-1268,,Typhoon,high,8.15611809294988,125.12370212628383,Barangay 3,2025-11-16T21:39:00,0,0,0,0,0,0,0,0,0,15,MEDIUM,0.35
+REP-TEXT-1900,Soil and large boulders falling from hillside into road,Landslide,moderate,8.158766635978761,125.12789642995942,Barangay 10,2025-02-25T18:46:00,1,55,9,0,0,0,0,0,0,22,LOW,0.14
+REP-EXT-0563,Soil and rocks falling from hillside,Landslide,moderate,8.149156,125.117691,Aglayan,2022-06-05T00:00:00,1,36,6,0,0,0,0,0,0,23,MEDIUM,0.22
+REP-EXT-0190,Road blocked due to floodwater,Flood,moderate,8.149092,125.116566,Aglayan,2023-07-30T00:00:00,1,30,5,0,0,0,0,0,0,18,MEDIUM,0.26
+REP-TEXT-1807,Noticeable tremor felt by people indoors doors rattling,Earthquake,high,8.141139692782186,125.12759972373257,Casisang,2025-09-16T10:42:00,1,55,8,0,0,0,0,0,1,33,HIGH,0.26
+REP-EXT-0976,House on fire please send help,Fire,high,8.161831,125.125059,Casisang,2017-02-11T00:00:00,1,30,6,0,0,0,0,0,1,25,LOW,0.57
+REP-TEXT-2048,Strong wind and intermittent rain small branches broken,Typhoon,low,8.161360633399207,125.12757122464447,Barangay 2,2025-10-31T18:20:00,1,55,8,0,0,1,0,0,0,15,LOW,0.43
+REP-ONETAP-1083,Fire - Barangay 1,Fire,moderate,8.164197670396296,125.12719616409419,Barangay 1,2025-05-03T04:30:00,0,17,4,0,0,0,0,0,0,15,LOW,0.75
+REP-EXT-0475,House on fire please send help,Fire,high,8.157144,125.120021,Bangcud,2017-06-12T00:00:00,1,30,6,0,0,0,0,0,1,26,MEDIUM,0.16
+REP-EXT-0748,Water rising quickly near our house,Flood,high,8.157308,125.130509,Barangay 11,2017-06-01T00:00:00,1,35,6,0,0,0,0,0,1,27,HIGH,0.23
+REP-CLUSTER-2301,Gas station explosion and uncontrolled fire spreading fast,Fire,critical,8.15667030406285,125.12871033665267,Malaybalay Proper,2025-09-25T06:48:00,1,58,8,1,1,1,0,0,0,22,HIGH,0.02
+REP-EXT-0022,Flood entering homes after heavy rain,Flood,high,8.155554,125.128959,Barangay 10,2018-01-25T00:00:00,1,37,6,0,0,0,0,0,1,32,HIGH,0.14
+REP-EXT-0460,Electrical short circuit started a fire,Fire,high,8.156682,125.12712,Barangay 9,2017-11-14T00:00:00,1,39,6,0,0,0,0,0,1,25,LOW,0.12
+REP-ONETAP-1185,,Typhoon,high,8.138379481800387,125.12589947882049,Casisang,2025-12-08T09:02:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.15
+REP-CLUSTER-2325,Vigorous shaking caused power outage and superficial structure damage,Earthquake,critical,8.15733956333933,125.03586226896763,Cabangahan,2025-02-16T19:40:00,1,69,9,0,0,0,0,0,0,15,HIGH,0.12
+REP-EXT-0956,Landslide damaged farm area,Landslide,high,8.157079,125.130501,San Jose,2018-11-17T00:00:00,1,27,4,0,0,0,0,0,1,28,HIGH,0.22
+REP-ONETAP-1216,Typhoon - Casisang,Typhoon,high,8.139127244472546,125.1248155383905,Casisang,2025-05-26T02:48:00,0,18,3,0,0,0,0,0,0,15,HIGH,0.26
+REP-CLUSTER-2434,Huge blaze engulfing commercial warehouse people trapped inside,Fire,critical,8.151479102228699,125.13068209744375,Sumpong,2025-01-20T03:24:00,1,63,8,1,2,0,0,0,0,24,MEDIUM,0.03
+REP-TEXT-1516,Forest fire moving rapidly towards community high wind spreading flames,Fire,critical,8.17712379510643,125.11819749635796,Kalasungay,2025-11-04T12:42:00,1,71,10,1,2,0,0,0,0,15,NONE,2.15
+REP-CLUSTER-2392,Huge mudslide continuing to move towards village emergency evacuation needed,Landslide,critical,8.151251713009609,125.13362060507788,Barangay 8,2025-08-25T18:02:00,1,76,10,1,2,0,0,0,0,15,MEDIUM,0.36
+REP-EXT-0770,Floodwater already waist deep,Flood,high,8.159094,125.127243,Malaybalay Proper,2015-02-03T00:00:00,1,29,4,0,0,0,0,0,1,27,LOW,0.19
+REP-TEXT-1686,Flood entering yard after heavy rain knee deep water,Flood,moderate,8.151281735266775,125.124271064845,Barangay 4,2025-09-02T07:58:00,1,52,9,0,0,0,0,0,0,15,MEDIUM,0.68
+REP-EXT-0131,Strong shaking felt in our area,Earthquake,moderate,8.149954,125.128966,Sumpong,2017-11-19T00:00:00,1,31,6,0,0,0,0,0,0,23,MEDIUM,0.23
+REP-FA-2136,sample test report for capstone evaluation,Landslide,low,8.15400477177979,125.13431296810118,Barangay 7,2025-12-24T18:11:00,1,42,6,0,0,1,1,1,0,15,HIGH,0.27
+REP-ONETAP-1483,,Landslide,moderate,8.082264756175318,125.15610928732325,Linabo,2025-08-17T01:16:00,0,0,0,0,0,0,0,0,0,15,NONE,7.05
+REP-EXT-0331,Floodwater already waist deep,Flood,moderate,8.149079,125.118453,Aglayan,2019-02-06T00:00:00,1,29,4,0,0,0,0,0,0,18,MEDIUM,0.21
+REP-ONETAP-1239,,Fire,critical,8.150306575853373,125.14127646364688,Violeta,2025-11-08T21:50:00,0,0,0,0,0,0,0,0,1,27,HIGH,0.23
+REP-EXT-0467,Heavy rain triggered landslide near homes,Landslide,high,8.158679,125.121886,Bangcud,2024-08-29T00:00:00,1,41,6,0,0,0,0,0,1,29,MEDIUM,0.11
+REP-FA-2170,system test drill for cdrrmo rescuers,Typhoon,low,8.148943142506653,125.12831264792867,Barangay 7,2025-12-10T17:11:00,1,37,6,0,0,1,1,1,0,15,MEDIUM,0.37
+REP-TEXT-1639,Dam overflowing sudden massive surge of water entering all homes,Flood,critical,8.160045024242756,125.12681167081072,Barangay 3,2025-03-14T05:11:00,1,64,10,1,1,0,0,0,0,15,LOW,0.3
+REP-ONETAP-1096,,Landslide,moderate,8.15234365603668,125.13367541739845,Barangay 8,2025-01-09T02:18:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.37
+REP-ONETAP-1131,,Landslide,moderate,8.15936823090939,125.13073136728615,Barangay 11,2025-12-06T20:09:00,0,0,0,0,0,0,0,0,0,16,LOW,0.38
+REP-ONETAP-1295,,Flood,moderate,8.156886715402853,125.13108971203226,Barangay 6,2025-06-22T09:36:00,0,0,0,0,0,0,0,0,0,15,HIGH,0.21
+REP-EXT-0861,Smoke and flames seen in residential area,Fire,high,8.159432,125.12318,Bangcud,2020-09-18T00:00:00,1,41,7,0,0,0,0,0,1,26,MEDIUM,0.27

@@ -10,11 +10,113 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
+  Pressable,
+  Platform,
 } from "react-native";
 import axios from "axios";
 import { BASE_URL } from "../config/api";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const getReportStatusLabelAndColor = (status) => {
+  const normStatus = String(status || '').trim().toLowerCase();
+  switch (normStatus) {
+    case 'new':
+    case 'pending':
+      return { label: "Pending Review", color: "#B45309", bgColor: "#FEF3C7" };
+    case 'assigned':
+    case 'acknowledged':
+      return { label: "Rescuer Assigned", color: "#1D4ED8", bgColor: "#DBEAFE" };
+    case 'on_the_way':
+      return { label: "Rescuer On The Way", color: "#6D28D9", bgColor: "#EDE9FE" };
+    case 'ongoing':
+    case 'in_progress':
+      return { label: "Rescuer Arrived (Ongoing)", color: "#047857", bgColor: "#D1FAE5" };
+    case 'resolved':
+      return { label: "Resolved", color: "#065F46", bgColor: "#D1FAE5" };
+    case 'declined':
+      return { label: "Declined", color: "#B91C1C", bgColor: "#FEE2E2" };
+    default:
+      return { label: status || "Sent", color: "#374151", bgColor: "#F3F4F6" };
+  }
+};
+
+const getDisasterIconAndColor = (type) => {
+  const normType = String(type || '').trim().toLowerCase();
+  switch (normType) {
+    case 'flood':
+      return { name: "water", color: "#3B82F6", label: "Flood" };
+    case 'fire':
+      return { name: "flame", color: "#EF4444", label: "Fire" };
+    case 'earthquake':
+      return { name: "pulse", color: "#F59E0B", label: "Earthquake" };
+    case 'landslide':
+      return { name: "warning", color: "#78350F", label: "Landslide" };
+    case 'typhoon':
+      return { name: "thunderstorm", color: "#1E3A8A", label: "Typhoon" };
+    default:
+      return { name: "alert-circle", color: "#DC2626", label: type || "Emergency" };
+  }
+};
+
+const renderTimeline = (status) => {
+  const steps = [
+    { label: "Reported", statuses: ['new', 'pending'] },
+    { label: "Assigned", statuses: ['assigned', 'acknowledged'] },
+    { label: "En Route", statuses: ['on_the_way'] },
+    { label: "Arrived", statuses: ['ongoing', 'in_progress', 'resolved'] }
+  ];
+
+  const normStatus = String(status || '').trim().toLowerCase();
+  
+  let activeIndex = 0;
+  if (steps[1].statuses.includes(normStatus)) activeIndex = 1;
+  else if (steps[2].statuses.includes(normStatus)) activeIndex = 2;
+  else if (steps[3].statuses.includes(normStatus) || normStatus === 'resolved') activeIndex = 3;
+
+  return (
+    <View style={styles.timelineContainer}>
+      {steps.map((step, idx) => {
+        const isCompleted = idx < activeIndex;
+        const isActive = idx === activeIndex;
+        
+        return (
+          <React.Fragment key={idx}>
+            <View style={styles.timelineStep}>
+              <View style={[
+                styles.timelineDot,
+                isCompleted && styles.timelineDotCompleted,
+                isActive && styles.timelineDotActive
+              ]}>
+                {isCompleted ? (
+                  <Ionicons name="checkmark" size={14} color="#fff" />
+                ) : (
+                  <Text style={[
+                    styles.timelineDotText,
+                    isActive && styles.timelineDotTextActive
+                  ]}>{idx + 1}</Text>
+                )}
+              </View>
+              <Text style={[
+                styles.timelineLabel,
+                isActive && styles.timelineLabelActive,
+                isCompleted && styles.timelineLabelCompleted
+              ]}>
+                {step.label}
+              </Text>
+            </View>
+            {idx < steps.length - 1 && (
+              <View style={[
+                styles.timelineConnector,
+                isCompleted && styles.timelineConnectorCompleted
+              ]} />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </View>
+  );
+};
 
 export default function AlertHistoryScreen() {
   const [alerts, setAlerts] = useState([]);
@@ -60,6 +162,8 @@ export default function AlertHistoryScreen() {
       severity: report?.severity || 'moderate',
       message: report?.message || report?.note || '',
       senderName: report?.senderName || 'Anonymous',
+      photoUrl: report?.photoUrl || null,
+      assignedRescuer: report?.assignedRescuer || null,
     };
   };
 
@@ -152,37 +256,7 @@ export default function AlertHistoryScreen() {
     );
   };
 
-  const getStatusColor = (status) => {
-    const normalizedStatus = status?.toLowerCase();
-    switch (normalizedStatus) {
-      case "resolved":
-        return { backgroundColor: "#10B981", textColor: "#fff", label: "Resolved" };
-      case "on_the_way":
-        return { backgroundColor: "#8B5CF6", textColor: "#fff", label: "On The Way" };
-      case "ongoing":
-      case "in_progress":
-        return { backgroundColor: "#3B82F6", textColor: "#fff", label: "Ongoing" };
-      case "pending":
-      case "new":
-      case "acknowledged":
-        return { backgroundColor: "#F59E0B", textColor: "#fff", label: "Pending" };
-      case "declined":
-        return { backgroundColor: "#EF4444", textColor: "#fff", label: "Declined" };
-      default:
-        return { backgroundColor: "#9CA3AF", textColor: "#fff", label: status || "Unknown" };
-    }
-  };
-
-  const getIcon = (type) => {
-    switch (type?.toLowerCase()) {
-      case "flood": return { name: "water", color: "#2196F3" };
-      case "fire": return { name: "flame", color: "#F44336" };
-      case "earthquake": return { name: "pulse", color: "#FF9800" };
-      case "landslide": return { name: "terrain", color: "#795548" };
-      case "typhoon": return { name: "thunderstorm", color: "#607D8B" };
-      default: return { name: "alert-circle", color: "#9E9E9E" };
-    }
-  };
+  // Helper status/icon methods moved to global scope
 
   const showAlertDetails = (alert) => {
     console.log('📋 Alert Details:', {
@@ -227,60 +301,68 @@ export default function AlertHistoryScreen() {
           }
         >
           {alerts.map((a) => {
-            console.log('📱 Alert card data:', { type: a.type, status: a.status, timestamp: a.timestamp });
-            const icon = getIcon(a.type);
-            const statusInfo = getStatusColor(a.status);
+            const disasterTheme = getDisasterIconAndColor(a.type);
+            const statusInfo = getReportStatusLabelAndColor(a.status);
+            
             return (
               <TouchableOpacity 
                 key={a._id} 
-                style={styles.card}
+                style={styles.historyCardPremium}
                 onPress={() => showAlertDetails(a)}
+                activeOpacity={0.8}
               >
-                <View style={[styles.iconBadge, { backgroundColor: icon.color }]}>
-                  <Ionicons name={icon.name} size={22} color="#fff" />
+                <View style={[styles.iconBadgePremium, { backgroundColor: disasterTheme.color + '15' }]}>
+                  <Ionicons name={disasterTheme.name} size={24} color={disasterTheme.color} />
                 </View>
-                <View style={styles.cardContent}>
-                  <View style={styles.cardHeader}>
-                    <Text style={styles.cardType}>{a.type || 'Emergency'}</Text>
-                    <View style={[styles.statusBadge, { backgroundColor: statusInfo.backgroundColor }]}>
-                      <Text style={[styles.statusText, { color: statusInfo.textColor }]}>
+                
+                <View style={styles.cardContentPremium}>
+                  <View style={styles.cardHeaderPremium}>
+                    <Text style={styles.cardTypePremium}>{a.type || 'Emergency'}</Text>
+                    <View style={[styles.statusBadgePremium, { backgroundColor: statusInfo.bgColor }]}>
+                      <Text style={[styles.statusTextPremium, { color: statusInfo.color }]}>
                         {statusInfo.label}
                       </Text>
                     </View>
                   </View>
-                  {a.location ? (
-                    <Text style={styles.cardLocation}>{a.location}</Text>
-                  ) : null}
-                  <View style={styles.cardFooter}>
-                    <Text style={styles.cardTime}>
-                      {a.timestamp 
-                        ? new Date(a.timestamp).toLocaleString() 
-                        : 'No date'}
+
+                  <View style={styles.cardLocationRow}>
+                    <Ionicons name="location-outline" size={13} color="#4B5563" />
+                    <Text style={styles.cardLocationPremium} numberOfLines={1}>
+                      {a.location}
                     </Text>
-                    {a.severity && (
-                      <View style={[
-                        styles.severityBadge,
-                        {
-                          backgroundColor: a.severity === 'critical' ? '#FEE2E2' :
-                                         a.severity === 'high' ? '#FEF3C7' :
-                                         a.severity === 'moderate' ? '#DBEAFE' : '#DCFCE7'
-                        }
-                      ]}>
-                        <Text style={[
-                          styles.severityText,
-                          {
-                            color: a.severity === 'critical' ? '#DC2626' :
-                                  a.severity === 'high' ? '#D97706' :
-                                  a.severity === 'moderate' ? '#2563EB' : '#16A34A'
-                          }
-                        ]}>{a.severity}</Text>
-                      </View>
-                    )}
                   </View>
-                  {a.message ? (
-                    <Text style={styles.cardNote} numberOfLines={2}>{a.message}</Text>
-                  ) : null}
-                  <Text style={styles.tapHint}>Tap for details</Text>
+
+                  <View style={styles.cardFooterPremium}>
+                    <Text style={styles.cardTimePremium}>
+                      {a.timestamp ? new Date(a.timestamp).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'No date'}
+                    </Text>
+                    
+                    <View style={styles.cardRightBadges}>
+                      {a.severity && (
+                        <View style={[
+                          styles.severityBadgePremium,
+                          {
+                            backgroundColor: a.severity === 'critical' ? '#FEE2E2' :
+                                           a.severity === 'high' ? '#FEF3C7' :
+                                           a.severity === 'moderate' ? '#DBEAFE' : '#DCFCE7'
+                          }
+                        ]}>
+                          <Text style={[
+                            styles.severityTextPremium,
+                            {
+                              color: a.severity === 'critical' ? '#DC2626' :
+                                    a.severity === 'high' ? '#D97706' :
+                                    a.severity === 'moderate' ? '#2563EB' : '#16A34A'
+                            }
+                          ]}>{a.severity}</Text>
+                        </View>
+                      )}
+                      
+                      <View style={styles.arrowIconBadge}>
+                        <Ionicons name="chevron-forward" size={14} color="#9CA3AF" />
+                      </View>
+                    </View>
+                  </View>
                 </View>
               </TouchableOpacity>
             );
@@ -288,114 +370,166 @@ export default function AlertHistoryScreen() {
         </ScrollView>
       )}
 
-      {/* Details Modal */}
+      {/* Redesigned Details Modal */}
       <Modal
         visible={detailsVisible}
         transparent={true}
         animationType="slide"
         onRequestClose={() => setDetailsVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Report Details</Text>
+        <View style={styles.notificationModalOverlay}>
+          <Pressable
+            style={StyleSheet.absoluteFillObject}
+            onPress={() => setDetailsVisible(false)}
+          />
+          <View style={styles.notificationModalContainerLarge}>
+            <View style={styles.notificationModalHeader}>
+              <Text style={styles.notificationModalTitle}>Report Details</Text>
               <TouchableOpacity onPress={() => setDetailsVisible(false)}>
-                <Ionicons name="close" size={28} color="#333" />
+                <Ionicons name="close-circle" size={28} color="#666" />
               </TouchableOpacity>
             </View>
 
             {selectedAlert && (
-              <ScrollView style={styles.modalBody}>
-                {/* Disaster Type */}
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Disaster Type</Text>
-                  <Text style={styles.detailValue}>{selectedAlert.type || 'Not specified'}</Text>
-                </View>
-
-                {/* Status - Large Badge */}
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Status</Text>
-                  <View style={[
-                    styles.statusBadgeLarge,
-                    { backgroundColor: getStatusColor(selectedAlert.status).backgroundColor }
-                  ]}>
-                    <Text style={[
-                      styles.statusTextLarge,
-                      { color: getStatusColor(selectedAlert.status).textColor }
+              <ScrollView 
+                style={styles.modalScrollBody}
+                contentContainerStyle={styles.modalScrollContent}
+                showsVerticalScrollIndicator={true}
+              >
+                {/* Status Card */}
+                <View style={styles.modalStatusCard}>
+                  <View style={styles.modalStatusHeader}>
+                    <View style={styles.disasterBadge}>
+                      <Ionicons 
+                        name={getDisasterIconAndColor(selectedAlert.type).name} 
+                        size={24} 
+                        color={getDisasterIconAndColor(selectedAlert.type).color} 
+                      />
+                      <Text style={styles.disasterBadgeText}>
+                        {(selectedAlert.type || 'Emergency')} Alert
+                      </Text>
+                    </View>
+                    <View style={[
+                      styles.statusBadgeLarge, 
+                      { backgroundColor: getReportStatusLabelAndColor(selectedAlert.status).bgColor }
                     ]}>
-                      {getStatusColor(selectedAlert.status).label}
-                    </Text>
+                      <Text style={[
+                        styles.statusTextLarge, 
+                        { color: getReportStatusLabelAndColor(selectedAlert.status).color }
+                      ]}>
+                        {getReportStatusLabelAndColor(selectedAlert.status).label}
+                      </Text>
+                    </View>
                   </View>
+
+                  {/* Timeline */}
+                  {renderTimeline(selectedAlert.status)}
                 </View>
 
-                {/* Severity */}
-                {selectedAlert.severity && (
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Severity</Text>
-                    <Text style={styles.detailValue}>{selectedAlert.severity}</Text>
-                  </View>
-                )}
-
-                {/* Location */}
-                {selectedAlert.location && (
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Location</Text>
-                    <Text style={styles.detailValue}>{selectedAlert.location}</Text>
-                  </View>
-                )}
-
-                {/* Timestamp */}
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Submitted</Text>
-                  <Text style={styles.detailValue}>
-                    {selectedAlert.timestamp 
-                      ? new Date(selectedAlert.timestamp).toLocaleString() 
-                      : 'Date unavailable'}
-                  </Text>
-                </View>
-
-                {/* Sender Info */}
-                {selectedAlert.senderName && (
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Reporter</Text>
-                    <Text style={styles.detailValue}>{selectedAlert.senderName}</Text>
-                  </View>
-                )}
-
-                {/* Note/Description */}
-                {selectedAlert.message && (
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Your Description</Text>
-                    <View style={styles.messageBox}>
-                      <Text style={styles.messageText}>{selectedAlert.message}</Text>
+                {/* Rescuer Card if Assigned */}
+                {selectedAlert.assignedRescuer?.rescuerName && (
+                  <View style={styles.rescuerCard}>
+                    <Text style={styles.cardSectionTitle}>Assigned Responder</Text>
+                    <View style={styles.rescuerInfoRow}>
+                      <View style={styles.rescuerAvatar}>
+                        <Ionicons name="person" size={28} color="#007AFF" />
+                      </View>
+                      <View style={styles.rescuerNameCol}>
+                        <Text style={styles.rescuerName}>
+                          {selectedAlert.assignedRescuer.rescuerName}
+                        </Text>
+                        <Text style={styles.rescuerRole}>CDRRMO Responder Team</Text>
+                      </View>
                     </View>
                   </View>
                 )}
 
-                {/* Status Timeline Info */}
-                <View style={styles.statusInfo}>
-                  <Ionicons name="information-circle" size={20} color="#3B82F6" />
-                  <Text style={styles.statusInfoText}>
-                    {selectedAlert.status?.toLowerCase() === 'resolved' 
-                      ? '✓ Your report has been resolved and handled by our rescue team.'
-                      : selectedAlert.status?.toLowerCase() === 'on_the_way'
-                      ? '🚗 Rescue team is on the way to your location!'
-                      : selectedAlert.status?.toLowerCase() === 'ongoing'
-                      ? '→ Your report is currently being handled. Rescue team is responding.'
-                      : selectedAlert.status?.toLowerCase() === 'declined'
-                      ? '✗ Your report could not be processed at this time.'
-                      : '⏳ Your report is pending. We will process it soon.'}
-                  </Text>
+                {/* Report Details Card */}
+                <View style={styles.detailsCard}>
+                  <Text style={styles.cardSectionTitle}>Incident Details</Text>
+                  
+                  <View style={styles.detailItem}>
+                    <Ionicons name="location-outline" size={18} color="#666" style={styles.detailItemIcon} />
+                    <View style={styles.detailItemContent}>
+                      <Text style={styles.detailItemLabel}>Incident Location</Text>
+                      <Text style={styles.detailItemVal}>{selectedAlert.location || 'Location Pinned'}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.detailItem}>
+                    <Ionicons name="alert-circle-outline" size={18} color="#666" style={styles.detailItemIcon} />
+                    <View style={styles.detailItemContent}>
+                      <Text style={styles.detailItemLabel}>Severity Level</Text>
+                      <Text style={[
+                        styles.detailItemVal, 
+                        { 
+                          color: selectedAlert.severity === 'critical' ? '#DC2626' :
+                                selectedAlert.severity === 'high' ? '#D97706' :
+                                selectedAlert.severity === 'moderate' ? '#2563EB' : '#16A34A',
+                          fontWeight: '700',
+                          textTransform: 'capitalize'
+                        }
+                      ]}>
+                        {selectedAlert.severity || 'Moderate'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.detailItem}>
+                    <Ionicons name="time-outline" size={18} color="#666" style={styles.detailItemIcon} />
+                    <View style={styles.detailItemContent}>
+                      <Text style={styles.detailItemLabel}>Reported Time</Text>
+                      <Text style={styles.detailItemVal}>
+                        {selectedAlert.timestamp ? new Date(selectedAlert.timestamp).toLocaleString() : 'Date Unavailable'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {selectedAlert.message ? (
+                    <View style={styles.detailItem}>
+                      <Ionicons name="document-text-outline" size={18} color="#666" style={styles.detailItemIcon} />
+                      <View style={styles.detailItemContent}>
+                        <Text style={styles.detailItemLabel}>Incident Note</Text>
+                        <Text style={styles.detailItemVal}>{selectedAlert.message}</Text>
+                      </View>
+                    </View>
+                  ) : null}
+
+                  {selectedAlert.photoUrl ? (
+                    <View style={styles.detailItem}>
+                      <Ionicons name="image-outline" size={18} color="#666" style={styles.detailItemIcon} />
+                      <View style={styles.detailItemContent}>
+                        <Text style={styles.detailItemLabel}>Uploaded Photo</Text>
+                        <Image 
+                          source={{ uri: selectedAlert.photoUrl }} 
+                          style={styles.uploadedPhotoPreview} 
+                          resizeMode="cover"
+                        />
+                      </View>
+                    </View>
+                  ) : null}
+                </View>
+
+                {/* Status Help Banner */}
+                <View style={styles.safetyCard}>
+                  <Ionicons name="information-circle-outline" size={24} color="#1E40AF" />
+                  <View style={styles.safetyTextContainer}>
+                    <Text style={[styles.safetyTitle, { color: '#1E40AF' }]}>Status Update</Text>
+                    <Text style={[styles.safetyDesc, { color: '#1E40AF' }]}>
+                      {selectedAlert.status?.toLowerCase() === 'resolved' 
+                        ? 'This report has been resolved and handled by the rescue team.'
+                        : selectedAlert.status?.toLowerCase() === 'on_the_way'
+                        ? 'Rescue team is currently on the way to your location.'
+                        : selectedAlert.status?.toLowerCase() === 'ongoing'
+                        ? 'Rescue team has arrived and is responding.'
+                        : selectedAlert.status?.toLowerCase() === 'declined'
+                        ? 'This report could not be processed.'
+                        : 'Your report is currently pending review by CDRRMO dispatchers.'}
+                    </Text>
+                  </View>
                 </View>
               </ScrollView>
             )}
-
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setDetailsVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -450,185 +584,351 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 15,
   },
-  card: {
+  historyCardPremium: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: "#f9f9f9",
-    padding: 12,
-    marginBottom: 10,
-    borderRadius: 12,
+    alignItems: "center",
+    backgroundColor: "#fff",
+    padding: 16,
+    marginBottom: 12,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#eee",
+    borderColor: "#F3F4F6",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  iconBadge: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+  iconBadgePremium: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
-    marginTop: 2,
+    marginRight: 14,
   },
-  cardContent: {
+  cardContentPremium: {
     flex: 1,
   },
-  cardHeader: {
+  cardHeaderPremium: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  cardType: {
+  cardTypePremium: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    flex: 1,
+    fontWeight: "700",
+    color: "#111827",
   },
-  statusBadge: {
+  statusBadgePremium: {
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 4,
-    minWidth: 70,
+    borderRadius: 8,
   },
-  statusText: {
+  statusTextPremium: {
     fontSize: 11,
     fontWeight: "700",
     textAlign: "center",
   },
-  cardLocation: {
-    fontSize: 13,
-    color: "#007AFF",
-    marginTop: 2,
-    marginBottom: 4,
+  cardLocationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 8,
   },
-  cardFooter: {
+  cardLocationPremium: {
+    fontSize: 13,
+    color: "#4B5563",
+    flex: 1,
+  },
+  cardFooterPremium: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 2,
   },
-  cardTime: {
+  cardTimePremium: {
     fontSize: 12,
-    color: "#888",
+    color: "#9CA3AF",
   },
-  severityBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 3,
+  cardRightBadges: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-  severityText: {
+  severityBadgePremium: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  severityTextPremium: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
     textTransform: "capitalize",
   },
-  cardNote: {
-    fontSize: 12,
-    color: "#555",
-    marginTop: 6,
-    fontStyle: "italic",
+  arrowIconBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#F9FAFB",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  tapHint: {
-    fontSize: 11,
-    color: "#999",
-    marginTop: 4,
-    fontStyle: "italic",
-  },
-  
-  // Modal Styles
-  modalOverlay: {
+
+  // Modal Container Styles (match HomeScreen exactly)
+  notificationModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "flex-end",
   },
-  modalContent: {
+  notificationModalContainerLarge: {
     backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    width: "100%",
     maxHeight: "85%",
-    paddingTop: 0,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 12,
   },
-  modalHeader: {
+  notificationModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    paddingBottom: 10,
+  },
+  notificationModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  modalScrollBody: {
+    marginVertical: 10,
+  },
+  modalScrollContent: {
+    paddingBottom: 40,
+  },
+  modalStatusCard: {
+    backgroundColor: "#F9FAFB",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#F3F4F6",
+  },
+  modalStatusHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    marginBottom: 16,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#333",
+  disasterBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-  modalBody: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  detailRow: {
-    marginBottom: 20,
-  },
-  detailLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#666",
-    textTransform: "uppercase",
-    marginBottom: 6,
-  },
-  detailValue: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#333",
+  disasterBadgeText: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#111827",
   },
   statusBadgeLarge: {
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 6,
-    alignSelf: "flex-start",
+    paddingVertical: 6,
+    borderRadius: 12,
   },
   statusTextLarge: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "700",
   },
-  messageBox: {
-    backgroundColor: "#f5f5f5",
-    padding: 12,
-    borderRadius: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: "#3B82F6",
-  },
-  messageText: {
-    fontSize: 14,
-    color: "#333",
-    lineHeight: 20,
-  },
-  statusInfo: {
+
+  // Timeline styling
+  timelineContainer: {
     flexDirection: "row",
-    backgroundColor: "#EFF6FF",
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 10,
-    marginBottom: 10,
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    marginTop: 8,
+    marginBottom: 4,
   },
-  statusInfoText: {
-    fontSize: 13,
-    color: "#1E40AF",
-    marginLeft: 10,
+  timelineStep: {
+    alignItems: "center",
     flex: 1,
-    lineHeight: 18,
   },
-  closeButton: {
-    backgroundColor: "#007AFF",
-    marginHorizontal: 20,
+  timelineDot: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#E5E7EB",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 6,
+    borderWidth: 2,
+    borderColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  timelineDotCompleted: {
+    backgroundColor: "#10B981",
+    borderColor: "#10B981",
+  },
+  timelineDotActive: {
+    backgroundColor: "#3B82F6",
+    borderColor: "#DBEAFE",
+    transform: [{ scale: 1.15 }],
+  },
+  timelineDotText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#9CA3AF",
+  },
+  timelineDotTextActive: {
+    color: "#fff",
+  },
+  timelineLabel: {
+    fontSize: 10,
+    fontWeight: "500",
+    color: "#9CA3AF",
+    textAlign: "center",
+  },
+  timelineLabelActive: {
+    color: "#3B82F6",
+    fontWeight: "700",
+  },
+  timelineLabelCompleted: {
+    color: "#4B5563",
+    fontWeight: "600",
+  },
+  timelineConnector: {
+    height: 3,
+    backgroundColor: "#E5E7EB",
+    flex: 1,
+    alignSelf: "center",
     marginBottom: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
+  },
+  timelineConnectorCompleted: {
+    backgroundColor: "#10B981",
+  },
+
+  // Rescuer styling
+  rescuerCard: {
+    backgroundColor: "#EFF6FF",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
+  },
+  cardSectionTitle: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#4B5563",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 12,
+  },
+  rescuerInfoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 12,
+  },
+  rescuerAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#DBEAFE",
+    justifyContent: "center",
     alignItems: "center",
   },
-  closeButtonText: {
-    color: "#fff",
+  rescuerNameCol: {
+    flex: 1,
+  },
+  rescuerName: {
     fontSize: 16,
+    fontWeight: "700",
+    color: "#1E3A8A",
+  },
+  rescuerRole: {
+    fontSize: 12,
+    color: "#3B82F6",
+    fontWeight: "500",
+  },
+
+  // Details card styling
+  detailsCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  detailItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 14,
+  },
+  detailItemIcon: {
+    marginTop: 2,
+    marginRight: 10,
+  },
+  detailItemContent: {
+    flex: 1,
+  },
+  detailItemLabel: {
+    fontSize: 11,
+    color: "#6B7280",
     fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  detailItemVal: {
+    fontSize: 14,
+    color: "#1F2937",
+    fontWeight: "500",
+    marginTop: 2,
+  },
+  uploadedPhotoPreview: {
+    width: "100%",
+    height: 150,
+    borderRadius: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+
+  // Safety card (Safety / Status instructions)
+  safetyCard: {
+    flexDirection: "row",
+    backgroundColor: "#EFF6FF",
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    marginBottom: 20,
+  },
+  safetyTextContainer: {
+    flex: 1,
+  },
+  safetyTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#1E40AF",
+    marginBottom: 4,
+  },
+  safetyDesc: {
+    fontSize: 12,
+    color: "#1E3A8A",
+    lineHeight: 16,
   },
 });

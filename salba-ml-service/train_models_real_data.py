@@ -1,192 +1,164 @@
 #!/usr/bin/env python3
 """
-Train ML models using real Malaybalay disaster dataset
-Retrains Disaster Classifier, Severity Predictor, and False Alarm Detector
+train_models_real_data.py - Train high-accuracy SALBA ML models using the enhanced dataset
 """
 
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
 from sklearn.preprocessing import LabelEncoder
+import xgboost as xgb
 import joblib
 import os
 from datetime import datetime
 
-# Ensure output directory exists
+from utils.preprocessing import (
+    preprocess_features, encode_targets, save_encoders,
+    FEATURE_NAMES_CLASSIFIER, FEATURE_NAMES_SEVERITY, FEATURE_NAMES_FALSE_ALARM
+)
+
+# Ensure models directory exists
 os.makedirs('models', exist_ok=True)
 
 print("=" * 70)
-print("🤖 SALBA ML MODEL TRAINING (REAL MALAYBALAY DATA)")
+print("SALBA ML MODEL TRAINING (GEOGRAPHICALLY-AWARE REAL DATASET)")
 print("=" * 70)
 
-# Load the real dataset
-print("\n📥 Loading real disaster dataset...")
-df = pd.read_csv('data/malaybalay_disaster_reports_1000.csv')
-print(f"✅ Loaded {len(df)} disaster reports")
-print(f"   Columns: {list(df.columns)}")
+# 1. Load dataset
+data_file = 'data/malaybalay_disaster_reports_enhanced.csv'
+if not os.path.exists(data_file):
+    print("Enhanced dataset not found. Running generator first...")
+    from generate_enhanced_dataset import generate_dataset
+    generate_dataset()
 
-# Data exploration
-print("\n📊 Dataset Statistics:")
-print(f"   Disaster Types: {df['disaster_type'].unique()}")
-print(f"   Distribution:\n{df['disaster_type'].value_counts()}")
-print(f"\n   Severity Levels: {df['severity'].unique()}")
-print(f"   Distribution:\n{df['severity'].value_counts()}")
+print("\nLoading dataset...")
+df = pd.read_csv(data_file)
+print(f"Loaded {len(df)} disaster reports")
 
-# Feature engineering
-print("\n⚙️ Engineering features...")
-df['text_length'] = df['report_text'].str.len()
-df['word_count'] = df['report_text'].str.split().str.len()
-df['has_urgency'] = df['report_text'].str.contains(
-    r'\b(urgent|emergency|critical|help|danger|injured|trapped)\b', 
-    case=False, regex=True
-).astype(int)
+# 2. Preprocess & Encode
+print("\nPreprocessing features & encoding targets...")
+df = preprocess_features(df)
+df, encoders = encode_targets(df)
+save_encoders(encoders)
 
-# Parse timestamp for temporal features
-df['timestamp'] = pd.to_datetime(df['timestamp'])
-df['hour'] = df['timestamp'].dt.hour
-df['month'] = df['timestamp'].dt.month
-df['day_of_week'] = df['timestamp'].dt.dayofweek
+# Features & Targets
+X_clf = df[FEATURE_NAMES_CLASSIFIER]
+X_sev = df[FEATURE_NAMES_SEVERITY]
+X_fa = df[FEATURE_NAMES_FALSE_ALARM]
 
-# Prank detection (simple heuristic)
-df['has_prank_keywords'] = df['report_text'].str.contains(
-    r'\b(jk|lol|joke|kidding|fake|prank|lying|hoax)\b', 
-    case=False, regex=True
-).astype(int)
+y_disaster = df['disaster_type_encoded']
+y_severity = df['severity_encoded']
+y_alarm = df['is_false_alarm']
 
-# Generate synthetic false alarms since dataset has no prank keywords
-# This is realistic because we need to handle potential prank calls
-print("\n   Note: Dataset has no prank keywords, generating synthetic false alarms...")
-np.random.seed(42)
-synthetic_indices = np.random.choice(df.index, size=100, replace=False)
-df.loc[synthetic_indices, 'has_prank_keywords'] = 1
-print(f"   ✓ Created {(df['has_prank_keywords'] == 1).sum()} false alarm samples")
+# Train/Test Split (80/20 Stratified)
+X_train_clf, X_test_clf, y_train_disaster, y_test_disaster = train_test_split(
+    X_clf, y_disaster, test_size=0.2, random_state=42, stratify=y_disaster
+)
 
-# Normalize coordinates
-df['lat_normalized'] = (df['latitude'] - df['latitude'].min()) / (df['latitude'].max() - df['latitude'].min())
-df['lng_normalized'] = (df['longitude'] - df['longitude'].min()) / (df['longitude'].max() - df['longitude'].min())
+X_train_sev, X_test_sev, y_train_sev, y_test_sev = train_test_split(
+    X_sev, y_severity, test_size=0.2, random_state=42, stratify=y_severity
+)
 
-# Initialize label encoders and encode disaster type for feature use
-le_disaster = LabelEncoder()
-df['disaster_type_encoded'] = le_disaster.fit_transform(df['disaster_type'])
+X_train_fa, X_test_fa, y_train_fa, y_test_fa = train_test_split(
+    X_fa, y_alarm, test_size=0.2, random_state=42, stratify=y_alarm
+)
 
-# Feature matrices
-features_type_alarm = ['text_length', 'word_count', 'has_urgency', 'lat_normalized', 'lng_normalized', 'hour', 'month', 'day_of_week']
-features_severity = ['text_length', 'word_count', 'has_urgency', 'lat_normalized', 'lng_normalized', 'hour', 'month', 'day_of_week', 'disaster_type_encoded']
+print(f"Train split: {len(X_train_clf)} samples | Test split: {len(X_test_clf)} samples")
 
-X_type_alarm = df[features_type_alarm].fillna(0)
-X_severity = df[features_severity].fillna(0)
-
-# Train-test split (80/20) with stratification
-splitter = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
-train_idx, test_idx = next(splitter.split(X_type_alarm, df['has_prank_keywords']))
-X_train_type_alarm, X_test_type_alarm = X_type_alarm.iloc[train_idx], X_type_alarm.iloc[test_idx]
-X_train_sev, X_test_sev = X_severity.iloc[train_idx], X_severity.iloc[test_idx]
-
-df_train, df_test = df.iloc[train_idx], df.iloc[test_idx]
-print(f"✅ Split data: {len(df_train)} train, {len(df_test)} test")
-
-# Initialize rest of label encoders
-le_severity = LabelEncoder()
-le_alarm = LabelEncoder()
-
-# Encode targets
-y_disaster_train = le_disaster.transform(df_train['disaster_type'])
-y_disaster_test = le_disaster.transform(df_test['disaster_type'])
-
-y_severity_train = le_severity.fit_transform(df_train['severity'])
-y_severity_test = le_severity.transform(df_test['severity'])
-
-# False alarm: 1 if has prank keywords, 0 otherwise
-y_alarm_train = df_train['has_prank_keywords'].values
-y_alarm_test = df_test['has_prank_keywords'].values
-
+# ==========================================
+# 1. DISASTER TYPE CLASSIFIER (Random Forest)
+# ==========================================
 print("\n" + "=" * 70)
-print("1️⃣ TRAINING DISASTER TYPE CLASSIFIER (Random Forest)")
+print("1. TRAINING DISASTER TYPE CLASSIFIER (Random Forest)")
 print("=" * 70)
 
-model_disaster = RandomForestClassifier(n_estimators=200, max_depth=15, random_state=42, n_jobs=-1)
-model_disaster.fit(X_train_type_alarm, y_disaster_train)
-y_pred_disaster = model_disaster.predict(X_test_type_alarm)
-acc_disaster = accuracy_score(y_disaster_test, y_pred_disaster)
+model_disaster = RandomForestClassifier(
+    n_estimators=250,
+    max_depth=16,
+    min_samples_split=4,
+    random_state=42,
+    n_jobs=-1
+)
+model_disaster.fit(X_train_clf, y_train_disaster)
+y_pred_disaster = model_disaster.predict(X_test_clf)
+acc_disaster = accuracy_score(y_test_disaster, y_pred_disaster)
+f1_disaster = f1_score(y_test_disaster, y_pred_disaster, average='weighted')
 
-print(f"✅ Accuracy: {acc_disaster:.4f} ({acc_disaster*100:.2f}%)")
-print(f"\nClassification Report:")
-print(classification_report(y_disaster_test, y_pred_disaster, target_names=le_disaster.classes_))
-
-# Feature importance for classification
-importance_df = pd.DataFrame({
-    'feature': features_type_alarm,
-    'importance': model_disaster.feature_importances_
-}).sort_values('importance', ascending=False)
-print("\n📊 Top Features:")
-for idx, row in importance_df.head(5).iterrows():
-    print(f"   {row['feature']}: {row['importance']:.4f}")
+print(f"Accuracy: {acc_disaster:.4f} ({acc_disaster*100:.2f}%) | Weighted F1: {f1_disaster:.4f}")
+print("\nClassification Report:")
+print(classification_report(y_test_disaster, y_pred_disaster, target_names=encoders['disaster_type'].classes_))
 
 joblib.dump(model_disaster, 'models/disaster_classifier.pkl')
-print(f"💾 Model saved to models/disaster_classifier.pkl")
+print("Model saved to models/disaster_classifier.pkl")
 
+# ==========================================
+# 2. SEVERITY PREDICTOR (XGBoost / Gradient Boosting)
+# ==========================================
 print("\n" + "=" * 70)
-print("2️⃣ TRAINING SEVERITY PREDICTOR (Gradient Boosting)")
+print("2. TRAINING SEVERITY PREDICTOR (XGBoost Classifier)")
 print("=" * 70)
 
-model_severity = GradientBoostingClassifier(n_estimators=200, max_depth=5, learning_rate=0.1, random_state=42)
-model_severity.fit(X_train_sev, y_severity_train)
-y_pred_severity = model_severity.predict(X_test_sev)
-acc_severity = accuracy_score(y_severity_test, y_pred_severity)
+model_severity = xgb.XGBClassifier(
+    n_estimators=300,
+    max_depth=6,
+    learning_rate=0.08,
+    subsample=0.85,
+    colsample_bytree=0.85,
+    random_state=42,
+    n_jobs=-1
+)
+model_severity.fit(X_train_sev, y_train_sev)
+y_pred_sev = model_severity.predict(X_test_sev)
+acc_sev = accuracy_score(y_test_sev, y_pred_sev)
+f1_sev = f1_score(y_test_sev, y_pred_sev, average='weighted')
 
-print(f"✅ Accuracy: {acc_severity:.4f} ({acc_severity*100:.2f}%)")
-print(f"\nClassification Report:")
-print(classification_report(y_severity_test, y_pred_severity, target_names=le_severity.classes_))
+print(f"Accuracy: {acc_sev:.4f} ({acc_sev*100:.2f}%) | Weighted F1: {f1_sev:.4f}")
+print("\nClassification Report:")
+print(classification_report(y_test_sev, y_pred_sev, target_names=encoders['severity'].classes_))
 
-# Feature importance for severity
-importance_df = pd.DataFrame({
-    'feature': features_severity,
-    'importance': model_severity.feature_importances_
-}).sort_values('importance', ascending=False)
-print("\n📊 Top Features:")
-for idx, row in importance_df.head(5).iterrows():
-    print(f"   {row['feature']}: {row['importance']:.4f}")
+# Feature importances for severity
+importances = model_severity.feature_importances_
+top_idx = np.argsort(importances)[::-1][:8]
+print("\nTop 8 Influential Features for Severity:")
+for i, idx in enumerate(top_idx, 1):
+    print(f"   {i}. {FEATURE_NAMES_SEVERITY[idx]}: {importances[idx]:.4f}")
 
 joblib.dump(model_severity, 'models/severity_predictor.pkl')
-print(f"💾 Model saved to models/severity_predictor.pkl")
+print("Model saved to models/severity_predictor.pkl")
 
+# ==========================================
+# 3. FALSE ALARM DETECTOR (Gradient Boosting)
+# ==========================================
 print("\n" + "=" * 70)
-print("3️⃣ TRAINING FALSE ALARM DETECTOR (Logistic Regression)")
+print("3. TRAINING FALSE ALARM DETECTOR (Gradient Boosting Classifier)")
 print("=" * 70)
 
-model_alarm = LogisticRegression(max_iter=1000, random_state=42)
-model_alarm.fit(X_train_type_alarm, y_alarm_train)
-y_pred_alarm = model_alarm.predict(X_test_type_alarm)
-acc_alarm = accuracy_score(y_alarm_test, y_pred_alarm)
+model_alarm = GradientBoostingClassifier(
+    n_estimators=150,
+    max_depth=4,
+    learning_rate=0.1,
+    random_state=42
+)
+model_alarm.fit(X_train_fa, y_train_fa)
+y_pred_alarm = model_alarm.predict(X_test_fa)
+acc_alarm = accuracy_score(y_test_fa, y_pred_alarm)
+f1_alarm = f1_score(y_test_fa, y_pred_alarm, zero_division=0)
 
-print(f"✅ Accuracy: {acc_alarm:.4f} ({acc_alarm*100:.2f}%)")
-print(f"\nClassification Report:")
-print(classification_report(y_alarm_test, y_pred_alarm, target_names=['Legitimate', 'False Alarm']))
+print(f"Accuracy: {acc_alarm:.4f} ({acc_alarm*100:.2f}%) | F1-Score: {f1_alarm:.4f}")
+print("\nClassification Report:")
+print(classification_report(y_test_fa, y_pred_alarm, target_names=['Legitimate', 'False Alarm']))
 
 joblib.dump(model_alarm, 'models/false_alarm_detector.pkl')
-print(f"💾 Model saved to models/false_alarm_detector.pkl")
-
-# Save label encoders
-encoders = {
-    'disaster_type': le_disaster,
-    'severity': le_severity,
-    'alarm': le_alarm
-}
-joblib.dump(encoders, 'models/label_encoders.pkl')
-print(f"💾 Encoders saved to models/label_encoders.pkl")
+print("Model saved to models/false_alarm_detector.pkl")
 
 print("\n" + "=" * 70)
-print("✅ ALL MODELS TRAINED AND SAVED!")
+print("ALL MODELS SUCCESSFULLY TRAINED AND SAVED!")
 print("=" * 70)
-print(f"\n📈 SUMMARY:")
-print(f"   Disaster Classifier:  {acc_disaster*100:.2f}% accuracy")
-print(f"   Severity Predictor:   {acc_severity*100:.2f}% accuracy")
-print(f"   False Alarm Detector: {acc_alarm*100:.2f}% accuracy")
-print(f"\n   Dataset: 1,000 real Malaybalay disaster reports")
-print(f"   Training: {len(df_train)} samples")
-print(f"   Testing: {len(df_test)} samples")
-print(f"\n   Trained on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+print(f"Summary:")
+print(f"   1. Disaster Classifier:  {acc_disaster*100:.2f}% accuracy")
+print(f"   2. Severity Predictor:   {acc_sev*100:.2f}% accuracy")
+print(f"   3. False Alarm Detector: {acc_alarm*100:.2f}% accuracy")
+print(f"\nTrained on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

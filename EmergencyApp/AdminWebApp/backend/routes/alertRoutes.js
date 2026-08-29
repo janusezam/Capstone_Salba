@@ -27,7 +27,7 @@ const assessSuspiciousLocationJump = async ({ userId, senderPhone, senderName, c
   const reporterFilters = [];
   if (userId) reporterFilters.push({ userId });
   if (senderPhone) reporterFilters.push({ senderPhone });
-  if (senderName) reporterFilters.push({ senderName });
+  if (senderName && senderName !== 'Anonymous Reporter') reporterFilters.push({ senderName });
 
   if (reporterFilters.length === 0) {
     return {
@@ -49,6 +49,7 @@ const assessSuspiciousLocationJump = async ({ userId, senderPhone, senderName, c
     .lean();
 
   let maxSpeedKmh = 0;
+  let mostSuspicious = null;
   let crossLocationBursts = 0;
 
   for (const previous of recentReports) {
@@ -57,25 +58,35 @@ const assessSuspiciousLocationJump = async ({ userId, senderPhone, senderName, c
     const distanceMeters = haversineDistanceMeters(previous.lat, previous.lng, lat, lng);
     const elapsedHours = Math.max((Date.now() - new Date(previous.createdAt).getTime()) / 3600000, 1 / 3600);
     const speedKmh = distanceMeters / 1000 / elapsedHours;
-    maxSpeedKmh = Math.max(maxSpeedKmh, speedKmh);
 
     const differentType = String(previous.disasterType || '').toLowerCase() !== String(disasterType || '').toLowerCase();
-    const farEnough = distanceMeters >= 1500;
+    const farEnough = distanceMeters >= 1500; // Must be at least 1.5km apart to be considered a cross-location jump
     const fastEnough = speedKmh >= 120;
 
     if (farEnough && fastEnough) {
       crossLocationBursts += differentType ? 2 : 1;
+      if (!mostSuspicious || speedKmh > mostSuspicious.speedKmh) {
+        mostSuspicious = {
+          distanceMeters,
+          speedKmh,
+          previousCreatedAt: previous.createdAt,
+          differentType
+        };
+      }
     }
   }
 
-  const suspicious = Boolean(maxSpeedKmh >= 150 || crossLocationBursts >= 2);
+  const suspicious = Boolean(
+    (mostSuspicious && mostSuspicious.speedKmh >= 150) ||
+    crossLocationBursts >= 2
+  );
 
   return {
     suspicious,
-    maxSpeedKmh: Math.round(maxSpeedKmh),
+    maxSpeedKmh: mostSuspicious ? Math.round(mostSuspicious.speedKmh) : 0,
     crossLocationBursts,
     reason: suspicious
-      ? `same-user cross-location burst detected (max ${Math.round(maxSpeedKmh)} km/h)`
+      ? `same-user cross-location burst detected (max ${Math.round(mostSuspicious.speedKmh)} km/h across ${(mostSuspicious.distanceMeters / 1000).toFixed(1)} km)`
       : null,
   };
 };
@@ -395,16 +406,20 @@ router.post('/', async (req, res) => {
 
         console.log(`📍 [MULTI-REPORT CHECK] Location: ${resolvedLocationName} | Reports: ${nearbyReports.length} | Unique Reporters: ${uniqueReporters.size}`);
 
-        // If 3+ different users reported same location, escalate all to CRITICAL
-        if (uniqueReporters.size >= 3 && nearbyReports.length >= 3) {
-          console.log(`🚨 [AUTO-ESCALATE] ${uniqueReporters.size} different users reported same location! Escalating all to CRITICAL`);
+        // If 3+ reports exist in the same area within 1 hour, auto-escalate to CRITICAL
+        if (nearbyReports.length >= 3) {
+          console.log(`🚨 [AUTO-ESCALATE] ${nearbyReports.length} reports clustered in same location! Escalating to CRITICAL`);
           
           const escalatedIds = nearbyReports.map(r => r._id);
-          const updateResult = await Report.updateMany(
+          await Report.updateMany(
             { _id: { $in: escalatedIds } },
             { 
               severity: 'critical',
-              note: (doc) => `ESCALATED: ${doc.note} - Multiple reporters (${uniqueReporters.size})`
+              'mlPredictions.severity': 'critical',
+              'mlPredictions.isLegitimate': true,
+              'mlPredictions.legitimacyConfidence': 0.95,
+              'mlPredictions.overall.confidence': 0.95,
+              'mlPredictions.overall.recommendation': 'auto_dispatch'
             }
           );
 

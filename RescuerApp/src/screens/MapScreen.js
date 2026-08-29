@@ -53,6 +53,7 @@ export default function MapScreen({ navigation }) {
   const [routeCoordinates, setRouteCoordinates] = useState(null);
   const [routeLoading, setRouteLoading] = useState(false);
   const [missionStatusUpdating, setMissionStatusUpdating] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const locationSubscription = useRef(null);
   const hasAutoFittedRef = useRef(false);
 
@@ -497,16 +498,21 @@ export default function MapScreen({ navigation }) {
         showsCompass={true}
         rotateEnabled={true}
       >
-        {/* Your location marker */}
+        {/* Your location marker (Rescuer Team Shield) */}
         {location && (
           <Marker
             coordinate={location}
-            title="Your Location"
-            description="You are here"
           >
-            <View style={styles.myLocationMarker}>
-              <View style={styles.myLocationInner}>
-                <Ionicons name="person" size={20} color="#fff" />
+            <View style={styles.rescuerMarkerContainer}>
+              <Ionicons 
+                name="shield" 
+                size={44} 
+                color={mission?.team?.color || '#0284c7'} 
+              />
+              <View style={styles.rescuerMarkerTextWrapper}>
+                <Text style={styles.rescuerMarkerText}>
+                  {mission?.team?.name ? mission.team.name.charAt(0).toUpperCase() : 'R'}
+                </Text>
               </View>
             </View>
           </Marker>
@@ -519,8 +525,6 @@ export default function MapScreen({ navigation }) {
               latitude: mission.report.lat,
               longitude: mission.report.lng,
             }}
-            title="Emergency Location"
-            description={mission.report.note || 'Assigned mission location'}
           >
             <View style={[
               styles.emergencyMarker,
@@ -629,123 +633,148 @@ export default function MapScreen({ navigation }) {
 
       {/* Mission Info Card */}
       {mission?.report ? (
-        <View style={styles.missionCard}>
-          <View style={styles.missionHeader}>
-            <View style={[
-              styles.severityBadge,
-              { backgroundColor: getSeverityColor(mission.report.severity) }
-            ]}>
-              <Text style={styles.severityText}>
-                {mission.report.severity?.toUpperCase() || 'N/A'}
-              </Text>
-            </View>
-            <View style={[styles.teamBadge, { backgroundColor: mission.team?.color || '#6B7280' }]}>
-              <Text style={styles.teamText}>
-                TEAM {mission.team?.name?.toUpperCase()}
-              </Text>
-            </View>
-          </View>
-
-          <Text style={styles.missionTitle}>Active Emergency</Text>
-          
-          <View style={styles.missionInfo}>
-            <View style={styles.infoRow}>
-              <Ionicons name="location" size={16} color="#666" />
-              <Text style={styles.infoText}>
-                {mission.report.lat?.toFixed(6)}, {mission.report.lng?.toFixed(6)}
-              </Text>
+        <View style={[styles.missionCard, isCollapsed && styles.missionCardCollapsed]}>
+          {/* Header Row toggles collapse */}
+          <TouchableOpacity 
+            style={styles.collapsibleHeaderTapArea} 
+            onPress={() => setIsCollapsed(!isCollapsed)}
+            activeOpacity={0.85}
+          >
+            <View style={styles.collapsePillContainer}>
+              <View style={styles.collapsePill} />
             </View>
             
-            {mission.report.note && (
-              <View style={styles.infoRow}>
-                <Ionicons name="document-text" size={16} color="#666" />
-                <Text style={styles.infoText} numberOfLines={2}>
-                  {mission.report.note}
-                </Text>
+            <View style={styles.missionHeaderCompact}>
+              <View style={styles.missionHeaderCompactLeft}>
+                <View style={[
+                  styles.severityBadge,
+                  { backgroundColor: getSeverityColor(mission.report.severity), marginBottom: 0 }
+                ]}>
+                  <Text style={styles.severityText}>
+                    {mission.report.severity?.toUpperCase() || 'N/A'}
+                  </Text>
+                </View>
+                <Text style={styles.missionTitleCompact}>Active Emergency</Text>
               </View>
-            )}
-
-            <View style={styles.infoRow}>
-              <Ionicons name="time" size={16} color="#666" />
-              <Text style={styles.infoText}>
-                Reported: {new Date(mission.report.createdAt).toLocaleString()}
-              </Text>
+              <Ionicons 
+                name={isCollapsed ? "chevron-up" : "chevron-down"} 
+                size={22} 
+                color="#64748B" 
+              />
             </View>
-
-            {mission.report.rescuerMissionStatus && mission.report.rescuerMissionStatus !== 'none' && (
-              <View style={styles.infoRow}>
-                <Ionicons name="flag" size={16} color="#2563EB" />
-                <Text style={styles.infoText}>
-                  Your mission status: {
-                    mission.report.rescuerMissionStatus === 'ongoing' ? 'ARRIVED' :
-                    mission.report.rescuerMissionStatus === 'on_the_way' ? 'ON THE WAY' :
-                    String(mission.report.rescuerMissionStatus).replace(/_/g, ' ').toUpperCase()
-                  }
-                </Text>
-              </View>
-            )}
-
-            {showHydrants && nearestHydrant && (
-              <View style={styles.infoRow}>
-                <Ionicons name="water" size={16} color="#2563EB" />
-                <Text style={styles.infoText}>
-                  Nearest hydrant: {nearestHydrant.name} ({nearestHydrant.distanceMeters < 1000
-                    ? `${Math.round(nearestHydrant.distanceMeters)} m`
-                    : `${(nearestHydrant.distanceMeters / 1000).toFixed(2)} km`})
-                </Text>
-              </View>
-            )}
-          </View>
-
-          <TouchableOpacity style={styles.directionsButton} onPress={fitBothMarkers}>
-            <Ionicons name="navigate" size={20} color="#fff" />
-            <Text style={styles.directionsText}>Show Route</Text>
           </TouchableOpacity>
 
-          <Text style={styles.statusSectionTitle}>Mission Update</Text>
-          <View style={styles.missionStatusActions}>
-            <TouchableOpacity
-              style={[
-                styles.statusButton,
-                mission.report.rescuerMissionStatus === 'on_the_way' && styles.statusButtonActive,
-                (mission.report.rescuerMissionStatus && mission.report.rescuerMissionStatus !== 'none' && mission.report.rescuerMissionStatus !== 'on_the_way') && styles.statusButtonDisabled,
-              ]}
-              disabled={missionStatusUpdating || (mission.report.rescuerMissionStatus && mission.report.rescuerMissionStatus !== 'none')}
-              onPress={() => handleMissionStatusPress('on_the_way')}
-            >
-              <Ionicons name="navigate" size={16} color={mission.report.rescuerMissionStatus === 'on_the_way' ? '#fff' : '#4B5563'} />
-              <Text style={[styles.statusButtonText, mission.report.rescuerMissionStatus === 'on_the_way' && styles.statusButtonTextActive]}>On the way</Text>
-            </TouchableOpacity>
+          {!isCollapsed && (
+            <>
+              {/* Team Information */}
+              <View style={styles.teamHeaderRow}>
+                <View style={[styles.teamBadge, { backgroundColor: mission.team?.color || '#6B7280' }]}>
+                  <Text style={styles.teamText}>
+                    TEAM {mission.team?.name?.toUpperCase()}
+                  </Text>
+                </View>
+              </View>
+              
+              <View style={styles.missionInfo}>
+                <View style={styles.infoRow}>
+                  <Ionicons name="location" size={16} color="#666" />
+                  <Text style={styles.infoText}>
+                    {mission.report.lat?.toFixed(6)}, {mission.report.lng?.toFixed(6)}
+                  </Text>
+                </View>
+                
+                {mission.report.note && (
+                  <View style={styles.infoRow}>
+                    <Ionicons name="document-text" size={16} color="#666" />
+                    <Text style={styles.infoText} numberOfLines={2}>
+                      {mission.report.note}
+                    </Text>
+                  </View>
+                )}
 
-            <TouchableOpacity
-              style={[
-                styles.statusButton,
-                mission.report.rescuerMissionStatus === 'ongoing' && styles.statusButtonActive,
-                (mission.report.rescuerMissionStatus !== 'on_the_way' && mission.report.rescuerMissionStatus !== 'ongoing') && styles.statusButtonDisabled,
-              ]}
-              disabled={missionStatusUpdating || mission.report.rescuerMissionStatus !== 'on_the_way'}
-              onPress={() => handleMissionStatusPress('ongoing')}
-            >
-              <Ionicons name="time" size={16} color={mission.report.rescuerMissionStatus === 'ongoing' ? '#fff' : '#4B5563'} />
-              <Text style={[styles.statusButtonText, mission.report.rescuerMissionStatus === 'ongoing' && styles.statusButtonTextActive]}>Arrived</Text>
-            </TouchableOpacity>
+                <View style={styles.infoRow}>
+                  <Ionicons name="time" size={16} color="#666" />
+                  <Text style={styles.infoText}>
+                    Reported: {new Date(mission.report.createdAt).toLocaleString()}
+                  </Text>
+                </View>
 
-            <TouchableOpacity
-              style={[
-                styles.statusButton,
-                mission.report.rescuerMissionStatus === 'resolved' && styles.statusButtonActive,
-                (mission.report.rescuerMissionStatus !== 'ongoing' && mission.report.rescuerMissionStatus !== 'resolved') && styles.statusButtonDisabled,
-              ]}
-              disabled={missionStatusUpdating || mission.report.rescuerMissionStatus !== 'ongoing'}
-              onPress={() => handleMissionStatusPress('resolved')}
-            >
-              <Ionicons name="checkmark-done" size={16} color={mission.report.rescuerMissionStatus === 'resolved' ? '#fff' : '#4B5563'} />
-              <Text style={[styles.statusButtonText, mission.report.rescuerMissionStatus === 'resolved' && styles.statusButtonTextActive]}>Resolved</Text>
-            </TouchableOpacity>
-          </View>
+                {mission.report.rescuerMissionStatus && mission.report.rescuerMissionStatus !== 'none' && (
+                  <View style={styles.infoRow}>
+                    <Ionicons name="flag" size={16} color="#2563EB" />
+                    <Text style={styles.infoText}>
+                      Your mission status: {
+                        mission.report.rescuerMissionStatus === 'ongoing' ? 'ARRIVED' :
+                        mission.report.rescuerMissionStatus === 'on_the_way' ? 'ON THE WAY' :
+                        String(mission.report.rescuerMissionStatus).replace(/_/g, ' ').toUpperCase()
+                      }
+                    </Text>
+                  </View>
+                )}
 
-          {missionStatusUpdating && (
-            <Text style={styles.statusUpdatingText}>Updating mission status...</Text>
+                {showHydrants && nearestHydrant && (
+                  <View style={styles.infoRow}>
+                    <Ionicons name="water" size={16} color="#2563EB" />
+                    <Text style={styles.infoText}>
+                      Nearest hydrant: {nearestHydrant.name} ({nearestHydrant.distanceMeters < 1000
+                        ? `${Math.round(nearestHydrant.distanceMeters)} m`
+                        : `${(nearestHydrant.distanceMeters / 1000).toFixed(2)} km`})
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              <TouchableOpacity style={styles.directionsButton} onPress={fitBothMarkers}>
+                <Ionicons name="navigate" size={20} color="#fff" />
+                <Text style={styles.directionsText}>Show Route</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.statusSectionTitle}>Mission Update</Text>
+              <View style={styles.missionStatusActions}>
+                <TouchableOpacity
+                  style={[
+                    styles.statusButton,
+                    mission.report.rescuerMissionStatus === 'on_the_way' && styles.statusButtonActive,
+                    (mission.report.rescuerMissionStatus && mission.report.rescuerMissionStatus !== 'none' && mission.report.rescuerMissionStatus !== 'on_the_way') && styles.statusButtonDisabled,
+                  ]}
+                  disabled={missionStatusUpdating || (mission.report.rescuerMissionStatus && mission.report.rescuerMissionStatus !== 'none')}
+                  onPress={() => handleMissionStatusPress('on_the_way')}
+                >
+                  <Ionicons name="navigate" size={16} color={mission.report.rescuerMissionStatus === 'on_the_way' ? '#fff' : '#4B5563'} />
+                  <Text style={[styles.statusButtonText, mission.report.rescuerMissionStatus === 'on_the_way' && styles.statusButtonTextActive]}>On the way</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.statusButton,
+                    mission.report.rescuerMissionStatus === 'ongoing' && styles.statusButtonActive,
+                    (mission.report.rescuerMissionStatus !== 'on_the_way' && mission.report.rescuerMissionStatus !== 'ongoing') && styles.statusButtonDisabled,
+                  ]}
+                  disabled={missionStatusUpdating || mission.report.rescuerMissionStatus !== 'on_the_way'}
+                  onPress={() => handleMissionStatusPress('ongoing')}
+                >
+                  <Ionicons name="time" size={16} color={mission.report.rescuerMissionStatus === 'ongoing' ? '#fff' : '#4B5563'} />
+                  <Text style={[styles.statusButtonText, mission.report.rescuerMissionStatus === 'ongoing' && styles.statusButtonTextActive]}>Arrived</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.statusButton,
+                    mission.report.rescuerMissionStatus === 'resolved' && styles.statusButtonActive,
+                    (mission.report.rescuerMissionStatus !== 'ongoing' && mission.report.rescuerMissionStatus !== 'resolved') && styles.statusButtonDisabled,
+                  ]}
+                  disabled={missionStatusUpdating || mission.report.rescuerMissionStatus !== 'ongoing'}
+                  onPress={() => handleMissionStatusPress('resolved')}
+                >
+                  <Ionicons name="checkmark-done" size={16} color={mission.report.rescuerMissionStatus === 'resolved' ? '#fff' : '#4B5563'} />
+                  <Text style={[styles.statusButtonText, mission.report.rescuerMissionStatus === 'resolved' && styles.statusButtonTextActive]}>Resolved</Text>
+                </TouchableOpacity>
+              </View>
+
+              {missionStatusUpdating && (
+                <Text style={styles.statusUpdatingText}>Updating mission status...</Text>
+              )}
+            </>
           )}
         </View>
       ) : (
@@ -1067,5 +1096,74 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  missionCardCollapsed: {
+    paddingBottom: 12,
+    paddingTop: 10,
+  },
+  collapsibleHeaderTapArea: {
+    width: '100%',
+    alignItems: 'center',
+    paddingBottom: 4,
+  },
+  collapsePillContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  collapsePill: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#CBD5E1',
+  },
+  missionHeaderCompact: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  },
+  missionHeaderCompactLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  missionTitleCompact: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  teamHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: 12,
+    marginTop: 6,
+  },
+  rescuerMarkerContainer: {
+    width: 48,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+  rescuerMarkerTextWrapper: {
+    position: 'absolute',
+    top: 6,
+    left: 0,
+    right: 0,
+    bottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rescuerMarkerText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '900',
+    textAlign: 'center',
+    fontFamily: Platform.OS === 'ios' ? 'Arial' : 'sans-serif',
   },
 });

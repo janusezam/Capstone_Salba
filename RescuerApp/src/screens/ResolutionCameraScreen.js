@@ -33,7 +33,7 @@ export default function ResolutionCameraScreen({ navigation, route }) {
   const [capturedPhoto, setCapturedPhoto] = useState(null);
   const [facing, setFacing] = useState('back');
   const [uploading, setUploading] = useState(false);
-  const [flashMode, setFlashMode] = useState('off');
+  const [enableTorch, setEnableTorch] = useState(false);
   const cameraRef = useRef(null);
 
   useEffect(() => {
@@ -166,8 +166,21 @@ export default function ResolutionCameraScreen({ navigation, route }) {
     }
   };
 
-  const toggleFlash = () => setFlashMode(prev => (prev === 'off' ? 'on' : 'off'));
-  const toggleFacing = () => setFacing(prev => (prev === 'back' ? 'front' : 'back'));
+  const toggleTorch = () => {
+    if (facing === 'front') {
+      Alert.alert('Flashlight Unavailable', 'The flashlight is only available with the rear camera.');
+      return;
+    }
+    setEnableTorch(prev => !prev);
+  };
+
+  const toggleFacing = () => {
+    setFacing(prev => {
+      const next = prev === 'back' ? 'front' : 'back';
+      if (next === 'front') setEnableTorch(false);
+      return next;
+    });
+  };
 
   // ─── Photo preview screen ─────────────────────────────────────────────────
   if (capturedPhoto) {
@@ -224,7 +237,8 @@ export default function ResolutionCameraScreen({ navigation, route }) {
         ref={cameraRef}
         style={styles.camera}
         facing={facing}
-        flash={flashMode}
+        enableTorch={enableTorch}
+        flash={enableTorch ? 'on' : 'off'}
       >
         {/* Top bar */}
         <View style={styles.topBar}>
@@ -237,11 +251,16 @@ export default function ResolutionCameraScreen({ navigation, route }) {
             <Text style={styles.cameraSubtitle}>Capture proof the incident is resolved</Text>
           </View>
 
-          <TouchableOpacity style={styles.topBarBtn} onPress={toggleFlash}>
+          <TouchableOpacity
+            style={[styles.topBarBtn, enableTorch && styles.topBarBtnActive]}
+            onPress={toggleTorch}
+            activeOpacity={0.7}
+            title={enableTorch ? 'Turn off flashlight' : 'Turn on flashlight'}
+          >
             <Ionicons
-              name={flashMode === 'on' ? 'flash' : 'flash-off'}
-              size={26}
-              color={flashMode === 'on' ? '#FFD700' : '#fff'}
+              name={enableTorch ? 'flashlight' : 'flashlight-outline'}
+              size={24}
+              color={enableTorch ? '#FACC15' : '#fff'}
             />
           </TouchableOpacity>
         </View>
@@ -304,7 +323,12 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     backgroundColor: 'rgba(0,0,0,0.55)',
   },
-  topBarBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
+  topBarBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center', borderRadius: 22 },
+  topBarBtnActive: {
+    backgroundColor: 'rgba(250, 204, 21, 0.25)',
+    borderWidth: 1.5,
+    borderColor: '#FACC15',
+  },
   topBarCenter: { flex: 1, alignItems: 'center' },
   cameraTitle: { color: '#fff', fontSize: 16, fontWeight: '700' },
   cameraSubtitle: { color: 'rgba(255,255,255,0.7)', fontSize: 11, marginTop: 2, textAlign: 'center' },

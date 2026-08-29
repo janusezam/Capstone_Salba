@@ -67,7 +67,10 @@ export default function RegisterScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.logoContainer}>
@@ -77,18 +80,23 @@ export default function RegisterScreen({ navigation }) {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.title}>Join SALBA</Text>
-          <Text style={styles.subtitle}>Register as a Rescuer</Text>
+          <Text style={styles.appTitle}>SALBA</Text>
+          <Text style={styles.subtitle}>Rescuer Registration</Text>
+          <Text style={styles.description}>
+            Create a rescuer account to coordinate emergency responses.
+          </Text>
         </View>
 
-        {/* Form Section */}
-        <View style={styles.formContainer}>
+        {/* Form Card Section */}
+        <View style={styles.formCard}>
+          <Text style={styles.welcomeText}>Create Account</Text>
+
           <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={22} color="#DC2626" style={styles.inputIcon} />
+            <Ionicons name="person-outline" size={20} color="#991B1B" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Full Name"
-              placeholderTextColor="#999"
+              placeholderTextColor="#9CA3AF"
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
@@ -96,11 +104,11 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="at" size={22} color="#DC2626" style={styles.inputIcon} />
+            <Ionicons name="mail-outline" size={20} color="#991B1B" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Email Address"
-              placeholderTextColor="#999"
+              placeholderTextColor="#9CA3AF"
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -110,11 +118,11 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="person-circle-outline" size={22} color="#DC2626" style={styles.inputIcon} />
+            <Ionicons name="person-circle-outline" size={20} color="#991B1B" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Username"
-              placeholderTextColor="#999"
+              placeholderTextColor="#9CA3AF"
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
@@ -123,11 +131,11 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={22} color="#DC2626" style={styles.inputIcon} />
+            <Ionicons name="lock-closed-outline" size={20} color="#991B1B" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Password"
-              placeholderTextColor="#999"
+              placeholderTextColor="#9CA3AF"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -135,18 +143,18 @@ export default function RegisterScreen({ navigation }) {
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons 
                 name={showPassword ? "eye-off-outline" : "eye-outline"} 
-                size={22} 
-                color="#999" 
+                size={20} 
+                color="#9CA3AF" 
               />
             </TouchableOpacity>
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={22} color="#DC2626" style={styles.inputIcon} />
+            <Ionicons name="lock-closed-outline" size={20} color="#991B1B" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Confirm Password"
-              placeholderTextColor="#999"
+              placeholderTextColor="#9CA3AF"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
@@ -154,16 +162,16 @@ export default function RegisterScreen({ navigation }) {
             <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
               <Ionicons 
                 name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} 
-                size={22} 
-                color="#999" 
+                size={20} 
+                color="#9CA3AF" 
               />
             </TouchableOpacity>
           </View>
 
           <View style={styles.infoBox}>
-            <Ionicons name="information-circle" size={20} color="#DC2626" />
+            <Ionicons name="information-circle-outline" size={20} color="#B45309" />
             <Text style={styles.infoText}>
-              Your account will be registered as a Rescuer. An admin will assign you to a team.
+              Your account will register as a Rescuer. CDRRMO admin will review and assign your team division before you can start missions.
             </Text>
           </View>
 
@@ -176,8 +184,8 @@ export default function RegisterScreen({ navigation }) {
               <ActivityIndicator color="#fff" />
             ) : (
               <>
-                <Text style={styles.registerButtonText}>Create Account</Text>
-                <Ionicons name="arrow-forward" size={20} color="#fff" />
+                <Text style={styles.registerButtonText}>Register Account</Text>
+                <Ionicons name="arrow-forward" size={18} color="#fff" />
               </>
             )}
           </TouchableOpacity>
@@ -185,9 +193,16 @@ export default function RegisterScreen({ navigation }) {
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text style={styles.loginLink}>Login</Text>
+              <Text style={styles.loginLink}>Log In</Text>
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            SALBA Rescuer Portal
+          </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -197,112 +212,150 @@ export default function RegisterScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F3F4F6',
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 30,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 40,
   },
   header: {
     alignItems: 'center',
-    paddingTop: 30,
-    paddingBottom: 20,
-    backgroundColor: '#fff',
+    marginBottom: 24,
   },
   logoContainer: {
     width: 120,
     height: 120,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 16,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 120,
+    height: 120,
   },
-  title: {
+  appTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#DC2626',
+    color: '#111827',
+    letterSpacing: 1,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 5,
+    fontSize: 15,
+    color: '#4B5563',
+    fontWeight: '600',
+    marginTop: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
-  formContainer: {
-    flex: 1,
-    paddingHorizontal: 25,
-    paddingTop: 10,
+  description: {
+    fontSize: 13,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 18,
+  },
+  formCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  welcomeText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 20,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    backgroundColor: '#f9f9f9',
+    borderColor: '#E5E7EB',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    marginBottom: 16,
+    backgroundColor: '#F9FAFB',
   },
   inputIcon: {
     marginRight: 10,
   },
   input: {
     flex: 1,
-    height: 55,
-    fontSize: 16,
-    color: '#333',
+    height: 50,
+    fontSize: 15,
+    color: '#111827',
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: '#FEF2F2',
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
     borderRadius: 10,
     padding: 12,
     marginBottom: 20,
     alignItems: 'flex-start',
+    gap: 8,
   },
   infoText: {
     flex: 1,
-    marginLeft: 10,
-    fontSize: 13,
-    color: '#7F1D1D',
+    fontSize: 12,
+    color: '#B45309',
     lineHeight: 18,
+    fontWeight: '500',
   },
   registerButton: {
-    backgroundColor: '#DC2626',
-    borderRadius: 12,
-    height: 55,
+    backgroundColor: '#991B1B',
+    borderRadius: 10,
+    height: 50,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#DC2626',
+    marginTop: 6,
+    gap: 8,
+    shadowColor: '#991B1B',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.15,
     shadowRadius: 6,
-    elevation: 5,
+    elevation: 4,
   },
   registerButtonDisabled: {
     opacity: 0.7,
   },
   registerButtonText: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginRight: 10,
+    fontSize: 16,
+    fontWeight: '700',
   },
   loginContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 25,
+    marginTop: 24,
   },
   loginText: {
-    color: '#666',
-    fontSize: 15,
+    color: '#6B7280',
+    fontSize: 14,
   },
   loginLink: {
-    color: '#DC2626',
-    fontSize: 15,
-    fontWeight: 'bold',
+    color: '#991B1B',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  footerText: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontWeight: '500',
   },
 });
