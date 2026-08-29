@@ -335,6 +335,26 @@ function AdminDashboard() {
     confirmPassword: "",
   });
   const [notifications, setNotifications] = useState([]);
+
+  const getRescuerIcon = (rescuerId) => {
+    const rescuerTeam = dbTeams.find(team => 
+      team.members && team.members.some(member => {
+        const memberId = typeof member === 'object' ? member._id : member;
+        return String(memberId) === String(rescuerId);
+      })
+    );
+    
+    const color = rescuerTeam?.color || "#0284c7";
+    const letter = rescuerTeam?.name ? rescuerTeam.name.charAt(0).toUpperCase() : "R";
+    
+    return L.icon({
+      iconUrl: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="' + color + '" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><text x="12" y="14.5" text-anchor="middle" font-size="9" font-family="Arial, sans-serif" font-weight="900" fill="#ffffff" stroke="none">' + letter + '</text></svg>')}`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      popupAnchor: [0, -15],
+      className: 'rescuer-marker'
+    });
+  };
   
   // Loading and error states
   const [loadingReports, setLoadingReports] = useState(false);
@@ -2985,13 +3005,7 @@ function AdminDashboard() {
                             return acc;
                           }, {})
                         ).map((rescuer) => {
-                          const rescuerIcon = L.icon({
-                            iconUrl: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="#0284c7" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v8M8 12h8" stroke="#ffffff" stroke-width="2.5"/></svg>')}`,
-                            iconSize: [30, 30],
-                            iconAnchor: [15, 15],
-                            popupAnchor: [0, -15],
-                            className: 'rescuer-marker'
-                          });
+                          const rescuerIcon = getRescuerIcon(rescuer.rescuerId);
 
                           return (
                             <Marker
@@ -3076,13 +3090,7 @@ function AdminDashboard() {
                                 {(!liveRescuerLocations[String(report.assignedRescuer?.rescuerId)] && report.assignedRescuer?.rescuerLat && report.assignedRescuer?.rescuerLng) && (
                                   <Marker
                                     position={[routeLat, routeLng]}
-                                    icon={L.icon({
-                                      iconUrl: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="#0284c7" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v8M8 12h8" stroke="#ffffff" stroke-width="2.5"/></svg>')}`,
-                                      iconSize: [30, 30],
-                                      iconAnchor: [15, 15],
-                                      popupAnchor: [0, -15],
-                                      className: 'rescuer-marker'
-                                    })}
+                                    icon={getRescuerIcon(report.assignedRescuer.rescuerId)}
                                   >
                                     <Popup>
                                       <div className="w-52">
@@ -3134,14 +3142,44 @@ function AdminDashboard() {
                       <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">H</div>
                       <span className="text-xs text-slate-700 dark:text-slate-300">Nearest Fire Hydrant (fire alerts)</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#0284c7" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                          <path d="M12 8v8M8 12h8" stroke="#ffffff" stroke-width="2.5"/>
-                        </svg>
+                    <div className="text-[11px] font-semibold text-slate-900 dark:text-white mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">Rescue Teams (Live Location)</div>
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="#EF4444" stroke="#ffffff" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <text x="12" y="14.5" text-anchor="middle" font-size="9" font-family="Arial, sans-serif" font-weight="900" fill="#ffffff" stroke="none">A</text>
+                          </svg>
+                        </div>
+                        <span className="text-[10px] text-slate-700 dark:text-slate-300">Alpha</span>
                       </div>
-                      <span className="text-xs text-slate-700 dark:text-slate-300">Active Rescuer (Live Location)</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="#F59E0B" stroke="#ffffff" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <text x="12" y="14.5" text-anchor="middle" font-size="9" font-family="Arial, sans-serif" font-weight="900" fill="#ffffff" stroke="none">B</text>
+                          </svg>
+                        </div>
+                        <span className="text-[10px] text-slate-700 dark:text-slate-300">Bravo</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="#10B981" stroke="#ffffff" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <text x="12" y="14.5" text-anchor="middle" font-size="9" font-family="Arial, sans-serif" font-weight="900" fill="#ffffff" stroke="none">C</text>
+                          </svg>
+                        </div>
+                        <span className="text-[10px] text-slate-700 dark:text-slate-300">Charlie</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="#3B82F6" stroke="#ffffff" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <text x="12" y="14.5" text-anchor="middle" font-size="9" font-family="Arial, sans-serif" font-weight="900" fill="#ffffff" stroke="none">D</text>
+                          </svg>
+                        </div>
+                        <span className="text-[10px] text-slate-700 dark:text-slate-300">Delta</span>
+                      </div>
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">

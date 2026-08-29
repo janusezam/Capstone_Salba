@@ -19,6 +19,18 @@ router.post('/push-token', authMiddleware, requireRescuer, async (req, res) => {
   }
 });
 
+// Clear push token for notifications on logout
+router.post('/push-token/clear', authMiddleware, requireRescuer, async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.user.id, { pushToken: null });
+    res.json({ message: 'Push token cleared successfully' });
+  } catch (err) {
+    console.error('Push token clear error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 // Get rescuer's team info
 router.get('/my-team', authMiddleware, requireRescuer, async (req, res) => {
   try {

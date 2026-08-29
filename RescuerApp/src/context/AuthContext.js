@@ -107,8 +107,15 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Update status to offline before logging out
+      // Update status and clear push token before logging out
       if (token) {
+        // Clear push token
+        await fetch(`${API_URL}/rescue/push-token/clear`, {
+          method: 'POST',
+          headers: getAuthHeaders(token),
+        }).catch((e) => console.log('Failed to clear push token:', e));
+
+        // Set online status to false
         await fetch(`${API_URL}/rescue/status`, {
           method: 'POST',
           headers: getAuthHeaders(token),

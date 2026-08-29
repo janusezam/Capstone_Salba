@@ -205,26 +205,25 @@ export default function NotificationsScreen({ navigation }) {
                     
                     <Text style={styles.modalMessage}>{selectedNotification.message}</Text>
 
-                    {selectedNotification.data?.address && (
+                    {(selectedNotification.data?.address || (selectedNotification.data?.lat != null && selectedNotification.data?.lng != null)) && (
                       <View style={styles.modalMetadataContainer}>
                         <Text style={styles.modalMetadataLabel}>Location / Address:</Text>
-                        <View style={styles.modalMetadataValueRow}>
-                          <Ionicons name="location" size={16} color="#DC2626" />
-                          <Text style={styles.modalMetadataValue}>
-                            {selectedNotification.data.address}
-                          </Text>
-                        </View>
-                      </View>
-                    )}
-
-                    {selectedNotification.data?.reportId && (
-                      <View style={styles.modalMetadataContainer}>
-                        <Text style={styles.modalMetadataLabel}>Report ID:</Text>
-                        <Text style={styles.modalMetadataValueCode}>
-                          {typeof selectedNotification.data.reportId === 'object'
-                            ? selectedNotification.data.reportId._id
-                            : selectedNotification.data.reportId}
-                        </Text>
+                        {selectedNotification.data?.address ? (
+                          <View style={styles.modalMetadataValueRow}>
+                            <Ionicons name="location" size={16} color="#991B1B" />
+                            <Text style={styles.modalMetadataValue}>
+                              {selectedNotification.data.address}
+                            </Text>
+                          </View>
+                        ) : null}
+                        {selectedNotification.data?.lat != null && selectedNotification.data?.lng != null ? (
+                          <View style={[styles.modalMetadataValueRow, { marginTop: selectedNotification.data?.address ? 6 : 0 }]}>
+                            <Ionicons name="compass-outline" size={16} color="#666" />
+                            <Text style={styles.modalMetadataValue}>
+                              Coordinates: {Number(selectedNotification.data.lat).toFixed(5)}, {Number(selectedNotification.data.lng).toFixed(5)}
+                            </Text>
+                          </View>
+                        ) : null}
                       </View>
                     )}
                   </ScrollView>

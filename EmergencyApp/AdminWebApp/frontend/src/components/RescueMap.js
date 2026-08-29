@@ -23,13 +23,18 @@ const DefaultIcon = L.icon({
   iconAnchor: [12, 41],
 });
 
-const RescuerIcon = L.icon({
-  iconUrl: markerIconPng,
-  shadowUrl: markerShadowPng,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  className: "rescuer-marker",
-});
+const getRescuerIcon = (teamName, teamColor) => {
+  const color = teamColor || "#0284c7";
+  const letter = teamName ? teamName.charAt(0).toUpperCase() : "R";
+  
+  return L.icon({
+    iconUrl: `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="${color}" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><text x="12" y="14.5" text-anchor="middle" font-size="9" font-family="Arial, sans-serif" font-weight="900" fill="#ffffff" stroke="none">${letter}</text></svg>`)}`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15],
+    className: "rescuer-marker",
+  });
+};
 
 const IncidentIcon = L.icon({
   iconUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='red'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3C/svg%3E",
@@ -514,12 +519,12 @@ function RescueMap({ rescue, onRealTimeUpdate, externalLocationUpdate }) {
               );
             })}
 
-            {/* Rescuer Location Marker (Blue) */}
+            {/* Rescuer Location Marker (Blue/Team Color) */}
             {rescuerLocation && (
               <>
                 <Marker
                   position={[rescuerLocation.lat, rescuerLocation.lng]}
-                  icon={RescuerIcon}
+                  icon={getRescuerIcon(rescue.assignedTeam?.name, rescue.assignedTeam?.color)}
                 >
                   <Popup>
                     <div className="font-semibold">

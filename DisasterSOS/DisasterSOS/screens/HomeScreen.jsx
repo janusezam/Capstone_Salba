@@ -62,8 +62,40 @@ export default function HomeScreen() {
   const successOpacity = useRef(new Animated.Value(0)).current;
   const [activeReport, setActiveReport] = useState(null);
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
+  const [lastViewedReportUpdatedAt, setLastViewedReportUpdatedAt] = useState(null);
   const navigation = useNavigation();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+
+  // Load last viewed report timestamp from AsyncStorage on user change
+  useEffect(() => {
+    const loadLastViewed = async () => {
+      try {
+        if (user && (user._id || user.phone)) {
+          const userId = user._id || user.phone;
+          const val = await AsyncStorage.getItem(`lastViewedReport_${userId}`);
+          setLastViewedReportUpdatedAt(val);
+        }
+      } catch (err) {
+        console.log("Error loading last viewed report:", err);
+      }
+    };
+    loadLastViewed();
+  }, [user]);
+
+  // Mark report as read/viewed when opening the notifications modal
+  const handleOpenNotifications = async () => {
+    setNotificationModalVisible(true);
+    if (activeReport && user && (user._id || user.phone)) {
+      const userId = user._id || user.phone;
+      const currentUpdatedAt = activeReport.updatedAt;
+      setLastViewedReportUpdatedAt(currentUpdatedAt);
+      try {
+        await AsyncStorage.setItem(`lastViewedReport_${userId}`, currentUpdatedAt);
+      } catch (err) {
+        console.log("Error saving last viewed report:", err);
+      }
+    }
+  };
 
   // Poll for active reports
   useEffect(() => {
@@ -348,10 +380,10 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.notificationButton}
-            onPress={() => setNotificationModalVisible(true)}
+            onPress={handleOpenNotifications}
           >
             <Ionicons name="notifications" size={28} color="#333" />
-            {activeReport && (
+            {activeReport && (!lastViewedReportUpdatedAt || new Date(activeReport.updatedAt) > new Date(lastViewedReportUpdatedAt)) && (
               <View style={styles.notificationBadge} />
             )}
           </TouchableOpacity>

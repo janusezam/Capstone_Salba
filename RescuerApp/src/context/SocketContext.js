@@ -19,6 +19,9 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (user && token) {
       startBackgroundLocationTracking();
+    } else {
+      setDispatchAlert(null);
+      setConnected(false);
     }
     
     return () => {

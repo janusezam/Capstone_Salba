@@ -62,8 +62,35 @@ export const NotificationProvider = ({ children }) => {
         notificationListener.current?.remove();
         responseListener.current?.remove();
       };
+    } else {
+      // Clear notifications on logout
+      setNotifications([]);
+      setUnreadCount(0);
+      setExpoPushToken(null);
+      // Reset OS app launcher badge count
+      try {
+        Notifications.setBadgeCountAsync(0).catch(() => {});
+      } catch (err) {}
     }
   }, [user, token]);
+
+  // Sync unreadCount with OS app launcher badge count
+  useEffect(() => {
+    const syncBadgeCount = async () => {
+      try {
+        if (user && token) {
+          const { status } = await Notifications.getPermissionsAsync();
+          if (status === 'granted') {
+            await Notifications.setBadgeCountAsync(unreadCount).catch(() => {});
+          }
+        }
+      } catch (err) {
+        console.warn('[NotificationContext] Sync badge error:', err.message);
+      }
+    };
+    syncBadgeCount();
+  }, [unreadCount, user, token]);
+
 
   const registerForPushNotifications = async () => {
     try {

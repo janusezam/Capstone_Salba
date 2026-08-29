@@ -53,7 +53,10 @@ export default function LoginScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.logoContainer}>
@@ -63,22 +66,23 @@ export default function LoginScreen({ navigation }) {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.subtitle}>Rescuer App</Text>
+          <Text style={styles.appTitle}>SALBA</Text>
+          <Text style={styles.subtitle}>Rescuer Access portal</Text>
           <Text style={styles.description}>
-            Emergency Reporting & Rescue Coordination{'\n'}Malaybalay City
+            Emergency Reporting & Rescue Coordination{'\n'}Malaybalay City CDRRMO
           </Text>
         </View>
 
-        {/* Form Section */}
-        <View style={styles.formContainer}>
-          <Text style={styles.welcomeText}>Welcome Back, Rescuer!</Text>
+        {/* Form Card Section */}
+        <View style={styles.formCard}>
+          <Text style={styles.welcomeText}>Login to Account</Text>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={22} color="#DC2626" style={styles.inputIcon} />
+            <Ionicons name="person-outline" size={20} color="#991B1B" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Username"
-              placeholderTextColor="#999"
+              placeholderTextColor="#9CA3AF"
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
@@ -87,11 +91,11 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={22} color="#DC2626" style={styles.inputIcon} />
+            <Ionicons name="lock-closed-outline" size={20} color="#991B1B" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Password"
-              placeholderTextColor="#999"
+              placeholderTextColor="#9CA3AF"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -99,8 +103,8 @@ export default function LoginScreen({ navigation }) {
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons 
                 name={showPassword ? "eye-off-outline" : "eye-outline"} 
-                size={22} 
-                color="#999" 
+                size={20} 
+                color="#9CA3AF" 
               />
             </TouchableOpacity>
           </View>
@@ -118,27 +122,27 @@ export default function LoginScreen({ navigation }) {
               <ActivityIndicator color="#fff" />
             ) : (
               <>
-                <Text style={styles.loginButtonText}>Login</Text>
-                <Ionicons name="arrow-forward" size={20} color="#fff" />
+                <Text style={styles.loginButtonText}>Log In</Text>
+                <Ionicons name="arrow-forward" size={18} color="#fff" />
               </>
             )}
           </TouchableOpacity>
 
           <View style={styles.registerContainer}>
-            <Text style={styles.registerText}>Don't have an account? </Text>
+            <Text style={styles.registerText}>Don't have a rescuer account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
               <Text style={styles.registerLink}>Register</Text>
             </TouchableOpacity>
           </View>
           
-          <Text style={{color: "#bbb", fontSize: 11, marginTop: 20, textAlign: 'center'}}>Protected by reCAPTCHA v3</Text>
+          <Text style={styles.recaptchaNote}>Secured by reCAPTCHA v3</Text>
           <RecaptchaV3 ref={recaptchaRef} onReceiveToken={onReceiveToken} />
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            For authorized rescue personnel only
+            For Authorized Rescue Personnel Only
           </Text>
         </View>
       </ScrollView>
@@ -149,126 +153,156 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#DC2626',
+    backgroundColor: '#F3F4F6',
   },
   scrollContent: {
     flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 40,
   },
   header: {
     alignItems: 'center',
-    paddingTop: 60,
-    paddingBottom: 30,
+    marginBottom: 30,
   },
   logoContainer: {
-    width: 180,
-    height: 180,
+    width: 130,
+    height: 130,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    borderRadius: 65,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   logo: {
-    width: 160,
-    height: 160,
+    width: 100,
+    height: 100,
+  },
+  appTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#111827',
+    letterSpacing: 1,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#fff',
-    marginTop: 5,
-    fontWeight: '500',
+    fontSize: 15,
+    color: '#4B5563',
+    fontWeight: '600',
+    marginTop: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   description: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: 13,
+    color: '#6B7280',
     textAlign: 'center',
     marginTop: 10,
+    lineHeight: 18,
   },
-  formContainer: {
-    flex: 1,
+  formCard: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingHorizontal: 25,
-    paddingTop: 30,
-    paddingBottom: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   welcomeText: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 25,
-    textAlign: 'center',
+    color: '#111827',
+    marginBottom: 20,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    backgroundColor: '#f9f9f9',
+    borderColor: '#E5E7EB',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    marginBottom: 16,
+    backgroundColor: '#F9FAFB',
   },
   inputIcon: {
     marginRight: 10,
   },
   input: {
     flex: 1,
-    height: 55,
-    fontSize: 16,
-    color: '#333',
+    height: 50,
+    fontSize: 15,
+    color: '#111827',
+  },
+  forgotPasswordLink: {
+    color: '#991B1B',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'right',
+    marginTop: -4,
+    marginBottom: 18,
   },
   loginButton: {
-    backgroundColor: '#DC2626',
-    borderRadius: 12,
-    height: 55,
+    backgroundColor: '#991B1B',
+    borderRadius: 10,
+    height: 50,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
-    shadowColor: '#DC2626',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 5,
+    shadowColor: '#991B1B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   loginButtonDisabled: {
     opacity: 0.7,
   },
   loginButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginRight: 10,
+    marginRight: 6,
   },
   registerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 25,
-  },
-  forgotPasswordLink: {
-    color: '#DC2626',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'right',
-    marginTop: -2,
-    marginBottom: 8,
+    marginTop: 20,
   },
   registerText: {
-    color: '#666',
-    fontSize: 15,
+    color: '#6B7280',
+    fontSize: 14,
   },
   registerLink: {
-    color: '#DC2626',
-    fontSize: 15,
+    color: '#991B1B',
+    fontSize: 14,
     fontWeight: 'bold',
   },
+  recaptchaNote: {
+    color: '#9CA3AF',
+    fontSize: 11,
+    marginTop: 15,
+    textAlign: 'center',
+  },
   footer: {
-    backgroundColor: '#fff',
-    paddingBottom: 30,
+    marginTop: 30,
     alignItems: 'center',
   },
   footerText: {
-    color: '#999',
+    color: '#9CA3AF',
     fontSize: 12,
+    fontWeight: '500',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 });
