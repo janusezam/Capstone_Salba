@@ -1,6 +1,10 @@
 import Constants from 'expo-constants';
 
 const getApiBaseUrl = () => {
+  // Use explicit environment variable if provided (production)
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
   // Extract host IP (e.g., "10.0.0.35") from the Expo packager's address
   const hostUri = Constants.expoConfig?.hostUri || Constants.manifest?.debuggerHost || '';
   const ip = hostUri ? hostUri.split(':')[0] : '10.0.0.35'; // fallback to last known IP
