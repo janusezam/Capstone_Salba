@@ -229,7 +229,7 @@ router.post('/forgot-password', async (req, res) => {
     const rawToken = crypto.randomBytes(32).toString('hex');
     const hashedCode = crypto.createHash('sha256').update(resetCode).digest('hex');
     const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
-    const codeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
     const tokenExpiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
@@ -275,6 +275,38 @@ router.post('/forgot-password', async (req, res) => {
     });
   } catch (err) {
     console.error('Forgot password error:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+/* ------------------------------
+   VERIFY RESET CODE
+--------------------------------*/
+router.post('/verify-code', async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res.status(400).json({ message: 'Email and verification code are required' });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const hashedCode = crypto.createHash('sha256').update(String(code).trim()).digest('hex');
+    const now = new Date();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+      resetPasswordCode: hashedCode,
+      resetPasswordCodeExpires: { $gt: now }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired verification code' });
+    }
+
+    return res.json({ message: 'Verification code verified successfully' });
+  } catch (err) {
+    console.error('Verify code error:', err);
     return res.status(500).json({ message: 'Server error' });
   }
 });

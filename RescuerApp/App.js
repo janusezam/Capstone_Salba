@@ -9,6 +9,8 @@ import { View, ActivityIndicator, LogBox } from 'react-native';
 
 LogBox.ignoreLogs([
   'expo-notifications: Android Push notifications',
+  'InteractionManager has been deprecated',
+  'Non-serializable values were found in the navigation state',
 ]);
 
 // Screens

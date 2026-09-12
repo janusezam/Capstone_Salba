@@ -15,7 +15,7 @@ import {
   Pressable,
 } from "react-native";
 import * as Location from "expo-location";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Polyline, UrlTile } from "react-native-maps";
 
 import { sendAlert, getMyReports } from "../services/alertService";
 
@@ -159,7 +159,7 @@ export default function HomeScreen() {
   const [sendingFeedback, setSendingFeedback] = useState(false);
   const [feedbackNotice, setFeedbackNotice] = useState("");
   const [isMapExpanded, setIsMapExpanded] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [routeCoordinates, setRouteCoordinates] = useState([]);
   const successOpacity = useRef(new Animated.Value(0)).current;
   const [activeReport, setActiveReport] = useState(null);
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
@@ -226,14 +226,75 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch road route from OSRM when rescuer and victim locations are available
+  useEffect(() => {
+    let isCancelled = false;
+    const updateRoadRoute = async () => {
+      if (!activeReport) {
+        setRouteCoordinates([]);
+        return;
+      }
+
+      const victimLat = Number(activeReport.latitude || activeReport.lat);
+      const victimLng = Number(activeReport.longitude || activeReport.lng);
+      const rescuerLat = Number(activeReport.assignedRescuer?.rescuerLat);
+      const rescuerLng = Number(activeReport.assignedRescuer?.rescuerLng);
+
+      const hasVictimLoc = !isNaN(victimLat) && !isNaN(victimLng) && victimLat !== 0;
+      const hasRescuerLoc = !isNaN(rescuerLat) && !isNaN(rescuerLng) && rescuerLat !== 0;
+      const isEnRoute = activeReport.status === 'on_the_way' || activeReport.status === 'ongoing' || activeReport.status === 'in_progress';
+
+      if (hasVictimLoc && hasRescuerLoc && isEnRoute) {
+        try {
+          const url = `https://router.project-osrm.org/route/v1/driving/${rescuerLng},${rescuerLat};${victimLng},${victimLat}?overview=full&geometries=geojson`;
+          const res = await fetch(url);
+          if (res.ok) {
+            const data = await res.json();
+            if (!isCancelled && data.routes && data.routes.length > 0 && data.routes[0].geometry?.coordinates) {
+              const coords = data.routes[0].geometry.coordinates.map(pt => ({
+                latitude: pt[1],
+                longitude: pt[0],
+              }));
+              setRouteCoordinates(coords);
+              return;
+            }
+          }
+        } catch (err) {
+          console.log("OSRM road route fetch error:", err);
+        }
+
+        if (!isCancelled) {
+          setRouteCoordinates([
+            { latitude: rescuerLat, longitude: rescuerLng },
+            { latitude: victimLat, longitude: victimLng },
+          ]);
+        }
+      } else {
+        setRouteCoordinates([]);
+      }
+    };
+
+    updateRoadRoute();
+    return () => { isCancelled = true; };
+  }, [
+    activeReport?._id,
+    activeReport?.status,
+    activeReport?.latitude,
+    activeReport?.lat,
+    activeReport?.longitude,
+    activeReport?.lng,
+    activeReport?.assignedRescuer?.rescuerLat,
+    activeReport?.assignedRescuer?.rescuerLng,
+  ]);
+
   const getDistanceText = () => {
     if (!activeReport || activeReport.status !== 'on_the_way') return null;
     const rescuerLat = activeReport.assignedRescuer?.rescuerLat;
     const rescuerLng = activeReport.assignedRescuer?.rescuerLng;
     if (!rescuerLat || !rescuerLng) return "Calculating...";
     
-    const victimLat = activeReport.lat;
-    const victimLng = activeReport.lng;
+    const victimLat = activeReport.lat || activeReport.latitude;
+    const victimLng = activeReport.lng || activeReport.longitude;
     
     const distMeters = calculateDistanceMeters(victimLat, victimLng, rescuerLat, rescuerLng);
     if (distMeters === null) return "Calculating...";
@@ -341,8 +402,8 @@ export default function HomeScreen() {
       console.log('👤 [proceedWithAlert] User data:', user?.name, user?.email);
       console.log('📷 [proceedWithAlert] photoUrl:', photoUrl ? '✅ included' : '⏭ skipped');
 
-      // Use selected location if available, otherwise fetch GPS
-      let coords = selectedLocation;
+      // Use current location if available, otherwise fetch GPS
+      let coords = location;
       if (!coords) {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
@@ -431,48 +492,6 @@ export default function HomeScreen() {
       setSendingFeedback(false);
     }
   };
-
-  if (isMapExpanded) {
-    return (
-      <View style={styles.expandedMapContainer}>
-        <MapView
-          style={styles.expandedMap}
-          initialRegion={{
-            latitude: selectedLocation?.latitude || location?.latitude || 8.1574,
-            longitude: selectedLocation?.longitude || location?.longitude || 125.1246,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          }}
-          onPress={(e) => setSelectedLocation(e.nativeEvent.coordinate)}
-        >
-          {(selectedLocation || location) && (
-            <Marker coordinate={selectedLocation || location}>
-              <View style={styles.emergencyMarker}>
-                <Ionicons name="warning" size={24} color="#fff" />
-              </View>
-            </Marker>
-          )}
-        </MapView>
-        <TouchableOpacity
-          style={styles.closeMapButton}
-          onPress={() => setIsMapExpanded(false)}
-        >
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-
-        <View style={styles.pinInfoCard}>
-          <Text style={styles.pinInfoTitle}>Pinpoint Location</Text>
-          <Text style={styles.expandedMapHint}>Tap on the map to set the exact emergency location.</Text>
-          <TouchableOpacity
-            style={styles.pinDoneButton}
-            onPress={() => setIsMapExpanded(false)}
-          >
-            <Text style={styles.pinDoneText}>Confirm Location</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -685,10 +704,195 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                   </View>
+
+                  {/* Live Tracking Map (Same simple interface as previous Location map) */}
+                  {(() => {
+                    const victimLat = Number(activeReport.latitude || activeReport.lat);
+                    const victimLng = Number(activeReport.longitude || activeReport.lng);
+                    const hasVictimLoc = !isNaN(victimLat) && !isNaN(victimLng) && victimLat !== 0;
+
+                    const rescuerLat = Number(activeReport.assignedRescuer?.rescuerLat);
+                    const rescuerLng = Number(activeReport.assignedRescuer?.rescuerLng);
+                    const hasRescuerLoc = !isNaN(rescuerLat) && !isNaN(rescuerLng) && rescuerLat !== 0;
+
+                    if (!hasVictimLoc) return null;
+
+                    const isEnRoute = activeReport.status === 'on_the_way' || activeReport.status === 'ongoing' || activeReport.status === 'in_progress';
+
+                    let region = {
+                      latitude: victimLat,
+                      longitude: victimLng,
+                      latitudeDelta: 0.01,
+                      longitudeDelta: 0.01,
+                    };
+
+                    if (hasRescuerLoc && isEnRoute) {
+                      const midLat = (victimLat + rescuerLat) / 2;
+                      const midLng = (victimLng + rescuerLng) / 2;
+                      const latDelta = Math.max(Math.abs(victimLat - rescuerLat) * 1.6, 0.01);
+                      const lngDelta = Math.max(Math.abs(victimLng - rescuerLng) * 1.6, 0.01);
+                      region = {
+                        latitude: midLat,
+                        longitude: midLng,
+                        latitudeDelta: latDelta,
+                        longitudeDelta: lngDelta,
+                      };
+                    }
+
+                    const displayRoute = routeCoordinates && routeCoordinates.length > 0 
+                      ? routeCoordinates 
+                      : (hasRescuerLoc && isEnRoute ? [{ latitude: rescuerLat, longitude: rescuerLng }, { latitude: victimLat, longitude: victimLng }] : []);
+
+                    return (
+                      <View style={styles.mapContainer}>
+                        <MapView
+                          style={styles.map}
+                          region={region}
+                          scrollEnabled={false}
+                          zoomEnabled={false}
+                          pitchEnabled={false}
+                          rotateEnabled={false}
+                          onPress={() => setIsMapExpanded(true)}
+                        >
+                          <UrlTile
+                            urlTemplate="https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+                            maximumZ={19}
+                            flipY={false}
+                            tileSize={256}
+                          />
+                          <Marker coordinate={{ latitude: victimLat, longitude: victimLng }} title="Your Location">
+                            <View style={styles.emergencyMarker}>
+                              <Ionicons name="warning" size={20} color="#fff" />
+                            </View>
+                          </Marker>
+
+                          {hasRescuerLoc && isEnRoute && (
+                            <Marker coordinate={{ latitude: rescuerLat, longitude: rescuerLng }} title={activeReport.assignedRescuer?.rescuerName || "Rescuer"}>
+                              <View style={styles.rescuerMarkerContainer}>
+                                <Ionicons name="shield" size={38} color="#0284c7" />
+                                <View style={styles.rescuerMarkerTextWrapper}>
+                                  <Text style={styles.rescuerMarkerText}>
+                                    {activeReport.assignedRescuer?.rescuerName ? activeReport.assignedRescuer.rescuerName.charAt(0).toUpperCase() : 'R'}
+                                  </Text>
+                                </View>
+                              </View>
+                            </Marker>
+                          )}
+
+                          {hasRescuerLoc && isEnRoute && displayRoute.length > 0 && (
+                            <Polyline
+                              coordinates={displayRoute}
+                              strokeColor="#0284C7"
+                              strokeWidth={4}
+                            />
+                          )}
+                        </MapView>
+
+                        <TouchableOpacity
+                          style={styles.mapOverlayButton}
+                          onPress={() => setIsMapExpanded(true)}
+                        >
+                          <Ionicons name="expand" size={16} color="#fff" />
+                          <Text style={styles.mapOverlayText}>Expand Map</Text>
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })()}
                 </ScrollView>
               )}
             </View>
           </View>
+        </Modal>
+
+        {/* Fullscreen Expanded Map Modal */}
+        <Modal
+          visible={isMapExpanded}
+          animationType="slide"
+          onRequestClose={() => setIsMapExpanded(false)}
+        >
+          {activeReport && (() => {
+            const victimLat = Number(activeReport.latitude || activeReport.lat);
+            const victimLng = Number(activeReport.longitude || activeReport.lng);
+            const rescuerLat = Number(activeReport.assignedRescuer?.rescuerLat);
+            const rescuerLng = Number(activeReport.assignedRescuer?.rescuerLng);
+            const hasRescuerLoc = !isNaN(rescuerLat) && !isNaN(rescuerLng) && rescuerLat !== 0;
+            const isEnRoute = activeReport.status === 'on_the_way' || activeReport.status === 'ongoing' || activeReport.status === 'in_progress';
+
+            let region = {
+              latitude: victimLat || 8.1574,
+              longitude: victimLng || 125.1246,
+              latitudeDelta: 0.02,
+              longitudeDelta: 0.02,
+            };
+
+            if (hasRescuerLoc && isEnRoute && victimLat && victimLng) {
+              const midLat = (victimLat + rescuerLat) / 2;
+              const midLng = (victimLng + rescuerLng) / 2;
+              const latDelta = Math.max(Math.abs(victimLat - rescuerLat) * 1.6, 0.02);
+              const lngDelta = Math.max(Math.abs(victimLng - rescuerLng) * 1.6, 0.02);
+              region = {
+                latitude: midLat,
+                longitude: midLng,
+                latitudeDelta: latDelta,
+                longitudeDelta: lngDelta,
+              };
+            }
+
+            const displayRoute = routeCoordinates && routeCoordinates.length > 0 
+              ? routeCoordinates 
+              : (hasRescuerLoc && isEnRoute && victimLat && victimLng ? [{ latitude: rescuerLat, longitude: rescuerLng }, { latitude: victimLat, longitude: victimLng }] : []);
+
+            return (
+              <View style={styles.expandedMapContainer}>
+                <MapView
+                  style={styles.expandedMap}
+                  initialRegion={region}
+                >
+                  <UrlTile
+                    urlTemplate="https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+                    maximumZ={19}
+                    flipY={false}
+                    tileSize={256}
+                  />
+                  {victimLat && victimLng && (
+                    <Marker coordinate={{ latitude: victimLat, longitude: victimLng }} title="Incident Location">
+                      <View style={styles.emergencyMarker}>
+                        <Ionicons name="warning" size={24} color="#fff" />
+                      </View>
+                    </Marker>
+                  )}
+
+                  {hasRescuerLoc && isEnRoute && (
+                    <Marker coordinate={{ latitude: rescuerLat, longitude: rescuerLng }} title={activeReport.assignedRescuer?.rescuerName || "Rescuer"}>
+                      <View style={styles.rescuerMarkerContainer}>
+                        <Ionicons name="shield" size={44} color="#0284c7" />
+                        <View style={styles.rescuerMarkerTextWrapper}>
+                          <Text style={styles.rescuerMarkerText}>
+                            {activeReport.assignedRescuer?.rescuerName ? activeReport.assignedRescuer.rescuerName.charAt(0).toUpperCase() : 'R'}
+                          </Text>
+                        </View>
+                      </View>
+                    </Marker>
+                  )}
+
+                  {hasRescuerLoc && isEnRoute && displayRoute.length > 0 && (
+                    <Polyline
+                      coordinates={displayRoute}
+                      strokeColor="#0284C7"
+                      strokeWidth={5}
+                    />
+                  )}
+                </MapView>
+
+                <TouchableOpacity
+                  style={styles.closeMapButton}
+                  onPress={() => setIsMapExpanded(false)}
+                >
+                  <Ionicons name="arrow-back" size={24} color="#333" />
+                </TouchableOpacity>
+              </View>
+            );
+          })()}
         </Modal>
 
         {/* Burger Menu Modal */}
@@ -897,41 +1101,6 @@ export default function HomeScreen() {
             value={note}
             onChangeText={setNote}
           />
-        </View>
-
-        <Text style={styles.sectionTitle}>Location (Testing)</Text>
-        <View style={styles.mapContainer}>
-          {location ? (
-            <MapView
-              style={styles.map}
-              initialRegion={{
-                latitude: selectedLocation?.latitude || location?.latitude || 8.1574,
-                longitude: selectedLocation?.longitude || location?.longitude || 125.1246,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
-              scrollEnabled={false}
-              zoomEnabled={false}
-              pitchEnabled={false}
-              rotateEnabled={false}
-              onPress={() => setIsMapExpanded(true)}
-            >
-              <Marker coordinate={selectedLocation || location}>
-                <View style={styles.emergencyMarker}>
-                  <Ionicons name="warning" size={20} color="#fff" />
-                </View>
-              </Marker>
-            </MapView>
-          ) : (
-            <ActivityIndicator size="large" color="#007AFF" style={{marginTop: 50}} />
-          )}
-          <TouchableOpacity
-            style={styles.mapOverlayButton}
-            onPress={() => setIsMapExpanded(true)}
-          >
-            <Ionicons name="expand" size={16} color="#fff" />
-            <Text style={styles.mapOverlayText}>Change Pin</Text>
-          </TouchableOpacity>
         </View>
 
       </View>
@@ -1259,161 +1428,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
     color: "#333",
     textAlignVertical: "top",
-  },
-  sectionTitle: {
-    marginTop: 20,
-    fontSize: 18,
-    fontWeight: "600",
-    alignSelf: "flex-start",
-    marginLeft: "8%",
-  },
-  mapContainer: {
-    width: "85%",
-    height: 180,
-    marginTop: 10,
-    borderRadius: 15,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  map: {
-    flex: 1,
-  },
-  mapOverlayButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    backgroundColor: "rgba(0,0,0,0.75)",
-    borderRadius: 8,
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  mapOverlayText: {
-    color: "#fff",
-    marginLeft: 6,
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  expandedMapContainer: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  expandedMap: {
-    flex: 1,
-  },
-  closeMapButton: {
-    position: "absolute",
-    top: 20,
-    left: 15,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  mapControls: {
-    position: "absolute",
-    top: 20,
-    right: 15,
-  },
-  controlButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  myLocationMarker: {
-    padding: 5,
-  },
-  myLocationInner: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#3B82F6",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  emergencyMarker: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#DC2626",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  pinInfoCard: {
-    position: "absolute",
-    bottom: 20,
-    left: 15,
-    right: 15,
-    backgroundColor: "#fff",
-    borderRadius: 15,
-    padding: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-  pinInfoTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
-    marginBottom: 8,
-  },
-  expandedMapHint: {
-    fontSize: 14,
-    color: "#666",
-  },
-  expandedCoords: {
-    fontSize: 14,
-    color: "#333",
-    marginTop: 8,
-    fontWeight: "600",
-  },
-  pinDoneButton: {
-    marginTop: 10,
-    backgroundColor: "#DC2626",
-    borderRadius: 10,
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-  pinDoneText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
   },
   successOverlay: {
     position: "absolute",
@@ -1856,5 +1870,102 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#047857",
     lineHeight: 16,
+  },
+  mapContainer: {
+    width: "100%",
+    height: 180,
+    marginTop: 14,
+    borderRadius: 15,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  map: {
+    flex: 1,
+  },
+  mapOverlayButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "rgba(0,0,0,0.75)",
+    borderRadius: 8,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  mapOverlayText: {
+    color: "#fff",
+    marginLeft: 6,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  expandedMapContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  expandedMap: {
+    flex: 1,
+  },
+  closeMapButton: {
+    position: "absolute",
+    top: 40,
+    left: 15,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: 10,
+  },
+  emergencyMarker: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#DC2626",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 3,
+    borderColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  rescuerMarkerContainer: {
+    width: 48,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+  rescuerMarkerTextWrapper: {
+    position: 'absolute',
+    top: 6,
+    left: 0,
+    right: 0,
+    bottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rescuerMarkerText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '900',
+    textAlign: 'center',
+    fontFamily: Platform.OS === 'ios' ? 'Arial' : 'sans-serif',
   },
 });

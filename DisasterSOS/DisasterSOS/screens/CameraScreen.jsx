@@ -55,7 +55,7 @@ export default function CameraScreen({ navigation, route }) {
   if (!permission.granted) {
     return (
       <View style={styles.centered}>
-        <Ionicons name="camera-off" size={60} color="#DC2626" />
+        <Ionicons name="camera-outline" size={60} color="#DC2626" />
         <Text style={styles.permTitle}>Camera Access Required</Text>
         <Text style={styles.permText}>
           Please allow camera access to capture an incident photo.
@@ -120,27 +120,45 @@ export default function CameraScreen({ navigation, route }) {
       // ── Step 2: Build multipart form data ────────────────────────────
       const formData = new FormData();
       formData.append("photo", {
-        uri: Platform.OS === "android" ? compressed.uri : compressed.uri.replace("file://", ""),
+        uri: compressed.uri,
         type: "image/jpeg",
         name: `incident_${Date.now()}.jpg`,
       });
 
-      // ── Step 3: Upload to backend (which proxies to Cloudinary) ──────
-      const response = await fetch(`${BASE_URL}/api/upload/incident-photo`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // NOTE: Do NOT set Content-Type manually — let fetch set it with the boundary
-        },
-        body: formData,
+      // ── Step 3: Upload to backend via XMLHttpRequest ─────────────────
+      const uploadUrl = `${BASE_URL}/api/upload/incident-photo`;
+      
+      const uploadResult = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", uploadUrl);
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        xhr.setRequestHeader("Accept", "application/json");
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const res = JSON.parse(xhr.responseText);
+              resolve(res);
+            } catch (e) {
+              reject(new Error("Invalid server JSON response"));
+            }
+          } else {
+            let errMsg = `Upload failed (${xhr.status})`;
+            try {
+              const res = JSON.parse(xhr.responseText);
+              if (res.message) errMsg = res.message;
+            } catch (e) {}
+            reject(new Error(errMsg));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("Network error during photo upload"));
+        xhr.ontimeout = () => reject(new Error("Photo upload timed out"));
+
+        xhr.send(formData);
       });
 
-      if (!response.ok) {
-        const errBody = await response.json().catch(() => ({}));
-        throw new Error(errBody.message || `Upload failed (${response.status})`);
-      }
-
-      const { url } = await response.json();
+      const { url } = uploadResult;
       console.log("✅ Incident photo uploaded:", url);
 
       // ── Step 4: Return URL to caller ─────────────────────────────────
@@ -240,65 +258,65 @@ export default function CameraScreen({ navigation, route }) {
         facing={facing}
         enableTorch={enableTorch}
         flash={enableTorch ? "on" : "off"}
-      >
-        {/* Top bar */}
-        <View style={styles.topBar}>
-          <TouchableOpacity style={styles.topBarBtn} onPress={handleBack}>
-            <Ionicons name="close" size={28} color="#fff" />
-          </TouchableOpacity>
+      />
 
-          <View style={styles.topBarCenter}>
-            <Text style={styles.cameraTitle}>📷 Capture Incident</Text>
-            <Text style={styles.cameraSubtitle}>Take a photo of the emergency situation</Text>
-          </View>
+      {/* Top bar */}
+      <View style={styles.topBar}>
+        <TouchableOpacity style={styles.topBarBtn} onPress={handleBack}>
+          <Ionicons name="close" size={28} color="#fff" />
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.topBarBtn, enableTorch && styles.topBarBtnActive]}
-            onPress={toggleTorch}
-            activeOpacity={0.7}
-            title={enableTorch ? "Turn off flashlight" : "Turn on flashlight"}
-          >
-            <Ionicons
-              name={enableTorch ? "flashlight" : "flashlight-outline"}
-              size={24}
-              color={enableTorch ? "#FACC15" : "#fff"}
-            />
-          </TouchableOpacity>
+        <View style={styles.topBarCenter}>
+          <Text style={styles.cameraTitle}>📷 Capture Incident</Text>
+          <Text style={styles.cameraSubtitle}>Take a photo of the emergency situation</Text>
         </View>
 
-        {/* Viewfinder frame */}
-        <View style={styles.viewfinderFrame}>
-          <View style={[styles.corner, styles.cornerTL]} />
-          <View style={[styles.corner, styles.cornerTR]} />
-          <View style={[styles.corner, styles.cornerBL]} />
-          <View style={[styles.corner, styles.cornerBR]} />
-        </View>
+        <TouchableOpacity
+          style={[styles.topBarBtn, enableTorch && styles.topBarBtnActive]}
+          onPress={toggleTorch}
+          activeOpacity={0.7}
+          title={enableTorch ? "Turn off flashlight" : "Turn on flashlight"}
+        >
+          <Ionicons
+            name={enableTorch ? "flashlight" : "flashlight-outline"}
+            size={24}
+            color={enableTorch ? "#FACC15" : "#fff"}
+          />
+        </TouchableOpacity>
+      </View>
 
-        {/* Bottom controls */}
-        <View style={styles.bottomBar}>
-          {/* Flip camera */}
-          <TouchableOpacity style={styles.sideBtn} onPress={toggleFacing}>
-            <Ionicons name="camera-reverse" size={28} color="#fff" />
-          </TouchableOpacity>
+      {/* Viewfinder frame */}
+      <View style={styles.viewfinderFrame} pointerEvents="none">
+        <View style={[styles.corner, styles.cornerTL]} />
+        <View style={[styles.corner, styles.cornerTR]} />
+        <View style={[styles.corner, styles.cornerBL]} />
+        <View style={[styles.corner, styles.cornerBR]} />
+      </View>
 
-          {/* Shutter */}
-          <TouchableOpacity style={styles.shutterOuter} onPress={handleCapture}>
-            <View style={styles.shutterInner} />
-          </TouchableOpacity>
+      {/* Bottom controls */}
+      <View style={styles.bottomBar}>
+        {/* Flip camera */}
+        <TouchableOpacity style={styles.sideBtn} onPress={toggleFacing}>
+          <Ionicons name="camera-reverse" size={28} color="#fff" />
+        </TouchableOpacity>
 
-          {/* Skip */}
-          <TouchableOpacity style={styles.sideBtn} onPress={handleSkip}>
-            <Text style={styles.skipLabel}>Skip</Text>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
+        {/* Shutter */}
+        <TouchableOpacity style={styles.shutterOuter} onPress={handleCapture}>
+          <View style={styles.shutterInner} />
+        </TouchableOpacity>
+
+        {/* Skip */}
+        <TouchableOpacity style={styles.sideBtn} onPress={handleSkip}>
+          <Text style={styles.skipLabel}>Skip</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
-  camera: { flex: 1 },
+  camera: { flex: 1, width: "100%", height: "100%" },
   centered: {
     flex: 1,
     justifyContent: "center",
@@ -321,6 +339,11 @@ const styles = StyleSheet.create({
 
   // Top bar
   topBar: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
     flexDirection: "row",
     alignItems: "center",
     paddingTop: Platform.OS === "ios" ? 56 : 40,
@@ -340,9 +363,12 @@ const styles = StyleSheet.create({
 
   // Viewfinder
   viewfinderFrame: {
-    flex: 1,
-    margin: 40,
-    justifyContent: "space-between",
+    position: "absolute",
+    top: height * 0.22,
+    left: 40,
+    right: 40,
+    height: height * 0.45,
+    zIndex: 5,
   },
   corner: {
     position: "absolute",
@@ -358,6 +384,11 @@ const styles = StyleSheet.create({
 
   // Bottom bar
   bottomBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",

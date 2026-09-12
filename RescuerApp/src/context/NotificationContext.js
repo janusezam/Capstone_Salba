@@ -1,22 +1,37 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
-import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { Platform, Alert } from 'react-native';
 import { useAuth } from './AuthContext';
 import { API_URL, getAuthHeaders } from '../config/api';
 
-// Configure notification handler
-try {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: true,
-    }),
-  });
-} catch (handlerErr) {
-  console.warn('[NotificationContext] setNotificationHandler note:', handlerErr?.message);
+const isRunningInExpoGo = () => {
+  try {
+    return (
+      Constants.appOwnership === 'expo' ||
+      Constants.executionEnvironment === 'storeClient' ||
+      Constants?.executionEnvironment === 'storeClient'
+    );
+  } catch (e) {
+    return false;
+  }
+};
+
+// Only require expo-notifications when NOT running in Expo Go (Expo SDK 53+ removed remote push from Expo Go)
+let Notifications = null;
+if (!isRunningInExpoGo()) {
+  try {
+    Notifications = require('expo-notifications');
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
+  } catch (handlerErr) {
+    console.warn('[NotificationContext] setNotificationHandler note:', handlerErr?.message);
+  }
 }
 
 const NotificationContext = createContext({});
@@ -33,6 +48,12 @@ export const NotificationProvider = ({ children }) => {
 
   useEffect(() => {
     if (user && token) {
+      if (isRunningInExpoGo()) {
+        console.log('[NotificationContext] Running in Expo Go. Remote push notifications are disabled in Expo Go on SDK 53+. Local and socket notifications remain active.');
+        fetchNotifications();
+        return;
+      }
+
       registerForPushNotifications();
       fetchNotifications();
 
@@ -51,7 +72,6 @@ export const NotificationProvider = ({ children }) => {
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
           console.log('Notification tapped:', response);
           const data = response.notification.request.content.data;
-          // Handle navigation based on notification type
           handleNotificationTap(data);
         });
       } catch (e) {
@@ -59,18 +79,21 @@ export const NotificationProvider = ({ children }) => {
       }
 
       return () => {
-        notificationListener.current?.remove();
-        responseListener.current?.remove();
+        try {
+          notificationListener.current?.remove();
+          responseListener.current?.remove();
+        } catch (err) {}
       };
     } else {
       // Clear notifications on logout
       setNotifications([]);
       setUnreadCount(0);
       setExpoPushToken(null);
-      // Reset OS app launcher badge count
-      try {
-        Notifications.setBadgeCountAsync(0).catch(() => {});
-      } catch (err) {}
+      if (!isRunningInExpoGo() && Notifications) {
+        try {
+          Notifications.setBadgeCountAsync(0).catch(() => {});
+        } catch (err) {}
+      }
     }
   }, [user, token]);
 
@@ -78,7 +101,7 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     const syncBadgeCount = async () => {
       try {
-        if (user && token) {
+        if (user && token && !isRunningInExpoGo() && Notifications) {
           const { status } = await Notifications.getPermissionsAsync();
           if (status === 'granted') {
             await Notifications.setBadgeCountAsync(unreadCount).catch(() => {});
@@ -94,15 +117,14 @@ export const NotificationProvider = ({ children }) => {
 
   const registerForPushNotifications = async () => {
     try {
-      const isExpoGo = Constants.appOwnership === 'expo' || Constants.executionEnvironment === 'storeClient';
-
-      if (isExpoGo) {
-        console.log('[NotificationContext] Running in Expo Go. Remote push notifications via expo-notifications are not supported in Expo Go (Expo SDK 53+). Local/Socket notifications will still function.');
+      if (isRunningInExpoGo()) {
+        console.log('[NotificationContext] Skipping push notification registration in Expo Go.');
+        return;
       }
 
       let pushToken;
 
-      if (Device.isDevice && !isExpoGo) {
+      if (Device.isDevice) {
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
         let finalStatus = existingStatus;
 
@@ -226,17 +248,25 @@ export const NotificationProvider = ({ children }) => {
     console.log('Handle notification tap:', data);
   };
 
-  // Schedule a local notification (for testing)
+  // Schedule a local notification (for testing or in-app socket alerts)
   const scheduleLocalNotification = async (title, body, data = {}) => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title,
-        body,
-        data,
-        sound: 'default',
-      },
-      trigger: null, // Immediately
-    });
+    if (!Notifications) {
+      console.log('[NotificationContext] Local notification skipped (Notifications module inactive):', title);
+      return;
+    }
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          data,
+          sound: 'default',
+        },
+        trigger: null, // Immediately
+      });
+    } catch (err) {
+      console.warn('[NotificationContext] scheduleNotificationAsync error:', err?.message);
+    }
   };
 
   return (
