@@ -26,6 +26,11 @@
     },
     "android": {
       "package": "com.salba.rescuer",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBqHjChjV-pyLpBdwXoq9yN7-DnKjYIUQE"
+        }
+      },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",

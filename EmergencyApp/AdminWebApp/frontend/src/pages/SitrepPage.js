@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, AlertCircle, CheckCircle, Save, Send, Download, Printer } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Download, Printer } from 'lucide-react';
 import SitrepForm from '../components/SitrepForm';
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
@@ -348,7 +348,7 @@ const SitrepPage = () => {
             margin: 0;
             padding: 0;
           }
-          .print\:hidden {
+          .print\\:hidden, .print-hidden {
             display: none !important;
           }
           .bg-slate-50 {

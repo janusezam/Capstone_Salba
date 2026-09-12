@@ -9,19 +9,10 @@ import {
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
-import markerIconPng from "leaflet/dist/images/marker-icon.png";
 import markerShadowPng from "leaflet/dist/images/marker-shadow.png";
 import io from "socket.io-client";
 import { AlertCircle } from "lucide-react";
 import API from "../api";
-
-// Define custom icons
-const DefaultIcon = L.icon({
-  iconUrl: markerIconPng,
-  shadowUrl: markerShadowPng,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
 
 const getRescuerIcon = (teamName, teamColor) => {
   const color = teamColor || "#0284c7";
@@ -109,7 +100,6 @@ function RescueMap({ rescue, onRealTimeUpdate, externalLocationUpdate }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [rescuerLocation, setRescuerLocation] = useState(null);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [routeStatus, setRouteStatus] = useState("idle"); // idle, loading, success, error
   const [routeDistance, setRouteDistance] = useState(null);
