@@ -9,6 +9,9 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, default: "+63" }, // Phone number with country code
   jobTitle: { type: String, default: null }, // Job title or position
   picture: { type: String, default: null }, // Profile picture URL (from Google OAuth)
+  avatar: { type: String, default: null },
+  birthday: { type: Date, default: null },
+  authProvider: { type: String, default: "local" },
   role: { type: String, enum: ["admin", "user", "rescuer"], default: "user" },
   dutyStatus: { type: String, enum: ["on-duty", "off-duty"], default: "off-duty" }, // For rescuers only
   pushToken: { type: String, default: null }, // For Expo push notifications

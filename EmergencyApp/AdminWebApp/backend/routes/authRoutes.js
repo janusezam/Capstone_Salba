@@ -652,7 +652,7 @@ router.post('/admins', authMiddleware, requireAdmin, async (req, res) => {
 });
 
 /* ------------------------------
-   UPDATE PROFILE
+   PROFILE ENDPOINTS (DisasterSOS, Rescuer, Admin)
 --------------------------------*/
 const verifyToken = (req, res, next) => {
   try {
@@ -661,11 +661,97 @@ const verifyToken = (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
+    req.userId = decoded.id;
     next();
   } catch (err) {
     res.status(401).json({ message: "Invalid or expired token" });
   }
 };
+
+router.get('/profile', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user?.id || req.userId;
+    const user = await User.findById(userId).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    console.error('Get profile error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.put('/profile', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user?.id || req.userId;
+    const { name, email, phone, birthday, location, avatar, picture } = req.body;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (birthday !== undefined) user.birthday = birthday;
+    if (location !== undefined) user.location = location;
+    if (avatar) user.avatar = avatar;
+    if (picture) user.picture = picture;
+
+    if (email !== undefined) {
+      if (email.trim() !== '') {
+        const normalizedEmail = email.toLowerCase().trim();
+        const existingEmail = await User.findOne({ email: normalizedEmail, _id: { $ne: user._id } });
+        if (existingEmail) {
+          return res.status(400).json({ message: 'Email already taken by another account' });
+        }
+        user.email = normalizedEmail;
+      }
+    }
+
+    await user.save();
+    res.json({
+      message: 'Profile updated',
+      user: {
+        _id: user._id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        avatar: user.avatar,
+        picture: user.picture,
+        birthday: user.birthday,
+        location: user.location,
+        role: user.role || 'user',
+      },
+    });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.put('/change-password', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user?.id || req.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current and new password are required' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 router.patch('/profile', verifyToken, async (req, res) => {
   try {
