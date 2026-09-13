@@ -754,12 +754,6 @@ export default function HomeScreen() {
                           rotateEnabled={false}
                           onPress={() => setIsMapExpanded(true)}
                         >
-                          <UrlTile
-                            urlTemplate="https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-                            maximumZ={19}
-                            flipY={false}
-                            tileSize={256}
-                          />
                           <Marker coordinate={{ latitude: victimLat, longitude: victimLng }} title="Your Location">
                             <View style={styles.emergencyMarker}>
                               <Ionicons name="warning" size={20} color="#fff" />
@@ -848,12 +842,6 @@ export default function HomeScreen() {
                   style={styles.expandedMap}
                   initialRegion={region}
                 >
-                  <UrlTile
-                    urlTemplate="https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-                    maximumZ={19}
-                    flipY={false}
-                    tileSize={256}
-                  />
                   {victimLat && victimLng && (
                     <Marker coordinate={{ latitude: victimLat, longitude: victimLng }} title="Incident Location">
                       <View style={styles.emergencyMarker}>

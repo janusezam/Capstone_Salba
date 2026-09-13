@@ -1,5 +1,5 @@
 import React from "react";
-import MapView, { Marker, UrlTile } from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import { useLocation } from "../hooks/useLocation";
 import { View, StyleSheet, Text } from "react-native";
 
@@ -23,12 +23,6 @@ export default function MapScreen() {
         longitudeDelta: 0.01,
       }}
     >
-      <UrlTile
-        urlTemplate="https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-        maximumZ={19}
-        flipY={false}
-        tileSize={256}
-      />
       <Marker coordinate={{ latitude: coords.latitude, longitude: coords.longitude }} title="Your Location" />
     </MapView>
   );

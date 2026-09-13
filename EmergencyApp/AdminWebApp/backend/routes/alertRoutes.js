@@ -855,7 +855,7 @@ router.get('/my-reports', authMiddleware, async (req, res) => {
     };
 
     const reports = await Report.find(query)
-      .select('disasterType locationName status note severity lat lng createdAt senderName senderPhone assignedTeam rescuerMissionStatus photoUrl')
+      .select('disasterType locationName status note severity lat lng createdAt senderName senderPhone assignedTeam assignedRescuer rescuerMissionStatus photoUrl resolutionPhotoUrl')
       .sort({ createdAt: -1 })
       .lean();
     
