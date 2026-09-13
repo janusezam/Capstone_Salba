@@ -76,12 +76,13 @@ router.get('/users', authMiddleware, requireAdmin, async (req, res) => {
 --------------------------------*/
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, username, password, role, termsAccepted, termsVersion, termsAcceptedAt } = req.body;
+    const { name, email, username, phone, password, role, termsAccepted, termsVersion, termsAcceptedAt } = req.body;
     const normalizedEmail = email ? String(email).trim().toLowerCase() : '';
     const normalizedUsername = username ? String(username).trim() : '';
+    const normalizedPhone = phone ? String(phone).replace(/\s|-/g, '').trim() : '';
     const acceptedVersion = termsVersion || '2026-04-09';
 
-    // Rescuers use username, others use email
+    // Rescuers use username, others use email/phone
     if (role === 'rescuer') {
       if (!name || !normalizedEmail || !normalizedUsername || !password)
         return res.status(400).json({ message: 'Name, email, username and password required' });
@@ -99,6 +100,7 @@ router.post('/register', async (req, res) => {
         name,
         email: normalizedEmail,
         username: normalizedUsername,
+        phone: normalizedPhone,
         password: hashed,
         role: 'rescuer',
       });
@@ -117,27 +119,36 @@ router.post('/register', async (req, res) => {
       return res.status(403).json({ message: 'Admin or rescuer accounts cannot be created from public registration' });
     }
 
-    // standard email-based registration
-    if (!name || !normalizedEmail || !password)
-      return res.status(400).json({ message: 'All fields required' });
-
-    if (termsAccepted !== true) {
-      return res.status(400).json({ message: 'You must accept the Terms and Conditions to register' });
+    // standard registration (requires name, password, and either email or phone)
+    if (!name || (!normalizedEmail && !normalizedPhone) || !password) {
+      return res.status(400).json({ message: 'Name, password, and email or phone number are required' });
     }
 
-    // check duplicate
-    const existing = await User.findOne({ email: normalizedEmail });
-    if (existing)
-      return res.status(400).json({ message: 'Email already registered' });
+    // check duplicates
+    if (normalizedEmail) {
+      const existingEmail = await User.findOne({ email: normalizedEmail });
+      if (existingEmail) return res.status(400).json({ message: 'Email already registered' });
+    }
+    if (normalizedPhone) {
+      const existingPhone = await User.findOne({
+        $or: [
+          { phone: normalizedPhone },
+          { phone: normalizedPhone.startsWith('+63') ? '0' + normalizedPhone.slice(3) : normalizedPhone },
+          { phone: normalizedPhone.startsWith('0') ? '+63' + normalizedPhone.slice(1) : normalizedPhone }
+        ]
+      });
+      if (existingPhone) return res.status(400).json({ message: 'Phone number already registered' });
+    }
 
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
-      email: normalizedEmail,
+      email: normalizedEmail || `${normalizedPhone || Date.now()}@disastersos.salba`,
+      phone: normalizedPhone,
       password: hashed,
       role: 'user',
-      termsAccepted: true,
+      termsAccepted: termsAccepted !== false,
       termsAcceptedAt: termsAcceptedAt ? new Date(termsAcceptedAt) : new Date(),
       termsVersion: acceptedVersion,
     });
@@ -160,36 +171,44 @@ router.post('/register', async (req, res) => {
 --------------------------------*/
 router.post('/login', async (req, res) => {
   try {
-    const { email, username, identifier, password } = req.body;
+    const { email, username, identifier, phone, password, recaptchaToken } = req.body;
     const normalizedEmail = email ? String(email).trim().toLowerCase() : '';
     const normalizedUsername = username ? String(username).trim() : '';
     const normalizedIdentifier = identifier ? String(identifier).trim() : '';
-    const loginValue = normalizedIdentifier || normalizedEmail || normalizedUsername;
-    const { recaptchaToken } = req.body;
+    const normalizedPhone = phone ? String(phone).replace(/\s|-/g, '').trim() : '';
+    const loginValue = normalizedIdentifier || normalizedEmail || normalizedUsername || normalizedPhone;
 
-    // Enforce reCAPTCHA for RescuerApp and Web App
+    // Verify reCAPTCHA if provided
     if (recaptchaToken) {
       const isHuman = await verifyRecaptcha(recaptchaToken);
       if (!isHuman) {
         return res.status(400).json({ message: "reCAPTCHA verification failed" });
       }
-    } else {
-      return res.status(400).json({ message: "reCAPTCHA token is missing" });
     }
 
     if (!loginValue || !password) {
-      return res.status(400).json({ message: 'Username or email and password are required' });
+      return res.status(400).json({ message: 'Phone number, email, or username and password are required' });
     }
 
     let user;
     if (loginValue.includes('@')) {
       user = await User.findOne({ email: loginValue.toLowerCase() });
+    } else if (normalizedPhone || /^\+?[0-9]{7,15}$/.test(loginValue)) {
+      const clean = normalizedPhone || loginValue.replace(/\s|-/g, '').trim();
+      user = await User.findOne({
+        $or: [
+          { phone: clean },
+          { phone: clean.startsWith('+63') ? '0' + clean.slice(3) : clean },
+          { phone: clean.startsWith('0') ? '+63' + clean.slice(1) : clean },
+          { username: loginValue }
+        ]
+      });
     } else {
       user = await User.findOne({ username: loginValue });
     }
 
     if (!user)
-      return res.status(401).json({ message: 'Invalid username/email or password' });
+      return res.status(401).json({ message: 'Invalid credentials' });
 
     const match = await bcrypt.compare(password, user.password);
     if (!match)

@@ -497,12 +497,6 @@ export default function MapScreen({ navigation }) {
         showsCompass={true}
         rotateEnabled={true}
       >
-        <UrlTile
-          urlTemplate="https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-          maximumZ={19}
-          flipY={false}
-          tileSize={256}
-        />
         {/* Your location marker (Rescuer Team Shield) */}
         {location && (
           <Marker
