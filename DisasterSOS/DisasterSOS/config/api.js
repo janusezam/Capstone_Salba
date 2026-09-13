@@ -9,13 +9,18 @@ const getApiBaseUrl = () => {
 
   // Fallback to web localhost if on web
   if (Platform.OS === 'web') {
-    return 'http://localhost:5002';
+    return 'https://salba-backend-zam-4f45f4b26eb0.herokuapp.com';
   }
 
-  // Extract host IP (e.g., "10.0.0.34") from the Expo packager's address
+  // Extract host IP from the Expo packager's address if running in Expo Go
   const hostUri = Constants.expoConfig?.hostUri || Constants.manifest?.debuggerHost || '';
-  const ip = hostUri ? hostUri.split(':')[0] : '10.0.0.34'; // fallback to last known IP
-  return `http://${ip}:5002`;
+  if (hostUri) {
+    const ip = hostUri.split(':')[0];
+    return `http://${ip}:5000`;
+  }
+
+  // Standalone APK / Production fallback
+  return 'https://salba-backend-zam-4f45f4b26eb0.herokuapp.com';
 };
 
 export const BASE_URL = getApiBaseUrl();

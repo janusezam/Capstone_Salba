@@ -5,10 +5,14 @@ const getApiBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
-  // Extract host IP (e.g., "10.0.0.35") from the Expo packager's address
+  // Extract host IP from the Expo packager's address (local dev with Expo Go)
   const hostUri = Constants.expoConfig?.hostUri || Constants.manifest?.debuggerHost || '';
-  const ip = hostUri ? hostUri.split(':')[0] : '10.0.0.35'; // fallback to last known IP
-  return `http://${ip}:5000`;
+  if (hostUri) {
+    const ip = hostUri.split(':')[0];
+    return `http://${ip}:5000`;
+  }
+  // Standalone APK / Production fallback
+  return 'https://salba-backend-zam-4f45f4b26eb0.herokuapp.com';
 };
 
 const API_BASE_URL = getApiBaseUrl(); 
