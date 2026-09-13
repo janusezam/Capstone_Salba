@@ -15,7 +15,7 @@ import {
   Pressable,
 } from "react-native";
 import * as Location from "expo-location";
-import MapView, { Marker, Polyline, UrlTile } from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps";
 
 import { sendAlert, getMyReports } from "../services/alertService";
 
