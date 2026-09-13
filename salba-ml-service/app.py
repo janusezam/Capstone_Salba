@@ -138,6 +138,8 @@ def features_to_array(features, feature_names):
 # HEALTH CHECK
 # ============================================
 
+@app.route('/', methods=['GET'])
+@app.route('/health', methods=['GET'])
 @app.route('/api/ml/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
@@ -434,7 +436,7 @@ def get_verification_recommendation(is_legitimate, confidence):
         return 'Flagged as potential false alarm or simulation drill.'
 
 if __name__ == '__main__':
-    port = int(os.getenv('FLASK_PORT', 5001))
+    port = int(os.environ.get('PORT', os.environ.get('FLASK_PORT', 5001)))
     print(f"\n[START] Starting SALBA ML Service on port {port}...")
     app.run(host='0.0.0.0', port=port, debug=False)
 
