@@ -656,7 +656,7 @@ export default function HomeScreen() {
                       <Ionicons name="location-outline" size={18} color="#666" style={styles.detailItemIcon} />
                       <View style={styles.detailItemContent}>
                         <Text style={styles.detailItemLabel}>Incident Location</Text>
-                        <Text style={styles.detailItemVal}>{activeReport.locationName || 'Location Pinned'}</Text>
+                        <Text style={styles.detailItemVal}>{activeReport.locationName || activeReport.location || 'Location Pinned'}</Text>
                       </View>
                     </View>
 
@@ -665,7 +665,9 @@ export default function HomeScreen() {
                       <View style={styles.detailItemContent}>
                         <Text style={styles.detailItemLabel}>Reported Time</Text>
                         <Text style={styles.detailItemVal}>
-                          {new Date(activeReport.createdAt).toLocaleString()}
+                          {activeReport.createdAt || activeReport.timestamp 
+                            ? new Date(activeReport.createdAt || activeReport.timestamp).toLocaleString() 
+                            : 'Just now'}
                         </Text>
                       </View>
                     </View>

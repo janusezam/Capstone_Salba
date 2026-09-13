@@ -877,7 +877,9 @@ router.get('/my-reports', authMiddleware, async (req, res) => {
         const formattedReport = {
           _id: r._id,
           type: r.disasterType && r.disasterType.trim() !== '' ? r.disasterType : 'Not Specified',
+          disasterType: r.disasterType || 'Not Specified',
           location: r.locationName || 'Location not specified',
+          locationName: r.locationName || 'Location not specified',
           // IMPORTANT: Show what matters most to the user
           // If rescuer has updated their mission status, that's the real progress the user cares about
           status: (r.rescuerMissionStatus && r.rescuerMissionStatus !== 'none') 
@@ -888,12 +890,17 @@ router.get('/my-reports', authMiddleware, async (req, res) => {
             ? getRescuerStatusDisplay(r.rescuerMissionStatus)
             : getStatusDisplay(r.status),
           message: r.note || '',
+          note: r.note || '',
           severity: r.severity || 'moderate',
+          createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
+          updatedAt: r.updatedAt ? new Date(r.updatedAt).toISOString() : (r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString()),
           timestamp: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
           date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'Date Unavailable',
           time: r.createdAt ? new Date(r.createdAt).toLocaleTimeString() : 'Time Unavailable',
           lat: r.lat,
           lng: r.lng,
+          latitude: r.lat,
+          longitude: r.lng,
           senderName: r.senderName || 'Anonymous',
           assignedTeamId: r.assignedTeam,
           assignedRescuer: r.assignedRescuer || null,
