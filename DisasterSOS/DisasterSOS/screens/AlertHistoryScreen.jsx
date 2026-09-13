@@ -192,19 +192,10 @@ export default function AlertHistoryScreen() {
         } : 'No reports');
         setAlerts(normalizedReports);
       } catch (err) {
-        // Fallback to all alerts if user endpoint not available
         console.warn('⚠️ User-specific endpoint failed:', err.response?.status, err.message);
+        setAlerts([]);
         if (err.response?.status === 401 || err.response?.status === 403) {
           Alert.alert("Authorization", "Please log in again to view your reports");
-          setAlerts([]);
-        } else if (err.code === 'ECONNREFUSED') {
-          Alert.alert("Connection Error", "Cannot reach server. Please check your connection.");
-          setAlerts([]);
-        } else {
-          // Try fallback to all alerts
-          console.log('📱 Trying fallback endpoint...');
-          const res = await axios.get(`${BASE_URL}/api/alerts`);
-          setAlerts((res.data || []).map(normalizeReport));
         }
       }
     } catch (err) {

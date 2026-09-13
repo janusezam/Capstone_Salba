@@ -3,6 +3,7 @@
 const express = require('express');
 const Report = require('../models/Report');
 const HazardZone = require('../models/HazardZone');
+const User = require('../models/User');
 const malaybalayLocations = require('../utils/malaybalayLocations');
 const enhancedML = require('../utils/enhancedMLModel');
 const { resolveLocationName } = require('../utils/locationResolver');
@@ -411,7 +412,7 @@ router.post('/', async (req, res) => {
           console.log(`🚨 [AUTO-ESCALATE] ${nearbyReports.length} reports clustered in same location! Escalating to CRITICAL`);
           
           const escalatedIds = nearbyReports.map(r => r._id);
-          await Report.updateMany(
+          const updateResult = await Report.updateMany(
             { _id: { $in: escalatedIds } },
             { 
               severity: 'critical',
@@ -895,6 +896,9 @@ router.get('/my-reports', authMiddleware, async (req, res) => {
           lng: r.lng,
           senderName: r.senderName || 'Anonymous',
           assignedTeamId: r.assignedTeam,
+          assignedRescuer: r.assignedRescuer || null,
+          photoUrl: r.photoUrl || null,
+          resolutionPhotoUrl: r.resolutionPhotoUrl || null,
           // Include both for frontend flexibility
           _rescuerMissionStatus: r.rescuerMissionStatus,
           _reportStatus: r.status
