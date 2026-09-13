@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline } from "react-leaflet";
 import L from "leaflet";
-import API from "../api";
+import API, { BACKEND_URL, API_BASE_URL } from "../api";
 import io from "socket.io-client";
 import "leaflet/dist/leaflet.css";
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
@@ -1600,9 +1600,7 @@ function AdminDashboard() {
       });
     }
 
-    const socketHost = window.location.hostname || 'localhost';
-    const socketUrl = `http://${socketHost}:5000`;
-    const socket = io(socketUrl, {
+    const socket = io(BACKEND_URL, {
       reconnection: true,
       reconnectionDelay: 1000,
       transports: ["websocket", "polling"]
@@ -2721,7 +2719,7 @@ function AdminDashboard() {
                                     onClick={async () => {
                                       try {
                                         // Fetch full report details from backend
-                                        const response = await fetch(`http://localhost:5000/api/reports`);
+                                        const response = await fetch(`${API_BASE_URL}/reports`);
                                         const result = await response.json();
                                         const fullReport = result.data?.find(r => r._id === alert.id);
                                         if (fullReport) {

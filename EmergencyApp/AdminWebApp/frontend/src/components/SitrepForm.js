@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Save, Send, Download, Plus, Trash2, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { BACKEND_URL } from '../api';
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+const API_BASE = BACKEND_URL;
 
 const SitrepForm = ({ rescue }) => {
   const [activeTab, setActiveTab] = useState('situation');

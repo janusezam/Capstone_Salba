@@ -12,7 +12,7 @@ import L from "leaflet";
 import markerShadowPng from "leaflet/dist/images/marker-shadow.png";
 import io from "socket.io-client";
 import { AlertCircle } from "lucide-react";
-import API from "../api";
+import API, { BACKEND_URL, API_BASE_URL } from "../api";
 
 const getRescuerIcon = (teamName, teamColor) => {
   const color = teamColor || "#0284c7";
@@ -289,7 +289,7 @@ function RescueMap({ rescue, onRealTimeUpdate, externalLocationUpdate }) {
       setError(null);
       try {
         const response = await fetch(
-          `http://localhost:5000/api/route?start=${rescuerLocation.lat},${rescuerLocation.lng}&end=${incidentLocation.lat},${incidentLocation.lng}`
+          `${API_BASE_URL}/route?start=${rescuerLocation.lat},${rescuerLocation.lng}&end=${incidentLocation.lat},${incidentLocation.lng}`
         );
 
         if (!response.ok) {
@@ -334,10 +334,7 @@ function RescueMap({ rescue, onRealTimeUpdate, externalLocationUpdate }) {
 
   // WebSocket for real-time location updates
   useEffect(() => {
-    const socketHost = window.location.hostname || 'localhost';
-    const SOCKET_URL = `http://${socketHost}:5000`;
-
-    socketRef.current = io(SOCKET_URL, {
+    socketRef.current = io(BACKEND_URL, {
       transports: ["websocket", "polling"],
       reconnection: true,
       reconnectionAttempts: 5,

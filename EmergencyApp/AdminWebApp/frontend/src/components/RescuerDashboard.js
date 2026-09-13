@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from "react-leaflet";
 import L from "leaflet";
-import API from "../api";
+import API, { BACKEND_URL } from "../api";
 import io from "socket.io-client";
 
 function RescuerDashboard() {
@@ -20,7 +20,7 @@ function RescuerDashboard() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io(BACKEND_URL, {
       auth: { token },
       reconnection: true,
       reconnectionDelay: 1000,

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, Download, Printer } from 'lucide-react';
 import SitrepForm from '../components/SitrepForm';
+import { BACKEND_URL } from '../api';
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+const API_BASE = BACKEND_URL;
 
 const SitrepPage = () => {
   const { reportId } = useParams();

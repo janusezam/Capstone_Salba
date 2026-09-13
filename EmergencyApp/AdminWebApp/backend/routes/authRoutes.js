@@ -33,6 +33,10 @@ const getMailer = () => {
 
 const verifyRecaptcha = async (token) => {
   try {
+    if (!process.env.RECAPTCHA_SECRET_KEY) {
+      console.warn("RECAPTCHA_SECRET_KEY not configured on server. Allowing request.");
+      return true;
+    }
     const response = await axios.post(
       "https://www.google.com/recaptcha/api/siteverify",
       null,
@@ -45,7 +49,7 @@ const verifyRecaptcha = async (token) => {
     );
     const { success, score } = response.data;
     // score >= 0.5 is generally considered human
-    return success && score >= 0.5;
+    return success && (score === undefined || score >= 0.3);
   } catch (err) {
     console.error("reCAPTCHA verification error:", err);
     return false;

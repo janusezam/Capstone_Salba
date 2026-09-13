@@ -42,6 +42,11 @@
     "plugins": [
       "expo-sharing",
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9b3a42be-12c7-41e6-9c72-28c05d4c536c"
+      }
+    }
   }
 }
