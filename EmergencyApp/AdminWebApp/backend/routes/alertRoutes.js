@@ -839,8 +839,22 @@ router.get('/my-reports', authMiddleware, async (req, res) => {
       return res.status(401).json({ success: false, message: 'Unauthorized - no user ID' });
     }
 
-    const reports = await Report.find({ userId })
-      .select('disasterType locationName status note severity lat lng createdAt senderName senderPhone assignedTeam rescuerMissionStatus')
+    const user = await User.findById(userId);
+    const userPhone = user?.phone ? String(user.phone).replace(/\s|-/g, '').trim() : '';
+    
+    const query = {
+      $or: [
+        { userId: String(userId) },
+        ...(userPhone ? [
+          { senderPhone: userPhone },
+          { senderPhone: userPhone.startsWith('+63') ? '0' + userPhone.slice(3) : userPhone },
+          { senderPhone: userPhone.startsWith('0') ? '+63' + userPhone.slice(1) : userPhone },
+        ] : [])
+      ]
+    };
+
+    const reports = await Report.find(query)
+      .select('disasterType locationName status note severity lat lng createdAt senderName senderPhone assignedTeam rescuerMissionStatus photoUrl')
       .sort({ createdAt: -1 })
       .lean();
     
