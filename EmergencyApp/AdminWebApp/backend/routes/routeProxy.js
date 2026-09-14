@@ -3,20 +3,33 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 
+// In-memory cache for recent route calculations (TTL: 60 seconds)
+const routeCache = new Map();
+const CACHE_TTL_MS = 60 * 1000;
+
+const cleanOldCache = () => {
+  const now = Date.now();
+  for (const [key, entry] of routeCache.entries()) {
+    if (now - entry.timestamp > CACHE_TTL_MS) {
+      routeCache.delete(key);
+    }
+  }
+};
+const cleanupTimer = setInterval(cleanOldCache, 30000);
+if (cleanupTimer.unref) {
+  cleanupTimer.unref();
+}
+
 /*
   GET /api/route?start=lat,lng&end=lat,lng
-  Proxies to OSRM (Open Source Routing Machine) for fast routing.
+  Proxies to OSRM (Open Source Routing Machine) with fallback mirrors and caching.
   Response: returns GeoJSON feature compatible format.
 */
 router.get('/', async (req, res) => {
   try {
     const { start, end } = req.query;
     
-    console.log(`\n[Route] ========== REQUEST RECEIVED ==========`);
-    console.log(`[Route] Query params - start: ${start}, end: ${end}`);
-    
     if (!start || !end) {
-      console.error('[Route] Missing start or end parameters');
       return res.status(400).json({ 
         message: 'start & end required (format: lat,lng)',
         received: { start, end }
@@ -28,7 +41,6 @@ router.get('/', async (req, res) => {
     const endParts = end.split(',');
     
     if (startParts.length !== 2 || endParts.length !== 2) {
-      console.error('[Route] Invalid coordinate format');
       return res.status(400).json({ 
         message: 'Invalid format. Use lat,lng for both start and end',
         received: { start, end }
@@ -40,82 +52,78 @@ router.get('/', async (req, res) => {
     const endLat = parseFloat(endParts[0]);
     const endLng = parseFloat(endParts[1]);
 
-    // OSRM format is lng,lat (reversed)
+    if (isNaN(startLat) || isNaN(startLng) || isNaN(endLat) || isNaN(endLng)) {
+      return res.status(400).json({ message: 'Invalid numeric coordinates' });
+    }
+
+    // Cache key rounded to 4 decimals (~11 meters)
+    const cacheKey = `${startLat.toFixed(4)},${startLng.toFixed(4)}->${endLat.toFixed(4)},${endLng.toFixed(4)}`;
+    const cached = routeCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return res.json(cached.data);
+    }
+
+    // OSRM format is lng,lat
     const startOSRM = `${startLng},${startLat}`;
     const endOSRM = `${endLng},${endLat}`;
-    
-    console.log(`[Route] Using OSRM Demo Server`);
-    console.log(`[Route] Route: (${startLat}, ${startLng}) → (${endLat}, ${endLng})`);
 
-    // Use OSRM Demo server (free, no setup needed)
-    const url = `http://router.project-osrm.org/route/v1/driving/${startOSRM};${endOSRM}?overview=full&geometries=geojson`;
-    
-    console.log(`[Route] Calling OSRM API...`);
-    
-    const response = await axios.get(url, { timeout: 10000 });
-    
-    console.log(`[Route] ✅ OSRM Response status: ${response.status}`);
-    
-    if (!response.data || !response.data.routes || response.data.routes.length === 0) {
-      console.error('[Route] ❌ No route returned by OSRM');
-      return res.status(500).json({ 
-        message: 'No route returned from OSRM',
-        data: response.data
-      });
+    // Candidate routing endpoints (primary and fallback mirrors)
+    const endpoints = [
+      `https://router.project-osrm.org/route/v1/driving/${startOSRM};${endOSRM}?overview=full&geometries=geojson`,
+      `https://routing.openstreetmap.de/routed-car/route/v1/driving/${startOSRM};${endOSRM}?overview=full&geometries=geojson`,
+      `http://router.project-osrm.org/route/v1/driving/${startOSRM};${endOSRM}?overview=full&geometries=geojson`
+    ];
+
+    let lastError = null;
+    let routeData = null;
+
+    for (const url of endpoints) {
+      try {
+        const response = await axios.get(url, { 
+          timeout: 6000,
+          headers: { 'User-Agent': 'SALBA-Emergency-App/1.0' }
+        });
+
+        if (response.data && response.data.routes && response.data.routes.length > 0) {
+          const route = response.data.routes[0];
+          if (route.geometry && route.geometry.coordinates && route.geometry.coordinates.length > 0) {
+            routeData = route;
+            break;
+          }
+        }
+      } catch (err) {
+        lastError = err;
+        console.warn(`[Route] Mirror failed (${url.split('/')[2]}): ${err.message}`);
+      }
     }
 
-    const route = response.data.routes[0];
-    
-    if (!route.geometry || !route.geometry.coordinates || route.geometry.coordinates.length === 0) {
-      console.error('[Route] ❌ Route has no coordinates');
-      return res.status(500).json({ 
-        message: 'Route has no coordinates',
-        route: route
-      });
+    if (!routeData) {
+      throw lastError || new Error('All routing services failed to return a route');
     }
 
-    // Convert OSRM response to our standard format
     const feature = {
       type: 'Feature',
       geometry: {
         type: 'LineString',
-        coordinates: route.geometry.coordinates  // Already in [lng, lat] format
+        coordinates: routeData.geometry.coordinates // [lng, lat] format
       },
       properties: {
         summary: {
-          distance: route.distance,  // in meters
-          duration: route.duration   // in seconds
+          distance: routeData.distance, // in meters
+          duration: routeData.duration   // in seconds
         }
       }
     };
 
-    console.log(`[Route] ✅ Route successfully processed`);
-    console.log(`[Route] Distance: ${(route.distance / 1000).toFixed(2)} km`);
-    console.log(`[Route] Duration: ${(route.duration / 60).toFixed(0)} min`);
-    console.log(`[Route] Coordinates: ${route.geometry.coordinates.length} points`);
-    console.log(`[Route] ========== ROUTE RESPONSE SENT ==========\n`);
-    
-    res.json(feature);
+    // Store in cache
+    routeCache.set(cacheKey, { timestamp: Date.now(), data: feature });
+
+    return res.json(feature);
   } catch (err) {
-    console.error(`[Route] ❌ ERROR OCCURRED`);
-    console.error(`[Route] Error type: ${err.constructor.name}`);
-    console.error(`[Route] Error message: ${err.message}`);
-    
-    if (err.response) {
-      console.error(`[Route] API Error Status: ${err.response.status}`);
-      console.error(`[Route] API Error Data:`, JSON.stringify(err.response.data).substring(0, 500));
-    }
-    
-    if (err.code) {
-      console.error(`[Route] Error code: ${err.code}`);
-    }
-    
-    console.error(`[Route] ========== ERROR RESPONSE SENT ==========\n`);
-    
-    res.status(500).json({ 
+    console.error(`[Route] ❌ Routing service error: ${err.message}`);
+    return res.status(500).json({ 
       message: 'Route service error', 
-      error: err.message,
-      errorType: err.constructor.name
+      error: err.message 
     });
   }
 });

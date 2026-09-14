@@ -226,6 +226,8 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, []);
 
+  const lastRouteFetchRef = useRef({ rescuerLat: null, rescuerLng: null, victimLat: null, victimLng: null, time: 0 });
+
   // Fetch road route from OSRM when rescuer and victim locations are available
   useEffect(() => {
     let isCancelled = false;
@@ -245,29 +247,60 @@ export default function HomeScreen() {
       const isEnRoute = activeReport.status === 'on_the_way' || activeReport.status === 'ongoing' || activeReport.status === 'in_progress';
 
       if (hasVictimLoc && hasRescuerLoc && isEnRoute) {
-        try {
-          const url = `https://router.project-osrm.org/route/v1/driving/${rescuerLng},${rescuerLat};${victimLng},${victimLat}?overview=full&geometries=geojson`;
-          const res = await fetch(url);
-          if (res.ok) {
-            const data = await res.json();
-            if (!isCancelled && data.routes && data.routes.length > 0 && data.routes[0].geometry?.coordinates) {
-              const coords = data.routes[0].geometry.coordinates.map(pt => ({
-                latitude: pt[1],
-                longitude: pt[0],
-              }));
-              setRouteCoordinates(coords);
-              return;
+        const now = Date.now();
+        const last = lastRouteFetchRef.current;
+        const movedMeters = (last.rescuerLat !== null && last.rescuerLng !== null)
+          ? calculateDistanceMeters(last.rescuerLat, last.rescuerLng, rescuerLat, rescuerLng)
+          : Infinity;
+        const targetMovedMeters = (last.victimLat !== null && last.victimLng !== null)
+          ? calculateDistanceMeters(last.victimLat, last.victimLng, victimLat, victimLng)
+          : Infinity;
+        const elapsedMs = now - (last.time || 0);
+
+        // Avoid re-fetching if movement is minimal
+        if (routeCoordinates && routeCoordinates.length > 2 && movedMeters < 25 && targetMovedMeters < 10 && elapsedMs < 20000) {
+          return;
+        }
+
+        lastRouteFetchRef.current = { rescuerLat, rescuerLng, victimLat, victimLng, time: now };
+
+        const endpoints = [
+          `https://router.project-osrm.org/route/v1/driving/${rescuerLng},${rescuerLat};${victimLng},${victimLat}?overview=full&geometries=geojson`,
+          `https://routing.openstreetmap.de/routed-car/route/v1/driving/${rescuerLng},${rescuerLat};${victimLng},${victimLat}?overview=full&geometries=geojson`,
+        ];
+
+        let loadedCoords = null;
+        for (const url of endpoints) {
+          try {
+            const res = await fetch(url);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.routes && data.routes.length > 0 && data.routes[0].geometry?.coordinates) {
+                loadedCoords = data.routes[0].geometry.coordinates.map(pt => ({
+                  latitude: pt[1],
+                  longitude: pt[0],
+                }));
+                break;
+              }
             }
+          } catch (err) {
+            // Try next mirror
           }
-        } catch (err) {
-          console.log("OSRM road route fetch error:", err);
         }
 
         if (!isCancelled) {
-          setRouteCoordinates([
-            { latitude: rescuerLat, longitude: rescuerLng },
-            { latitude: victimLat, longitude: victimLng },
-          ]);
+          if (loadedCoords && loadedCoords.length > 0) {
+            setRouteCoordinates(loadedCoords);
+          } else {
+            // Keep previous valid route if available
+            setRouteCoordinates(prev => {
+              if (prev && prev.length > 2) return prev;
+              return [
+                { latitude: rescuerLat, longitude: rescuerLng },
+                { latitude: victimLat, longitude: victimLng },
+              ];
+            });
+          }
         }
       } else {
         setRouteCoordinates([]);
@@ -777,6 +810,7 @@ export default function HomeScreen() {
 
                           {hasRescuerLoc && isEnRoute && displayRoute.length > 0 && (
                             <Polyline
+                              key={`mini-route-${displayRoute.length}-${displayRoute[0]?.latitude?.toFixed(4)}`}
                               coordinates={displayRoute}
                               strokeColor="#0284C7"
                               strokeWidth={4}
@@ -867,6 +901,7 @@ export default function HomeScreen() {
 
                   {hasRescuerLoc && isEnRoute && displayRoute.length > 0 && (
                     <Polyline
+                      key={`expanded-route-${displayRoute.length}-${displayRoute[0]?.latitude?.toFixed(4)}`}
                       coordinates={displayRoute}
                       strokeColor="#0284C7"
                       strokeWidth={5}

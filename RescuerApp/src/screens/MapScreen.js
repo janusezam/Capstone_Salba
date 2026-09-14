@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Dimensions,
   Platform,
+  AppState,
 } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -57,6 +58,16 @@ export default function MapScreen({ navigation }) {
   const locationSubscription = useRef(null);
   const hasAutoFittedRef = useRef(false);
 
+  // Route tracking references to prevent excessive API calls & race conditions
+  const lastRouteFetchRef = useRef({
+    startLat: null,
+    startLng: null,
+    endLat: null,
+    endLng: null,
+    time: 0,
+  });
+  const fetchSequenceRef = useRef(0);
+
   // Malaybalay City center as default
   const defaultRegion = {
     latitude: 8.1575,
@@ -84,6 +95,23 @@ export default function MapScreen({ navigation }) {
     };
   }, [navigation]);
 
+  // Handle AppState lifecycle (background -> active foreground)
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        console.log('📱 App resumed to active, refreshing mission and route...');
+        fetchMission();
+        if (location && mission?.report) {
+          fetchRoute(location, { latitude: mission.report.lat, longitude: mission.report.lng }, true);
+        }
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [location, mission]);
+
   useEffect(() => {
     // Refresh mission data when dispatch alert changes (either new assignment or resolution)
     fetchMission();
@@ -105,140 +133,103 @@ export default function MapScreen({ navigation }) {
     };
   }, [socket]);
 
-  const fetchRoute = async (startLoc, endLoc) => {
+  const fetchRoute = async (startLoc, endLoc, force = false) => {
+    if (!startLoc?.latitude || !startLoc?.longitude || !endLoc?.latitude || !endLoc?.longitude) {
+      return;
+    }
+
+    const now = Date.now();
+    const last = lastRouteFetchRef.current;
+
+    const movedMeters = (last.startLat !== null && last.startLng !== null)
+      ? haversineDistanceMeters(last.startLat, last.startLng, startLoc.latitude, startLoc.longitude)
+      : Infinity;
+
+    const targetMovedMeters = (last.endLat !== null && last.endLng !== null)
+      ? haversineDistanceMeters(last.endLat, last.endLng, endLoc.latitude, endLoc.longitude)
+      : Infinity;
+
+    const elapsedMs = now - (last.time || 0);
+
+    // Skip recalculation if already loaded and rescuer hasn't moved significantly (>25m)
+    if (!force && routeCoordinates && routeCoordinates.length > 2) {
+      if (movedMeters < 25 && targetMovedMeters < 10 && elapsedMs < 20000) {
+        return;
+      }
+    }
+
+    lastRouteFetchRef.current = {
+      startLat: startLoc.latitude,
+      startLng: startLoc.longitude,
+      endLat: endLoc.latitude,
+      endLng: endLoc.longitude,
+      time: now,
+    };
+
+    const currentFetchId = ++fetchSequenceRef.current;
+
     try {
       setRouteLoading(true);
-      const start = `${startLoc.latitude},${startLoc.longitude}`; // lat,lng
+      const start = `${startLoc.latitude},${startLoc.longitude}`;
       const end = `${endLoc.latitude},${endLoc.longitude}`;
       const routeUrl = `${API_URL}/route?start=${start}&end=${end}`;
       
-      console.log('\n========== [ROUTE FETCH] START ==========');
-      console.log('URL:', routeUrl);
-      console.log('Start coords (lat,lng):', start);
-      console.log('End coords (lat,lng):', end);
-      
-      const response = await fetch(routeUrl, { timeout: 10000 });
+      const response = await fetch(routeUrl, { timeout: 8000 });
 
-      console.log('Response status:', response.status, response.ok);
-
-      let data;
-      let rawText = '';
-      try {
-        rawText = await response.text();
-        console.log('Raw response length:', rawText.length, 'bytes');
-        data = JSON.parse(rawText);
-      } catch (parseErr) {
-        console.error('❌ JSON Parse Error:', parseErr.message);
-        console.error('❌ Raw response:', rawText.substring(0, 200));
-        console.log('⚠️ Using straight line fallback due to parse error');
-        setRouteCoordinates([
-          { latitude: startLoc.latitude, longitude: startLoc.longitude },
-          { latitude: endLoc.latitude, longitude: endLoc.longitude }
-        ]);
-        return;
+      if (currentFetchId !== fetchSequenceRef.current) {
+        return; // Stale request, ignore
       }
 
       if (!response.ok) {
-        console.error('❌ API Error Status:', response.status);
-        console.error('❌ Error Message:', data.message || data.error || 'Unknown error');
-        console.error('❌ Full error response:', JSON.stringify(data));
-        console.log('⚠️ Route service error - using straight line fallback');
-        setRouteCoordinates([
-          { latitude: startLoc.latitude, longitude: startLoc.longitude },
-          { latitude: endLoc.latitude, longitude: endLoc.longitude }
-        ]);
-        return;
+        throw new Error(`HTTP ${response.status}`);
       }
 
-      console.log('Response keys:', Object.keys(data));
-      
-      if (!data.geometry) {
-        console.error('❌ No geometry in response');
-        console.log('Full response:', JSON.stringify(data, null, 2));
-        console.log('⚠️ Using straight line fallback');
-        setRouteCoordinates([
-          { latitude: startLoc.latitude, longitude: startLoc.longitude },
-          { latitude: endLoc.latitude, longitude: endLoc.longitude }
-        ]);
-        return;
-      }
+      const data = await response.json();
 
-      if (!data.geometry.coordinates) {
-        console.error('❌ No coordinates in geometry');
-        console.log('⚠️ Using straight line fallback');
-        setRouteCoordinates([
-          { latitude: startLoc.latitude, longitude: startLoc.longitude },
-          { latitude: endLoc.latitude, longitude: endLoc.longitude }
-        ]);
-        return;
-      }
-
-      const coordCount = data.geometry.coordinates.length;
-      console.log('Route coordinates count:', coordCount);
-
-      if (coordCount === 0) {
-        console.error('❌ Empty coordinates array');
-        console.log('⚠️ Using straight line fallback');
-        setRouteCoordinates([
-          { latitude: startLoc.latitude, longitude: startLoc.longitude },
-          { latitude: endLoc.latitude, longitude: endLoc.longitude }
-        ]);
-        return;
-      }
-
-      if (coordCount === 2) {
-        console.warn('⚠️ Route has only 2 points - straight line returned');
+      if (!data?.geometry?.coordinates || data.geometry.coordinates.length < 2) {
+        throw new Error('Invalid geometry in route response');
       }
 
       // Convert [lng, lat] format to [lat, lng] for react-native-maps
-      const coordinates = data.geometry.coordinates.map(coord => ({
+      const coordinates = data.geometry.coordinates.map((coord) => ({
         latitude: coord[1],
         longitude: coord[0],
       }));
-      
-      console.log('✅ Route successfully processed!');
-      console.log('Waypoints:', coordinates.length);
-      console.log('First point:', JSON.stringify(coordinates[0]));
-      console.log('Last point:', JSON.stringify(coordinates[coordinates.length - 1]));
-      console.log('========== [ROUTE FETCH] SUCCESS ==========\n');
-      
-      setRouteCoordinates(coordinates);
+
+      if (currentFetchId === fetchSequenceRef.current) {
+        setRouteCoordinates(coordinates);
+      }
     } catch (error) {
-      console.error('\n========== [ROUTE FETCH] ERROR ==========');
-      console.error('Error type:', error.constructor.name);
-      console.error('Error message:', error.message);
-      console.error('========== [ROUTE FETCH] END ERROR ==========\n');
+      console.warn('⚠️ Route fetch issue:', error.message);
       
-      // Fallback to straight line on any error
-      console.log('⚠️ Using straight line fallback due to network error');
-      setRouteCoordinates([
-        { latitude: startLoc.latitude, longitude: startLoc.longitude },
-        { latitude: endLoc.latitude, longitude: endLoc.longitude }
-      ]);
+      // Preserve existing valid road route on temporary network error
+      if (currentFetchId === fetchSequenceRef.current) {
+        setRouteCoordinates((prev) => {
+          if (prev && prev.length > 2) {
+            return prev; // keep existing road path
+          }
+          return [
+            { latitude: startLoc.latitude, longitude: startLoc.longitude },
+            { latitude: endLoc.latitude, longitude: endLoc.longitude },
+          ];
+        });
+      }
     } finally {
-      setRouteLoading(false);
+      if (currentFetchId === fetchSequenceRef.current) {
+        setRouteLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     if (location && mission?.report) {
-      console.log('\n🟡 AUTO-FETCH TRIGGERED');
-      console.log('Location:', JSON.stringify(location));
-      console.log('Mission report:', JSON.stringify({
-        lat: mission.report.lat,
-        lng: mission.report.lng,
-        severity: mission.report.severity
-      }));
       fetchRoute(location, { latitude: mission.report.lat, longitude: mission.report.lng });
-    } else {
-      console.log('⚫ AUTO-FETCH BLOCKED - location:', !!location, 'mission:', !!mission?.report);
     }
   }, [location, mission]);
 
   // Auto-fit map coordinates exactly once when route coordinates are first loaded
   useEffect(() => {
     if (routeCoordinates && routeCoordinates.length > 0 && mapRef.current && !hasAutoFittedRef.current) {
-      console.log('🗺️ [MAP] Auto-fitting to route coordinates (initial)...');
       setTimeout(() => {
         if (mapRef.current) {
           mapRef.current.fitToCoordinates(routeCoordinates, {
@@ -560,14 +551,17 @@ export default function MapScreen({ navigation }) {
         {/* Line connecting your location to mission */}
         {location && mission?.report && (
           <>
-            {routeCoordinates && routeCoordinates.length > 0 ? (
+            {routeCoordinates && routeCoordinates.length > 2 ? (
               <Polyline
+                key={`route-road-${routeCoordinates.length}-${routeCoordinates[0]?.latitude?.toFixed(4)}-${routeCoordinates[0]?.longitude?.toFixed(4)}`}
                 coordinates={routeCoordinates}
                 strokeColor="#DC2626"
                 strokeWidth={4}
+                lineDashPattern={undefined}
               />
             ) : (
               <Polyline
+                key="route-fallback-straight"
                 coordinates={[
                   location,
                   { latitude: mission.report.lat, longitude: mission.report.lng }
@@ -624,7 +618,7 @@ export default function MapScreen({ navigation }) {
           )}
           {!routeLoading && (!routeCoordinates || routeCoordinates.length <= 2) && (
             <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>
-              ❌ Route failed (showing straight line)
+              ❌ Direct line fallback (calculating road path...)
             </Text>
           )}
         </View>
@@ -723,7 +717,15 @@ export default function MapScreen({ navigation }) {
                 )}
               </View>
 
-              <TouchableOpacity style={styles.directionsButton} onPress={fitBothMarkers}>
+              <TouchableOpacity 
+                style={styles.directionsButton} 
+                onPress={() => {
+                  fitBothMarkers();
+                  if (location && mission?.report) {
+                    fetchRoute(location, { latitude: mission.report.lat, longitude: mission.report.lng }, true);
+                  }
+                }}
+              >
                 <Ionicons name="navigate" size={20} color="#fff" />
                 <Text style={styles.directionsText}>Show Route</Text>
               </TouchableOpacity>
