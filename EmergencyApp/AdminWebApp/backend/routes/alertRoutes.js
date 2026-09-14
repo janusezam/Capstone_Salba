@@ -746,8 +746,6 @@ router.post('/', alertLimiter, async (req, res) => {
 });
 
 // POST /api/alerts/analyze-priority - Groq AI prioritization of critical reports
-const groqService = require('../utils/groqService');
-
 router.post('/analyze-priority', async (req, res) => {
   try {
     const { language = 'en' } = req.body;
