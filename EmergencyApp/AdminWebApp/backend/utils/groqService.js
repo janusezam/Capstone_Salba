@@ -1,8 +1,15 @@
 // utils/groqService.js
 const Groq = require('groq-sdk').default;
+const CircuitBreaker = require('./circuitBreaker');
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY || 'gsk_test_key'
+});
+
+const groqBreaker = new CircuitBreaker('GroqAI', {
+  failureThreshold: 3,
+  cooldownMs: 20000,
+  timeoutMs: 3000, // 3s timeout
 });
 
 /**
@@ -217,7 +224,7 @@ module.exports = {
  * @returns {Object} Structured JSON analysis
  */
 async function evaluateReportAI(reportData, recentReports = []) {
-  try {
+  return await groqBreaker.execute(async () => {
     const prompt = `
 You are an expert emergency dispatcher AI. Your job is to analyze incoming disaster reports to determine their true severity, classification, and legitimacy (false-alarm detection).
 
@@ -269,12 +276,12 @@ RESPOND ONLY WITH EXACT JSON FORMAT (no markdown, just JSON):
       success: true,
       ...analysisResult
     };
-
-  } catch (error) {
-    console.error('❌ Groq Evaluate Report Error:', error.message);
+  }, (fallbackErr) => {
+    console.warn('⚠️ [GroqBreaker Fallback Triggered]:', fallbackErr.message);
     return {
       success: false,
-      error: error.message
+      error: fallbackErr.message,
+      fallbackUsed: true
     };
-  }
+  });
 }

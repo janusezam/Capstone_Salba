@@ -65,6 +65,9 @@ const reportSchema = new mongoose.Schema({
   photoUrl: { type: String, default: null },              // Victim incident photo
   resolutionPhotoUrl: { type: String, default: null },    // Rescuer proof-of-resolution photo
   
+  // Idempotency & deduplication
+  clientRequestId: { type: String, unique: true, sparse: true },
+  
   // Routing and response performance metrics
   onTheWayAt: { type: Date, default: null },              // When rescuer tapped 'on the way'
   arrivedAt: { type: Date, default: null },               // When rescuer tapped 'ongoing' (arrived at scene)
@@ -76,5 +79,14 @@ const reportSchema = new mongoose.Schema({
   responseDurationMinutes: { type: Number, default: null }, // Elapsed time from start to arrival (mins)
   responseDistanceMeters: { type: Number, default: null }, // Distance from start to incident scene (meters)
 }, { timestamps: true });
+
+// Compound and single-field performance indexes for high-traffic surges
+reportSchema.index({ lat: 1, lng: 1, createdAt: -1 });
+reportSchema.index({ status: 1, createdAt: -1 });
+reportSchema.index({ disasterType: 1, createdAt: -1 });
+reportSchema.index({ assignedTeam: 1, status: 1 });
+reportSchema.index({ 'assignedRescuer.rescuerId': 1, status: 1 });
+reportSchema.index({ senderPhone: 1, createdAt: -1 });
+reportSchema.index({ userId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Report', reportSchema);

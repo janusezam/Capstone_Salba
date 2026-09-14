@@ -74,10 +74,21 @@ const reverseGeocodeLocation = async (lat, lng) => {
 router.post("/", requireAuth, async (req, res) => {
   console.log("POST received", req.body);
   try {
+    const { clientRequestId } = req.body;
+
+    // Idempotency check
+    if (clientRequestId) {
+      const existing = await Report.findOne({ clientRequestId }).lean();
+      if (existing) {
+        console.log(`✓ [IDEMPOTENCY] Returned existing report for clientRequestId: ${clientRequestId}`);
+        return res.status(200).json(existing);
+      }
+    }
+
     // Get sender name from user if userId is provided but senderName is not
     let senderName = req.body.senderName;
     if (!senderName && req.body.userId) {
-      const user = await User.findById(req.body.userId);
+      const user = await User.findById(req.body.userId).lean();
       senderName = user ? user.name : 'Anonymous';
     }
     
@@ -103,6 +114,7 @@ router.post("/", requireAuth, async (req, res) => {
 
     // Map incoming data to report schema
     const reportData = {
+      clientRequestId: clientRequestId || undefined,
       userId: req.user?._id || req.body.userId || null,
       lat: latitude,
       lng: longitude,
@@ -176,7 +188,7 @@ router.get("/", async (req, res) => {
     // Find reports that are NOT resolved, sorted by most recent
     const reports = await Report.find({
       status: { $ne: 'Resolved' }
-    }).populate('userId', 'name phone email').populate('assignedTeam').sort({ createdAt: -1 });
+    }).populate('userId', 'name phone email').populate('assignedTeam').sort({ createdAt: -1 }).lean();
 
     res.json(reports);
   } catch (err) {
@@ -190,7 +202,7 @@ router.get("/history", requireAuth, requireAdmin, async (req, res) => {
   try {
     const resolvedReports = await Report.find({
       status: 'Resolved'
-    }).populate('userId', 'name phone email').populate('assignedTeam').populate('resolvedBy', 'name phone email').sort({ resolvedAt: -1, updatedAt: -1 });
+    }).populate('userId', 'name phone email').populate('assignedTeam').populate('resolvedBy', 'name phone email').sort({ resolvedAt: -1, updatedAt: -1 }).lean();
     
     res.json(resolvedReports);
   } catch (err) {

@@ -1,13 +1,14 @@
-// routes/alertRoutes.js
-// Public endpoint for mobile app emergency alerts (no auth required for emergencies)
 const express = require('express');
 const Report = require('../models/Report');
 const HazardZone = require('../models/HazardZone');
 const User = require('../models/User');
 const malaybalayLocations = require('../utils/malaybalayLocations');
 const enhancedML = require('../utils/enhancedMLModel');
+const groqService = require('../utils/groqService');
+const cacheManager = require('../utils/cacheManager');
 const { resolveLocationName } = require('../utils/locationResolver');
 const { authMiddleware } = require('../middleware/authMiddleware');
+const { alertLimiter } = require('../middleware/adaptiveRateLimiter');
 
 const router = express.Router();
 
@@ -163,11 +164,14 @@ const findNearestLocationNameFallback = (lat, lng) => {
   return nearest?.label || null;
 };
 
-// GET /api/alerts/locations/barangays - Get unique barangays and zones from disaster data (MUST be before GET /)
+// GET /api/alerts/locations/barangays - Get unique barangays and zones from disaster data (Cached)
 router.get('/locations/barangays', async (req, res) => {
   try {
-    // Return comprehensive list of all barangays (1-11) with puroks
-    // This ensures users always see all available locations regardless of imported data
+    const cachedLocations = cacheManager.get('locations_barangays');
+    if (cachedLocations) {
+      return res.json(cachedLocations);
+    }
+    cacheManager.set('locations_barangays', malaybalayLocations, 86400); // Cache 24h
     res.json(malaybalayLocations);
   } catch (err) {
     console.error('Get locations error:', err);
@@ -189,10 +193,10 @@ router.get('/phone/:phone', async (req, res) => {
   }
 });
 
-// POST /api/alerts -- create emergency alert from mobile app (no auth)
-router.post('/', async (req, res) => {
+// POST /api/alerts -- create emergency alert from mobile app (no auth, rate limited)
+router.post('/', alertLimiter, async (req, res) => {
   try {
-    const { type, latitude, longitude, locationName, userId, userName, userPhone, senderPhone } = req.body;
+    const { type, latitude, longitude, locationName, userId, userName, userPhone, senderPhone, clientRequestId } = req.body;
     const normalizedType = String(type || '').trim().toLowerCase();
     const reporterFilters = [];
     if (userId) reporterFilters.push({ userId });
@@ -206,10 +210,25 @@ router.post('/', async (req, res) => {
       senderPhone,
       latitude,
       longitude,
+      clientRequestId,
     });
     
     if (latitude == null || longitude == null) {
       return res.status(400).json({ message: 'latitude & longitude required' });
+    }
+
+    // IDEMPOTENCY: Check if clientRequestId was already processed (prevents cellular retransmission duplicates)
+    if (clientRequestId) {
+      const existingByIdempotency = await Report.findOne({ clientRequestId }).lean();
+      if (existingByIdempotency) {
+        console.log(`✓ [IDEMPOTENCY] Returned existing report for clientRequestId: ${clientRequestId}`);
+        return res.status(200).json({
+          success: true,
+          isDuplicate: true,
+          message: 'Alert already recorded (idempotent)',
+          report: existingByIdempotency
+        });
+      }
     }
 
     // DUPLICATE PREVENTION: Check if an alert with same coordinates was created in the last 5 seconds
@@ -321,6 +340,7 @@ router.post('/', async (req, res) => {
     }
 
     const report = await Report.create({
+      clientRequestId: clientRequestId || undefined,
       userId: userId || null, // Can be null for anonymous reports
       lat: latitude,
       lng: longitude,
@@ -449,14 +469,14 @@ router.post('/', async (req, res) => {
     // CHECK: If alert is in a HIGH RISK hazard zone, auto-escalate to CRITICAL
     setImmediate(async () => {
       try {
-        // Find nearby hazard zones (within 2km)
-        const nearbyHazardZones = await HazardZone.find({
-          isActive: true,
-          latitude: { $gte: latitude - 0.03, $lte: latitude + 0.03 },
-          longitude: { $gte: longitude - 0.03, $lte: longitude + 0.03 }
-        });
+        // Find active hazard zones from in-memory cache (5 min TTL)
+        const allActiveHazardZones = await cacheManager.getOrSet(
+          'active_hazard_zones',
+          async () => HazardZone.find({ isActive: true }).lean(),
+          300
+        );
 
-        // Calculate actual distance
+        // Calculate actual distance in RAM
         const getDistance = (lat1, lon1, lat2, lon2) => {
           const R = 6371; // Earth's radius in km
           const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -469,9 +489,10 @@ router.post('/', async (req, res) => {
           return R * c;
         };
 
-        const hazardZonesWithDistance = nearbyHazardZones
+        const hazardZonesWithDistance = (allActiveHazardZones || [])
+          .filter(zone => Number.isFinite(zone.latitude) && Number.isFinite(zone.longitude))
           .map(zone => ({
-            ...zone.toObject(),
+            ...zone,
             distance: getDistance(latitude, longitude, zone.latitude, zone.longitude)
           }))
           .filter(z => z.distance <= 2) // Within 2km

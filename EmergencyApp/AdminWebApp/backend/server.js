@@ -76,6 +76,8 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // connect DB
 connectDB();
 
+const { authLimiter, generalApiLimiter } = require('./middleware/adaptiveRateLimiter');
+
 // Setup Socket.IO
 const io = new Server(server, {
   cors: {
@@ -90,14 +92,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Mount routes
-app.use('/api/auth', authRoutes);
+// Mount routes with rate limiting protection
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', authRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/route', routeProxy);
 app.use('/api/rescue', rescueRoutes);
 app.use('/api/teams', teamRoutes);
-app.use('/api/alerts', alertRoutes);
+app.use('/api/alerts', alertRoutes); // Alert route uses alertLimiter internally
 app.use('/api/ml', mlRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/feedback', feedbackRoutes);

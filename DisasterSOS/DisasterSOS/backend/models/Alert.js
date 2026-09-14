@@ -21,4 +21,10 @@ const reportSchema = new mongoose.Schema({
   photoUrl: { type: String, default: null },
 }, { timestamps: true });
 
+reportSchema.index({ lat: 1, lng: 1, createdAt: -1 });
+reportSchema.index({ status: 1, createdAt: -1 });
+reportSchema.index({ assignedTeam: 1, status: 1 });
+reportSchema.index({ senderPhone: 1, createdAt: -1 });
+reportSchema.index({ userId: 1, createdAt: -1 });
+
 export default mongoose.model("Report", reportSchema);
