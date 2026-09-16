@@ -1,0 +1,23 @@
+{
+  "short_name": "DisasterSOS",
+  "name": "SALBA DisasterSOS",
+  "description": "Smart Alert, Location, and Bilingual Assistance Emergency SOS Application",
+  "icons": [
+    {
+      "src": "/assets/icon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/assets/icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/"
+}
