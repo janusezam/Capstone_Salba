@@ -7,8 +7,7 @@
     "android": "npx expo start --android",
     "ios": "npx expo start --ios",
     "web": "npx expo start --web",
-    "build": "npx expo export -p web && node scripts/inject-pwa-tags.js",
-    "postinstall": "node scripts/postinstall.js"
+    "build": "npx expo export -p web && node scripts/inject-pwa-tags.js"
   },
   "dependencies": {
     "@expo/metro-runtime": "^57.0.15",
