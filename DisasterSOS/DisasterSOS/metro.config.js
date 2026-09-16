@@ -6,6 +6,22 @@ const config = getDefaultConfig(__dirname);
 const defaultResolveRequest = config.resolver.resolveRequest;
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
+  // Web specific module replacements
+  if (platform === 'web' || !platform) {
+    if (moduleName === 'react-native-maps') {
+      return {
+        filePath: path.resolve(__dirname, 'components/web/react-native-maps-web.js'),
+        type: 'sourceFile',
+      };
+    }
+    if (moduleName === 'react-native-webview') {
+      return {
+        filePath: path.resolve(__dirname, 'components/web/react-native-webview-web.js'),
+        type: 'sourceFile',
+      };
+    }
+  }
+
   if (moduleName === 'fbjs/lib/invariant') {
     return {
       filePath: require.resolve('invariant'),
