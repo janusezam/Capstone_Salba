@@ -1,6 +1,7 @@
 import React from "react";
-import { LogBox } from "react-native";
+import { View, StyleSheet, LogBox } from "react-native";
 import AppNavigator from "./navigation/AppNavigator";
+import IOSInstallBanner from "./components/IOSInstallBanner";
 
 LogBox.ignoreLogs([
   'expo-notifications: Android Push notifications',
@@ -9,5 +10,16 @@ LogBox.ignoreLogs([
 ]);
 
 export default function App() {
-  return <AppNavigator />;
+  return (
+    <View style={styles.container}>
+      <IOSInstallBanner />
+      <AppNavigator />
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
