@@ -151,6 +151,7 @@ export default function HomeScreen() {
   const [sent, setSent] = useState(false);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [warningModalVisible, setWarningModalVisible] = useState(false);
   
   // Success overlay
   const [showSuccess, setShowSuccess] = useState(false);
@@ -390,22 +391,12 @@ export default function HomeScreen() {
     }
 
     if (!disasterType) {
-      Alert.alert("Select Disaster Type", "Please choose a disaster type first.");
+      Alert.alert("Select Disaster Type", "Please choose a disaster type first before sending an alert.");
       return;
     }
 
-    // Show warning confirmation — then open camera to capture incident photo
-    Alert.alert(
-      "⚠️ Warning",
-      "Sending a false or fake report can mislead emergency responders and waste critical resources. Only submit genuine disaster reports.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Proceed",
-          onPress: () => openCamera(),
-        },
-      ]
-    );
+    // Open custom warning confirmation modal (compatible with iOS PWA, Android APK, and Web)
+    setWarningModalVisible(true);
   };
 
   const openCamera = async () => {
@@ -435,22 +426,32 @@ export default function HomeScreen() {
       console.log('👤 [proceedWithAlert] User data:', user?.name, user?.email);
       console.log('📷 [proceedWithAlert] photoUrl:', photoUrl ? '✅ included' : '⏭ skipped');
 
-      // Use current location if available, otherwise fetch GPS
+      // Use current location if available, otherwise fetch GPS with graceful fallback
       let coords = location;
       if (!coords) {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          Alert.alert("Permission Denied", "Location access is needed to send alerts.");
-          setLoading(false);
-          return;
+        try {
+          const { status } = await Location.requestForegroundPermissionsAsync();
+          if (status === "granted") {
+            const loc = await Location.getCurrentPositionAsync({
+              accuracy: Location.Accuracy.Balanced,
+            });
+            coords = {
+              latitude: loc.coords.latitude,
+              longitude: loc.coords.longitude,
+            };
+            setLocation(coords);
+          }
+        } catch (locErr) {
+          console.warn("Could not retrieve GPS coordinates:", locErr);
         }
+      }
 
-        const loc = await Location.getCurrentPositionAsync({});
+      // Default fallback coordinates for Malaybalay City if GPS is unavailable
+      if (!coords) {
         coords = {
-          latitude: loc.coords.latitude,
-          longitude: loc.coords.longitude,
+          latitude: 8.1574,
+          longitude: 125.1246,
         };
-        setLocation(coords);
       }
 
       // Get the nearest barangay/purok for the current GPS location
@@ -983,23 +984,30 @@ export default function HomeScreen() {
 
               <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => {
+                onPress={async () => {
                   setMenuVisible(false);
-                  Alert.alert(
-                    "Logout",
-                    "Are you sure you want to logout?",
-                    [
-                      { text: "Cancel", onPress: () => {}, style: "cancel" },
-                      {
-                        text: "Logout",
-                        onPress: async () => {
-                          await logout();
-                          navigation.replace("Login");
+                  if (Platform.OS === 'web') {
+                    if (window.confirm("Are you sure you want to logout?")) {
+                      await logout();
+                      navigation.replace("Login");
+                    }
+                  } else {
+                    Alert.alert(
+                      "Logout",
+                      "Are you sure you want to logout?",
+                      [
+                        { text: "Cancel", onPress: () => {}, style: "cancel" },
+                        {
+                          text: "Logout",
+                          onPress: async () => {
+                            await logout();
+                            navigation.replace("Login");
+                          },
+                          style: "destructive",
                         },
-                        style: "destructive",
-                      },
-                    ]
-                  );
+                      ]
+                    );
+                  }
                 }}
               >
                 <Ionicons name="log-out-outline" size={22} color="#d32f2f" />
@@ -1010,6 +1018,50 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
+        </Modal>
+
+        {/* Warning Confirmation Modal */}
+        <Modal
+          visible={warningModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setWarningModalVisible(false)}
+        >
+          <View style={styles.warningModalOverlay}>
+            <Pressable
+              style={StyleSheet.absoluteFillObject}
+              onPress={() => setWarningModalVisible(false)}
+            />
+            <View style={styles.warningModalContainer}>
+              <View style={styles.warningIconCircle}>
+                <Ionicons name="warning" size={36} color="#DC2626" />
+              </View>
+              <Text style={styles.warningModalTitle}>Emergency Report Warning</Text>
+              <Text style={styles.warningModalMessage}>
+                Sending a false or fake report can mislead emergency responders and waste critical resources. Only submit genuine disaster reports.
+              </Text>
+              <View style={styles.warningModalButtons}>
+                <TouchableOpacity
+                  style={styles.warningCancelBtn}
+                  onPress={() => setWarningModalVisible(false)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.warningCancelBtnText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.warningProceedBtn}
+                  onPress={() => {
+                    setWarningModalVisible(false);
+                    openCamera();
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="checkmark-circle" size={18} color="#fff" />
+                  <Text style={styles.warningProceedBtnText}>Proceed</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
         </Modal>
 
         <Modal
@@ -1992,5 +2044,89 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textAlign: 'center',
     fontFamily: Platform.OS === 'ios' ? 'Arial' : 'sans-serif',
+  },
+  // Warning Confirmation Modal Styles
+  warningModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.65)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  warningModalContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 24,
+    width: "100%",
+    maxWidth: 380,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  warningIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#FEE2E2",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  warningModalTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#1F2937",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  warningModalMessage: {
+    fontSize: 14,
+    color: "#4B5563",
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  warningModalButtons: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+  warningCancelBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  warningCancelBtnText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#4B5563",
+  },
+  warningProceedBtn: {
+    flex: 1.2,
+    flexDirection: "row",
+    gap: 6,
+    paddingVertical: 13,
+    borderRadius: 12,
+    backgroundColor: "#DC2626",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#DC2626",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  warningProceedBtnText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#fff",
   },
 });

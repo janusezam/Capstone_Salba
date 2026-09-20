@@ -60,8 +60,19 @@ export default function CameraScreen({ navigation, route }) {
         <Text style={styles.permText}>
           Please allow camera access to capture an incident photo.
         </Text>
-        <TouchableOpacity style={styles.permButton} onPress={requestPermission}>
-          <Text style={styles.permButtonText}>Grant Permission</Text>
+        <TouchableOpacity
+          style={styles.permButton}
+          onPress={() => {
+            if (Platform.OS === "web") {
+              handleWebFilePick();
+            } else {
+              requestPermission();
+            }
+          }}
+        >
+          <Text style={styles.permButtonText}>
+            {Platform.OS === "web" ? "Take or Upload Photo" : "Grant Permission"}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.skipButton} onPress={() => handleSkip()}>
           <Text style={styles.skipText}>Skip Photo</Text>
@@ -80,7 +91,31 @@ export default function CameraScreen({ navigation, route }) {
     navigation.goBack();
   };
 
+  const handleWebFilePick = () => {
+    if (Platform.OS !== "web") return;
+    try {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.capture = "environment";
+      input.onchange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          const url = URL.createObjectURL(file);
+          setCapturedPhoto({ uri: url, file });
+        }
+      };
+      input.click();
+    } catch (e) {
+      console.warn("Web file picker error:", e);
+    }
+  };
+
   const handleCapture = async () => {
+    if (Platform.OS === "web") {
+      handleWebFilePick();
+      return;
+    }
     if (!cameraRef.current) return;
     try {
       const photo = await cameraRef.current.takePictureAsync({
@@ -103,27 +138,42 @@ export default function CameraScreen({ navigation, route }) {
     setUploading(true);
     try {
       // ── Step 1: Compress & resize locally for low-bandwidth networks ──
-      const compressed = await manipulateAsync(
-        capturedPhoto.uri,
-        [{ resize: { width: 1200 } }], // max width 1200px, height auto
-        {
-          compress: 0.7,  // 70% JPEG quality — good balance of quality vs size
-          format: SaveFormat.JPEG,
-          base64: false,
+      let finalUri = capturedPhoto.uri;
+      try {
+        const compressed = await manipulateAsync(
+          capturedPhoto.uri,
+          [{ resize: { width: 1200 } }], // max width 1200px, height auto
+          {
+            compress: 0.7, // 70% JPEG quality — good balance of quality vs size
+            format: SaveFormat.JPEG,
+            base64: false,
+          }
+        );
+        if (compressed?.uri) {
+          finalUri = compressed.uri;
         }
-      );
-
-      console.log(
-        `📷 Photo compressed: original ~${capturedPhoto.width}x${capturedPhoto.height} → 1200px wide, JPEG 70%`
-      );
+        console.log(`📷 Photo processed to ~1200px`);
+      } catch (manipErr) {
+        console.warn("Image manipulation skipped/fallback:", manipErr.message);
+      }
 
       // ── Step 2: Build multipart form data ────────────────────────────
       const formData = new FormData();
-      formData.append("photo", {
-        uri: compressed.uri,
-        type: "image/jpeg",
-        name: `incident_${Date.now()}.jpg`,
-      });
+      if (Platform.OS === "web") {
+        if (capturedPhoto.file) {
+          formData.append("photo", capturedPhoto.file, `incident_${Date.now()}.jpg`);
+        } else {
+          const fetchRes = await fetch(finalUri);
+          const blob = await fetchRes.blob();
+          formData.append("photo", blob, `incident_${Date.now()}.jpg`);
+        }
+      } else {
+        formData.append("photo", {
+          uri: finalUri,
+          type: "image/jpeg",
+          name: `incident_${Date.now()}.jpg`,
+        });
+      }
 
       // ── Step 3: Upload to backend via XMLHttpRequest ─────────────────
       const uploadUrl = `${BASE_URL}/api/upload/incident-photo`;
@@ -166,21 +216,30 @@ export default function CameraScreen({ navigation, route }) {
       navigation.goBack();
     } catch (err) {
       console.error("Photo upload error:", err);
-      Alert.alert(
-        "Upload Failed",
-        `Could not upload photo: ${err.message}\n\nDo you want to submit the report without a photo?`,
-        [
-          { text: "Retry", onPress: () => setUploading(false) },
-          {
-            text: "Skip Photo",
-            style: "destructive",
-            onPress: () => {
-              setUploading(false);
-              handleSkip();
+      if (Platform.OS === "web") {
+        if (window.confirm(`Could not upload photo: ${err.message}\n\nDo you want to submit the report without a photo?`)) {
+          setUploading(false);
+          handleSkip();
+        } else {
+          setUploading(false);
+        }
+      } else {
+        Alert.alert(
+          "Upload Failed",
+          `Could not upload photo: ${err.message}\n\nDo you want to submit the report without a photo?`,
+          [
+            { text: "Retry", onPress: () => setUploading(false) },
+            {
+              text: "Skip Photo",
+              style: "destructive",
+              onPress: () => {
+                setUploading(false);
+                handleSkip();
+              },
             },
-          },
-        ]
-      );
+          ]
+        );
+      }
     } finally {
       setUploading(false);
     }
