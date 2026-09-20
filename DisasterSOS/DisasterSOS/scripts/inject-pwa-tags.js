@@ -42,6 +42,13 @@ if (fs.existsSync(indexPath)) {
     <meta name="apple-mobile-web-app-title" content="DisasterSOS" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icon.png" />
     <link rel="apple-touch-icon" href="/assets/icon.png" />
+    <style>
+      .grecaptcha-badge {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+    </style>
   `;
 
   // 4. Service Worker Registration Script

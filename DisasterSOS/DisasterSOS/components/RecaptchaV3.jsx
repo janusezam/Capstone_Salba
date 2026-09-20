@@ -16,6 +16,12 @@ const RecaptchaV3 = forwardRef(({ onReceiveToken }, ref) => {
         script.async = true;
         document.head.appendChild(script);
       }
+      if (!document.getElementById('recaptcha-hide-style')) {
+        const style = document.createElement('style');
+        style.id = 'recaptcha-hide-style';
+        style.innerHTML = '.grecaptcha-badge { visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }';
+        document.head.appendChild(style);
+      }
     }
   }, []);
 
