@@ -266,7 +266,7 @@ router.post("/forgot-password/request-otp", forgotLimiter, async (req, res) => {
     if (email) {
       user = await User.findOne({ email: email.toLowerCase() });
       if (!user) {
-        return res.status(200).json({ message: "If the account exists, an OTP has been sent to your email." });
+        return res.status(404).json({ message: "No registered account found with this email address." });
       }
     } else if (phone) {
       if (!PHONE_REGEX.test(normalizedPhone)) {
@@ -274,7 +274,7 @@ router.post("/forgot-password/request-otp", forgotLimiter, async (req, res) => {
       }
       user = await User.findOne({ phone: normalizedPhone });
       if (!user) {
-        return res.status(200).json({ message: "If the account exists, an OTP has been generated." });
+        return res.status(404).json({ message: "No registered account found with this phone number." });
       }
     } else {
       return res.status(400).json({ message: "Email or phone number is required" });
@@ -298,12 +298,10 @@ router.post("/forgot-password/request-otp", forgotLimiter, async (req, res) => {
       sendPasswordResetEmail(user.email, otp).catch(err => console.error("Email send error:", err));
     }
 
-    console.log(`[DEV OTP] Password reset OTP for ${identifier}: ${otp}`);
+    console.log(`[OTP] Generated password reset OTP for ${identifier}`);
 
-    const includeDevOtp = (process.env.OTP_DEV_MODE || "true") === "true";
     return res.status(200).json({
-      message: email ? "OTP sent to your email. It expires in 10 minutes." : "OTP generated. It expires in 10 minutes.",
-      ...(includeDevOtp ? { devOtp: otp } : {}),
+      message: "Verification code sent to your email. The code will expire in 10 minutes."
     });
   } catch (err) {
     console.error("Request OTP error:", err);
@@ -379,7 +377,7 @@ router.post("/forgot-password/reset", forgotLimiter, async (req, res) => {
     }
 
     if (!PASSWORD_REGEX.test(newPassword)) {
-      return res.status(400).json({ message: "Password must be at least 8 characters and include uppercase, lowercase, and a number" });
+      return res.status(400).json({ message: "Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)" });
     }
 
     let decoded;
@@ -466,6 +464,29 @@ router.put("/profile", auth, async (req, res) => {
   }
 });
 
+// 🔑 Verify current password
+router.post("/verify-current-password", auth, async (req, res) => {
+  try {
+    const { currentPassword } = req.body;
+    if (!currentPassword) {
+      return res.status(400).json({ message: "Current password is required" });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    res.json({ success: true, message: "Current password verified successfully" });
+  } catch (err) {
+    console.error("Verify current password error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // 🔑 Change password
 router.put("/change-password", auth, async (req, res) => {
   try {
@@ -475,6 +496,10 @@ router.put("/change-password", auth, async (req, res) => {
 
     if (user.authProvider === "google") {
       return res.status(400).json({ message: "Google accounts cannot change password here" });
+    }
+
+    if (!PASSWORD_REGEX.test(newPassword)) {
+      return res.status(400).json({ message: "Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)" });
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);

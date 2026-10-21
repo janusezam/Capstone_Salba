@@ -277,6 +277,71 @@ router.post('/login', async (req, res) => {
   }
 });
 
+const generateOtpEmailHtml = (otp, title = "Password Reset Verification Code") => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 30px 15px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 540px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
+          <tr>
+            <td style="background: linear-gradient(135deg, #991B1B 0%, #7F1D1D 100%); padding: 32px 28px; text-align: center;">
+              <div style="display: inline-block; background-color: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px; margin-bottom: 12px;">
+                <span style="color: #FEE2E2; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;">CDRRMO Malaybalay City</span>
+              </div>
+              <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">SALBA Emergency System</h1>
+              <p style="color: #FECACA; font-size: 13px; margin: 6px 0 0 0;">Smart Alert, Location, and Bilingual Assistance</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 36px 32px 28px 32px;">
+              <h2 style="color: #111827; font-size: 19px; font-weight: 700; margin: 0 0 12px 0;">${title}</h2>
+              <p style="color: #4B5563; font-size: 14px; line-height: 22px; margin: 0 0 24px 0;">
+                We received a request to reset the password for your account. Use the secure 6-digit verification code below to proceed:
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
+                <tr>
+                  <td align="center" style="background: #F9FAFB; border: 2px dashed #DC2626; border-radius: 12px; padding: 22px;">
+                    <span style="font-family: 'Courier New', Courier, monospace; font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #991B1B; display: inline-block; margin-left: 8px;">${otp}</span>
+                    <div style="color: #6B7280; font-size: 12px; margin-top: 8px; font-weight: 500;">
+                      ⏱ This code expires in <strong style="color: #DC2626;">10 minutes</strong>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+              <div style="background-color: #FEF2F2; border-left: 4px solid #DC2626; padding: 12px 14px; border-radius: 0 8px 8px 0; margin-bottom: 24px;">
+                <p style="color: #991B1B; font-size: 12px; line-height: 18px; margin: 0;">
+                  <strong>Security Notice:</strong> Never share this verification code with anyone. CDRRMO personnel will never ask for your password or reset code.
+                </p>
+              </div>
+              <p style="color: #6B7280; font-size: 13px; line-height: 20px; margin: 0;">
+                If you did not request a password reset, you can safely ignore this email. Your existing password remains secure.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #F9FAFB; border-top: 1px solid #E5E7EB; padding: 20px 32px; text-align: center;">
+              <p style="color: #9CA3AF; font-size: 11px; line-height: 16px; margin: 0;">
+                City Disaster Risk Reduction & Management Office (CDRRMO)<br/>
+                City Hall Compound, Malaybalay City, Bukidnon, Philippines<br/>
+                Emergency Hotline: 911 / CDRRMO Operations Center
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
 /* ------------------------------
    FORGOT PASSWORD
 --------------------------------*/
@@ -291,10 +356,9 @@ router.post('/forgot-password', async (req, res) => {
     const normalizedEmail = String(email).trim().toLowerCase();
     const user = await User.findOne({ email: normalizedEmail });
 
-    // Always return a generic response for unknown emails to avoid account enumeration.
     if (!user) {
-      return res.json({
-        message: 'If an account with that email exists, a reset code has been sent.'
+      return res.status(404).json({
+        message: 'No registered account found with this email address.'
       });
     }
 
@@ -302,10 +366,8 @@ router.post('/forgot-password', async (req, res) => {
     const rawToken = crypto.randomBytes(32).toString('hex');
     const hashedCode = crypto.createHash('sha256').update(resetCode).digest('hex');
     const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
-    const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const codeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     const tokenExpiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
 
     user.resetPasswordCode = hashedCode;
     user.resetPasswordCodeExpires = codeExpiresAt;
@@ -318,33 +380,14 @@ router.post('/forgot-password', async (req, res) => {
       await transporter.sendMail({
         from: process.env.MAIL_FROM || process.env.MAIL_USER,
         to: normalizedEmail,
-        subject: 'SALBA Password Reset',
-        text: `Your SALBA password reset code is ${resetCode}.`,
-        html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #d32f2f;">SALBA Password Reset</h2>
-          <p>Hello,</p>
-          <p>We received a request to reset your password. Use the code below to reset your password:</p>
-          <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; text-align: center;">
-            <h1 style="color: #d32f2f; letter-spacing: 5px; margin: 0;">${resetCode}</h1>
-          </div>
-          <p>If you didn't request this, please ignore this email.</p>
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          <p style="color: #888; font-size: 12px;">© SALBA CDRRMO - Emergency Alert System</p>
-        </div>
-        `,
-      });
-
-      return res.json({
-        message: 'Reset email sent. You can use either the code or the reset link.'
+        subject: 'SALBA Password Reset Verification Code',
+        text: `Your SALBA password reset verification code is ${resetCode}. It expires in 10 minutes.`,
+        html: generateOtpEmailHtml(resetCode, "SALBA Rescuer Password Reset"),
       });
     }
 
-    // Dev fallback when SMTP is not configured yet.
     return res.json({
-      message: 'Email service is not configured. Use development reset code or reset URL.',
-      devResetCode: resetCode,
-      resetUrl
+      message: 'Verification code sent to your email. The code will expire in 10 minutes.'
     });
   } catch (err) {
     console.error('Forgot password error:', err);
@@ -364,6 +407,9 @@ router.post('/forgot-password/request-otp', async (req, res) => {
     let user;
     if (normalizedEmail) {
       user = await User.findOne({ email: normalizedEmail });
+      if (!user) {
+        return res.status(404).json({ message: 'No registered account found with this email address.' });
+      }
     } else if (normalizedPhone) {
       user = await User.findOne({
         $or: [
@@ -372,6 +418,9 @@ router.post('/forgot-password/request-otp', async (req, res) => {
           { phone: normalizedPhone.startsWith('0') ? '+63' + normalizedPhone.slice(1) : normalizedPhone }
         ]
       });
+      if (!user) {
+        return res.status(404).json({ message: 'No registered account found with this phone number.' });
+      }
     }
 
     const identifier = normalizedEmail || normalizedPhone;
@@ -390,22 +439,21 @@ router.post('/forgot-password/request-otp', async (req, res) => {
       expiresAt,
     });
 
-    // Send email if SMTP is configured and user email exists
     if (user && user.email && isSmtpConfigured()) {
       const transporter = getMailer();
       transporter.sendMail({
         from: process.env.MAIL_FROM || process.env.MAIL_USER,
         to: user.email,
-        subject: 'SALBA Password Reset OTP',
-        text: `Your SALBA password reset OTP is ${otp}. It expires in 10 minutes.`,
+        subject: 'DisasterSOS - Password Reset Verification Code',
+        text: `Your DisasterSOS password reset code is ${otp}. It expires in 10 minutes.`,
+        html: generateOtpEmailHtml(otp, "DisasterSOS Password Reset Code"),
       }).catch(err => console.error("Email send error:", err));
     }
 
-    console.log(`[OTP] Generated password reset OTP for ${identifier}: ${otp}`);
+    console.log(`[OTP] Generated password reset OTP for ${identifier}`);
 
     return res.status(200).json({
-      message: normalizedEmail ? "OTP sent to your email. It expires in 10 minutes." : "OTP generated. It expires in 10 minutes.",
-      devOtp: otp, // Provides dev OTP fallback so testing never gets blocked
+      message: 'Verification code sent to your email. The code will expire in 10 minutes.'
     });
   } catch (err) {
     console.error("Request OTP error:", err);
@@ -497,6 +545,10 @@ router.post('/forgot-password/reset', async (req, res) => {
 
     if (!user) return res.status(404).json({ message: 'User not found' });
 
+    if (!PASSWORD_REGEX.test(newPassword)) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)' });
+    }
+
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
@@ -550,8 +602,8 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ message: 'New password is required' });
     }
 
-    if (String(newPassword).length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    if (!PASSWORD_REGEX.test(newPassword)) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)' });
     }
 
     let user = null;
@@ -775,6 +827,30 @@ router.put('/profile', verifyToken, async (req, res) => {
   }
 });
 
+router.post('/verify-current-password', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user?.id || req.userId;
+    const { currentPassword } = req.body;
+
+    if (!currentPassword) {
+      return res.status(400).json({ message: 'Current password is required' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    res.json({ success: true, message: 'Current password verified' });
+  } catch (err) {
+    console.error('Verify current password error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 router.put('/change-password', verifyToken, async (req, res) => {
   try {
     const userId = req.user?.id || req.userId;
@@ -782,6 +858,10 @@ router.put('/change-password', verifyToken, async (req, res) => {
 
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ message: 'Current and new password are required' });
+    }
+
+    if (!PASSWORD_REGEX.test(newPassword)) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)' });
     }
 
     const user = await User.findById(userId);
@@ -852,6 +932,9 @@ router.patch('/profile', verifyToken, async (req, res) => {
     if (newPassword) {
       if (!currentPassword) {
         return res.status(400).json({ message: "Current password is required" });
+      }
+      if (!PASSWORD_REGEX.test(newPassword)) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)" });
       }
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
