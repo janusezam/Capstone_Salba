@@ -31,15 +31,16 @@ export default function LoginScreen({ navigation }) {
       return;
     }
     
-    if (recaptchaRef.current && typeof recaptchaRef.current.execute === 'function') {
+    // On native mobile APKs, bypass webview recaptcha (same as DisasterSOS APK) to avoid bot-score false positives
+    if (Platform.OS === 'web' && recaptchaRef.current && typeof recaptchaRef.current.execute === 'function') {
       try {
         recaptchaRef.current.execute();
       } catch (err) {
         console.warn('Recaptcha execution error:', err);
-        onReceiveToken('mobile-rescuer-token');
+        onReceiveToken(null);
       }
     } else {
-      onReceiveToken('mobile-rescuer-token');
+      onReceiveToken(null);
     }
   };
 

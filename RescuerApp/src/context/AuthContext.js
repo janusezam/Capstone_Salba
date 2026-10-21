@@ -34,10 +34,15 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password, recaptchaToken) => {
     try {
+      const payload = { username, password };
+      if (recaptchaToken) {
+        payload.recaptchaToken = recaptchaToken;
+      }
+
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, recaptchaToken }),
+        body: JSON.stringify(payload),
       });
 
       const text = await response.text();
