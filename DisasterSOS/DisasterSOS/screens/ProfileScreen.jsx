@@ -266,7 +266,7 @@ export default function ProfileScreen({ navigation }) {
         {/* Avatar Card (Upper profile only changes on save) */}
         <View style={styles.avatarContainer}>
           <View style={styles.avatarCircle}>
-            <Ionicons name="person" size={54} color="#fff" />
+            <Ionicons name="person" size={50} color="#fff" />
           </View>
           <Text style={styles.userName}>{savedName || "Emergency User"}</Text>
           <Text style={styles.userEmail}>{savedEmail ? savedEmail : phone}</Text>
@@ -278,77 +278,83 @@ export default function ProfileScreen({ navigation }) {
 
           {profileSuccessMsg ? (
             <View style={styles.inlineSuccessBox}>
-              <Ionicons name="checkmark-circle" size={16} color="#166534" style={{ marginRight: 6 }} />
+              <Ionicons name="checkmark-circle" size={18} color="#166534" style={{ marginRight: 8 }} />
               <Text style={styles.inlineSuccessText}>{profileSuccessMsg}</Text>
             </View>
           ) : null}
 
+          {/* Full Name */}
           <View style={styles.fieldContainer}>
             <Text style={styles.fieldLabel}>Full Name</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="person-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+              <Ionicons name="person-outline" size={20} color="#888" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 value={name}
                 onChangeText={setName}
-                placeholder="Enter your name"
-                placeholderTextColor="#9CA3AF"
+                placeholder="Enter your full name"
+                placeholderTextColor="#aaa"
               />
             </View>
           </View>
 
+          {/* Phone Number (Read-only) */}
           <View style={styles.fieldContainer}>
             <Text style={styles.fieldLabel}>Phone Number</Text>
             <View style={[styles.inputContainer, styles.inputDisabled]}>
-              <Ionicons name="call-outline" size={18} color="#9CA3AF" style={styles.inputIcon} />
+              <Ionicons name="call-outline" size={20} color="#999" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: "#9CA3AF" }]}
+                style={[styles.input, { color: "#777" }]}
                 value={phone}
                 editable={false}
               />
+              <Ionicons name="lock-closed" size={16} color="#aaa" />
             </View>
           </View>
 
+          {/* Email Address */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.fieldLabel}>Email Address (Gmail)</Text>
+            <Text style={styles.fieldLabel}>Email Address</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+              <Ionicons name="mail-outline" size={20} color="#888" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 value={email}
                 onChangeText={setEmail}
-                placeholder="e.g. yourname@gmail.com"
-                placeholderTextColor="#9CA3AF"
+                placeholder="e.g. name@example.com"
+                placeholderTextColor="#aaa"
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
             </View>
           </View>
 
+          {/* Birthday */}
           <View style={styles.fieldContainer}>
             <Text style={styles.fieldLabel}>Birthday (YYYY-MM-DD)</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="calendar-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+              <Ionicons name="calendar-outline" size={20} color="#888" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 value={birthday}
                 onChangeText={setBirthday}
                 placeholder="e.g. 2000-01-15"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor="#aaa"
               />
             </View>
           </View>
 
+          {/* Location */}
           <View style={styles.fieldContainer}>
             <Text style={styles.fieldLabel}>Location</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="location-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+              <Ionicons name="location-outline" size={20} color="#888" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 value={location}
                 onChangeText={setLocation}
                 placeholder="e.g. Malaybalay City, Bukidnon"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor="#aaa"
               />
             </View>
           </View>
@@ -385,14 +391,14 @@ export default function ProfileScreen({ navigation }) {
               }}
               activeOpacity={0.8}
             >
-              <Ionicons name="key-outline" size={20} color="#C53030" />
+              <Ionicons name="key-outline" size={20} color="#c62828" />
               <Text style={styles.passwordToggleText}>
-                {showPasswordSection ? "Hide Password Fields" : "Change Password"}
+                {showPasswordSection ? "Hide Password Section" : "Change Password"}
               </Text>
               <Ionicons
                 name={showPasswordSection ? "chevron-up" : "chevron-down"}
                 size={18}
-                color="#C53030"
+                color="#c62828"
               />
             </TouchableOpacity>
 
@@ -400,7 +406,7 @@ export default function ProfileScreen({ navigation }) {
               <View style={styles.passwordSection}>
                 {passwordSuccessMsg ? (
                   <View style={styles.inlineSuccessBox}>
-                    <Ionicons name="checkmark-circle" size={16} color="#166534" style={{ marginRight: 6 }} />
+                    <Ionicons name="checkmark-circle" size={18} color="#166534" style={{ marginRight: 8 }} />
                     <Text style={styles.inlineSuccessText}>{passwordSuccessMsg}</Text>
                   </View>
                 ) : null}
@@ -411,11 +417,16 @@ export default function ProfileScreen({ navigation }) {
                   <View
                     style={[
                       styles.inputContainer,
-                      currentPasswordError ? styles.inputError : null,
-                      currentPasswordVerified ? styles.inputVerified : null,
+                      currentPasswordError ? styles.inputContainerError : null,
+                      currentPasswordVerified ? styles.inputContainerVerified : null,
                     ]}
                   >
-                    <Ionicons name="lock-closed-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+                    <Ionicons
+                      name="lock-closed-outline"
+                      size={20}
+                      color={currentPasswordError ? "#DC2626" : currentPasswordVerified ? "#16A34A" : "#888"}
+                      style={styles.inputIcon}
+                    />
                     <TextInput
                       style={styles.input}
                       value={currentPassword}
@@ -425,12 +436,16 @@ export default function ProfileScreen({ navigation }) {
                         if (currentPasswordVerified) setCurrentPasswordVerified(false);
                       }}
                       placeholder="Enter current password"
-                      placeholderTextColor="#9CA3AF"
+                      placeholderTextColor={currentPasswordError ? "#F87171" : "#aaa"}
                       secureTextEntry={!showCurrentPassword}
                       editable={!currentPasswordVerified}
                     />
                     <TouchableOpacity onPress={() => setShowCurrentPassword(!showCurrentPassword)} style={{ paddingHorizontal: 4 }}>
-                      <Ionicons name={showCurrentPassword ? "eye-off-outline" : "eye-outline"} size={18} color="#9CA3AF" />
+                      <Ionicons
+                        name={showCurrentPassword ? "eye-off-outline" : "eye-outline"}
+                        size={20}
+                        color={currentPasswordError ? "#DC2626" : "#888"}
+                      />
                     </TouchableOpacity>
                   </View>
 
@@ -470,23 +485,33 @@ export default function ProfileScreen({ navigation }) {
                       <View
                         style={[
                           styles.inputContainer,
-                          newPasswordError ? styles.inputError : null,
-                          newPassword && !newPasswordError ? styles.inputVerified : null,
+                          newPasswordError ? styles.inputContainerError : null,
+                          newPassword && !newPasswordError ? styles.inputContainerVerified : null,
                         ]}
                       >
-                        <Ionicons name="lock-open-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+                        <Ionicons
+                          name="lock-closed-outline"
+                          size={20}
+                          color={newPasswordError ? "#DC2626" : newPassword && !newPasswordError ? "#16A34A" : "#888"}
+                          style={styles.inputIcon}
+                        />
                         <TextInput
                           style={styles.input}
                           value={newPassword}
                           onChangeText={handleNewPasswordChange}
                           placeholder="Enter new secure password"
-                          placeholderTextColor="#9CA3AF"
+                          placeholderTextColor={newPasswordError ? "#F87171" : "#aaa"}
                           secureTextEntry={!showNewPassword}
                         />
                         <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)} style={{ paddingHorizontal: 4 }}>
-                          <Ionicons name={showNewPassword ? "eye-off-outline" : "eye-outline"} size={18} color="#9CA3AF" />
+                          <Ionicons
+                            name={showNewPassword ? "eye-off-outline" : "eye-outline"}
+                            size={20}
+                            color={newPasswordError ? "#DC2626" : "#888"}
+                          />
                         </TouchableOpacity>
                       </View>
+
                       {newPasswordError ? (
                         <View style={styles.errorRow}>
                           <Ionicons name="alert-circle" size={14} color="#DC2626" style={{ marginRight: 4 }} />
@@ -495,11 +520,11 @@ export default function ProfileScreen({ navigation }) {
                       ) : newPassword ? (
                         <View style={styles.verifiedRow}>
                           <Ionicons name="checkmark-circle" size={14} color="#166534" style={{ marginRight: 4 }} />
-                          <Text style={styles.verifiedText}>Strong password</Text>
+                          <Text style={styles.verifiedText}>Strong password meets requirements</Text>
                         </View>
                       ) : (
                         <Text style={styles.helperText}>
-                          Must be at least 8 characters with letters, numbers, and symbols (!, @, #, etc.)
+                          Must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #).
                         </Text>
                       )}
                     </View>
@@ -509,23 +534,33 @@ export default function ProfileScreen({ navigation }) {
                       <View
                         style={[
                           styles.inputContainer,
-                          confirmPasswordError ? styles.inputError : null,
-                          confirmPassword && !confirmPasswordError ? styles.inputVerified : null,
+                          confirmPasswordError ? styles.inputContainerError : null,
+                          confirmPassword && !confirmPasswordError ? styles.inputContainerVerified : null,
                         ]}
                       >
-                        <Ionicons name="checkmark-circle-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+                        <Ionicons
+                          name="shield-checkmark-outline"
+                          size={20}
+                          color={confirmPasswordError ? "#DC2626" : confirmPassword && !confirmPasswordError ? "#16A34A" : "#888"}
+                          style={styles.inputIcon}
+                        />
                         <TextInput
                           style={styles.input}
                           value={confirmPassword}
                           onChangeText={handleConfirmPasswordChange}
                           placeholder="Re-enter new password"
-                          placeholderTextColor="#9CA3AF"
+                          placeholderTextColor={confirmPasswordError ? "#F87171" : "#aaa"}
                           secureTextEntry={!showConfirmPassword}
                         />
                         <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ paddingHorizontal: 4 }}>
-                          <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={18} color="#9CA3AF" />
+                          <Ionicons
+                            name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                            size={20}
+                            color={confirmPasswordError ? "#DC2626" : "#888"}
+                          />
                         </TouchableOpacity>
                       </View>
+
                       {confirmPasswordError ? (
                         <View style={styles.errorRow}>
                           <Ionicons name="alert-circle" size={14} color="#DC2626" style={{ marginRight: 4 }} />
@@ -564,7 +599,7 @@ export default function ProfileScreen({ navigation }) {
 
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.8}>
-          <Ionicons name="log-out-outline" size={20} color="#DC2626" />
+          <Ionicons name="log-out-outline" size={20} color="#c62828" />
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
       </View>
@@ -592,29 +627,29 @@ const styles = StyleSheet.create({
   avatarContainer: {
     alignItems: "center",
     backgroundColor: "#fff",
-    borderRadius: 24,
-    paddingVertical: 28,
+    borderRadius: 20,
+    paddingVertical: 26,
     paddingHorizontal: 20,
-    marginBottom: 24,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#F3F4F6",
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   avatarCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: "#DC2626",
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    backgroundColor: "#c62828",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 16,
-    shadowColor: "#DC2626",
+    marginBottom: 14,
+    shadowColor: "#c62828",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -625,61 +660,62 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
-    color: "#4B5563",
+    color: "#6B7280",
     marginTop: 4,
+    fontWeight: "500",
   },
   sectionCard: {
     backgroundColor: "#fff",
-    borderRadius: 24,
-    padding: 20,
+    borderRadius: 18,
+    padding: 22,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#F3F4F6",
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "800",
     color: "#111827",
-    marginBottom: 20,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
+    marginBottom: 18,
   },
   fieldContainer: {
+    width: "100%",
     marginBottom: 16,
   },
   fieldLabel: {
-    fontSize: 12,
-    fontWeight: "700",
+    fontSize: 13,
+    fontWeight: "600",
     color: "#4B5563",
-    marginBottom: 8,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
+    marginBottom: 7,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: "#E5E7EB",
-    borderRadius: 14,
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 12,
     paddingHorizontal: 14,
-    paddingVertical: Platform.OS === "ios" ? 14 : 10,
-    backgroundColor: "#fff",
+    paddingVertical: Platform.OS === "ios" ? 13 : 11,
+    backgroundColor: "#f9f9f9",
   },
   inputDisabled: {
-    backgroundColor: "#F3F4F6",
-    borderColor: "#E5E7EB",
+    backgroundColor: "#f0f0f0",
+    borderColor: "#e0e0e0",
   },
-  inputError: {
+  inputContainerError: {
     borderColor: "#DC2626",
+    borderWidth: 1.5,
     backgroundColor: "#FEF2F2",
   },
-  inputVerified: {
+  inputContainerVerified: {
     borderColor: "#16A34A",
+    borderWidth: 1.5,
     backgroundColor: "#F0FDF4",
   },
   inputIcon: {
@@ -687,9 +723,8 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 15,
-    color: "#1F2937",
-    fontWeight: "500",
+    fontSize: 16,
+    color: "#333",
   },
   errorRow: {
     flexDirection: "row",
@@ -714,6 +749,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#166534",
     fontWeight: "600",
+    flex: 1,
     lineHeight: 16,
   },
   helperText: {
@@ -730,9 +766,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#BBF7D0",
     borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 18,
   },
   inlineSuccessText: {
     color: "#166534",
@@ -741,17 +777,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   saveButton: {
-    backgroundColor: "#DC2626",
-    paddingVertical: 15,
-    borderRadius: 14,
+    backgroundColor: "#c62828",
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: "center",
     marginTop: 8,
-    marginBottom: 8,
-    shadowColor: "#DC2626",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowColor: "#c62828",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   saveButtonText: {
     color: "#fff",
@@ -761,7 +796,7 @@ const styles = StyleSheet.create({
   verifyButton: {
     backgroundColor: "#1F2937",
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: "center",
     marginTop: 10,
   },
@@ -778,27 +813,24 @@ const styles = StyleSheet.create({
     borderColor: "#FEE2E2",
     paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: 14,
-    marginTop: 4,
-    marginBottom: 8,
+    borderRadius: 12,
   },
   passwordToggleText: {
     flex: 1,
     fontSize: 15,
     fontWeight: "700",
-    color: "#C53030",
+    color: "#c62828",
     marginLeft: 10,
   },
   passwordSection: {
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 16,
   },
   changePasswordButton: {
     backgroundColor: "#16A34A",
-    paddingVertical: 15,
-    borderRadius: 14,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: "center",
-    marginTop: 12,
+    marginTop: 10,
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -812,16 +844,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: "#DC2626",
-    backgroundColor: "transparent",
-    marginTop: 10,
+    paddingVertical: 15,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: "#c62828",
+    backgroundColor: "#fff",
+    marginTop: 6,
   },
   logoutText: {
-    color: "#DC2626",
-    fontSize: 16,
+    color: "#c62828",
+    fontSize: 15,
     fontWeight: "700",
     marginLeft: 8,
   },

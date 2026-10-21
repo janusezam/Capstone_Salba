@@ -121,8 +121,8 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
           {/* Logo / Icon */}
           <View style={styles.logoContainer}>
             <Image source={require('../assets/CDRRMO_LOGO.png')} style={styles.logoImage} />
-            <Text style={styles.appName}>DisasterSOS</Text>
-            <Text style={styles.tagline}>Emergency Alert System</Text>
+            <Text style={styles.appName}>SALBA</Text>
+            <Text style={styles.tagline}>Emergency Alert</Text>
           </View>
 
           {/* Inline Error Banner */}

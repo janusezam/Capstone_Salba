@@ -44,7 +44,7 @@ export default function IOSInstallBanner() {
           <Ionicons name="phone-portrait-outline" size={24} color="#dc2626" />
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.titleText}>Install SALBA DisasterSOS</Text>
+          <Text style={styles.titleText}>Install SALBA Emergency App</Text>
           <Text style={styles.descText}>
             For full-screen SOS & offline access: Tap <Text style={styles.boldText}>Share</Text> (
             <Ionicons name="share-outline" size={14} color="#333" />
