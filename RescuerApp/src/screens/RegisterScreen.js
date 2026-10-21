@@ -26,7 +26,51 @@ export default function RegisterScreen({ navigation }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
+  const isPasswordSecure = (pwd) => {
+    if (!pwd || pwd.length < 8) return false;
+    const hasLetter = /[a-zA-Z]/.test(pwd);
+    const hasNumber = /\d/.test(pwd);
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pwd);
+    return hasLetter && hasNumber && hasSymbol;
+  };
+
+  const handlePasswordChange = (val) => {
+    setPassword(val);
+    if (!val) {
+      setPasswordError('');
+    } else if (!isPasswordSecure(val)) {
+      setPasswordError('Password does not meet security requirements');
+    } else {
+      setPasswordError('');
+    }
+
+    if (confirmPassword) {
+      if (val !== confirmPassword) {
+        setConfirmPasswordError('Passwords do not match');
+      } else {
+        setConfirmPasswordError('');
+      }
+    }
+  };
+
+  const handleConfirmPasswordChange = (val) => {
+    setConfirmPassword(val);
+    if (!val) {
+      setConfirmPasswordError('');
+    } else if (val !== password) {
+      setConfirmPasswordError('Passwords do not match');
+    } else {
+      setConfirmPasswordError('');
+    }
+  };
+
   const handleRegister = async () => {
+    setPasswordError('');
+    setConfirmPasswordError('');
+
     if (!name.trim() || !email.trim() || !username.trim() || !password.trim() || !confirmPassword.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -43,13 +87,13 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+    if (!isPasswordSecure(password)) {
+      setPasswordError('Password does not meet security requirements');
       return;
     }
 
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+    if (password !== confirmPassword) {
+      setConfirmPasswordError('Passwords do not match');
       return;
     }
 
@@ -130,43 +174,83 @@ export default function RegisterScreen({ navigation }) {
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#991B1B" style={styles.inputIcon} />
+          {/* Password Input */}
+          <View style={[styles.inputContainer, !!passwordError && styles.inputContainerError]}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={20}
+              color={passwordError ? "#DC2626" : "#991B1B"}
+              style={styles.inputIcon}
+            />
             <TextInput
-              style={styles.input}
+              style={[styles.input, !!passwordError && styles.inputErrorText]}
               placeholder="Password"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={passwordError ? "#F87171" : "#9CA3AF"}
               value={password}
-              onChangeText={setPassword}
+              onChangeText={handlePasswordChange}
               secureTextEntry={!showPassword}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons 
                 name={showPassword ? "eye-off-outline" : "eye-outline"} 
                 size={20} 
-                color="#9CA3AF" 
+                color={passwordError ? "#DC2626" : "#9CA3AF"} 
               />
             </TouchableOpacity>
           </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#991B1B" style={styles.inputIcon} />
+          {passwordError ? (
+            <View style={styles.fieldErrorContainer}>
+              <Ionicons name="alert-circle-outline" size={18} color="#DC2626" style={styles.fieldErrorIcon} />
+              <View style={styles.fieldErrorTextWrapper}>
+                <Text style={styles.fieldErrorTitle}>Password does not meet security requirements</Text>
+                <Text style={styles.fieldErrorDescription}>
+                  Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #).
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <Text style={styles.fieldHelperText}>
+              Must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #).
+            </Text>
+          )}
+
+          {/* Confirm Password Input */}
+          <View style={[styles.inputContainer, !!confirmPasswordError && styles.inputContainerError]}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={20}
+              color={confirmPasswordError ? "#DC2626" : "#991B1B"}
+              style={styles.inputIcon}
+            />
             <TextInput
-              style={styles.input}
+              style={[styles.input, !!confirmPasswordError && styles.inputErrorText]}
               placeholder="Confirm Password"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={confirmPasswordError ? "#F87171" : "#9CA3AF"}
               value={confirmPassword}
-              onChangeText={setConfirmPassword}
+              onChangeText={handleConfirmPasswordChange}
               secureTextEntry={!showConfirmPassword}
             />
             <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
               <Ionicons 
                 name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} 
                 size={20} 
-                color="#9CA3AF" 
+                color={confirmPasswordError ? "#DC2626" : "#9CA3AF"} 
               />
             </TouchableOpacity>
           </View>
+
+          {confirmPasswordError ? (
+            <View style={styles.fieldErrorContainer}>
+              <Ionicons name="alert-circle-outline" size={18} color="#DC2626" style={styles.fieldErrorIcon} />
+              <View style={styles.fieldErrorTextWrapper}>
+                <Text style={styles.fieldErrorTitle}>{confirmPasswordError}</Text>
+                <Text style={styles.fieldErrorDescription}>
+                  Please make sure both passwords match.
+                </Text>
+              </View>
+            </View>
+          ) : null}
 
           <View style={styles.infoBox}>
             <Ionicons name="information-circle-outline" size={20} color="#B45309" />
@@ -285,6 +369,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: '#F9FAFB',
   },
+  inputContainerError: {
+    borderColor: '#DC2626',
+    borderWidth: 1.5,
+    backgroundColor: '#FEF2F2',
+    marginBottom: 8,
+  },
   inputIcon: {
     marginRight: 10,
   },
@@ -293,6 +383,43 @@ const styles = StyleSheet.create({
     height: 50,
     fontSize: 15,
     color: '#111827',
+  },
+  inputErrorText: {
+    color: '#991B1B',
+  },
+  fieldErrorContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: -2,
+    marginBottom: 14,
+    paddingHorizontal: 4,
+    gap: 6,
+  },
+  fieldErrorIcon: {
+    marginTop: 2,
+  },
+  fieldErrorTextWrapper: {
+    flex: 1,
+  },
+  fieldErrorTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#DC2626',
+    lineHeight: 18,
+  },
+  fieldErrorDescription: {
+    fontSize: 12,
+    color: '#B91C1C',
+    lineHeight: 16,
+    marginTop: 2,
+  },
+  fieldHelperText: {
+    fontSize: 11,
+    color: '#6B7280',
+    marginTop: -10,
+    marginBottom: 14,
+    paddingHorizontal: 4,
+    lineHeight: 15,
   },
   infoBox: {
     flexDirection: 'row',

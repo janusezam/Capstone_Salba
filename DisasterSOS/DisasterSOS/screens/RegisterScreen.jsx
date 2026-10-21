@@ -17,7 +17,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { BASE_URL } from "../config/api";
 import RecaptchaV3 from "../components/RecaptchaV3";
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function RegisterScreen({ navigation }) {
@@ -25,15 +24,60 @@ export default function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [hasViewedTerms, setHasViewedTerms] = useState(false);
   const [termsVisible, setTermsVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+
   const recaptchaRef = React.useRef(null);
+
+  const isPasswordSecure = (pwd) => {
+    if (!pwd || pwd.length < 8) return false;
+    const hasLetter = /[a-zA-Z]/.test(pwd);
+    const hasNumber = /\d/.test(pwd);
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pwd);
+    return hasLetter && hasNumber && hasSymbol;
+  };
+
+  const handlePasswordChange = (val) => {
+    setPassword(val);
+    if (errorMessage) setErrorMessage("");
+    if (!val) {
+      setPasswordError("");
+    } else if (!isPasswordSecure(val)) {
+      setPasswordError("Password does not meet security requirements");
+    } else {
+      setPasswordError("");
+    }
+
+    if (confirmPassword) {
+      if (val !== confirmPassword) {
+        setConfirmPasswordError("Passwords do not match");
+      } else {
+        setConfirmPasswordError("");
+      }
+    }
+  };
+
+  const handleConfirmPasswordChange = (val) => {
+    setConfirmPassword(val);
+    if (errorMessage) setErrorMessage("");
+    if (!val) {
+      setConfirmPasswordError("");
+    } else if (val !== password) {
+      setConfirmPasswordError("Passwords do not match");
+    } else {
+      setConfirmPasswordError("");
+    }
+  };
 
   const normalizePhoneInput = (val) => {
     if (!val) return "";
@@ -70,13 +114,15 @@ export default function RegisterScreen({ navigation }) {
   const handleRegister = () => {
     setErrorMessage("");
     setSuccessMessage("");
+    setPasswordError("");
+    setConfirmPasswordError("");
 
     const trimmedName = name.trim();
     const trimmedEmail = email.trim().toLowerCase();
     const cleanPhone = normalizePhoneInput(phone);
 
-    if (!trimmedName || !trimmedEmail || !cleanPhone || !password) {
-      showAlert("Missing Fields", "Please fill in your name, email, phone number, and password.");
+    if (!trimmedName || !trimmedEmail || !cleanPhone || !password || !confirmPassword) {
+      showAlert("Missing Fields", "Please fill in all fields.");
       return;
     }
 
@@ -90,16 +136,18 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
-    if (password.length < 8) {
-      showAlert("Weak Password", "Password must be at least 8 characters long.");
+    if (!isPasswordSecure(password)) {
+      setPasswordError("Password does not meet security requirements");
+      showAlert(
+        "Security Requirements",
+        "Password does not meet security requirements. It must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)."
+      );
       return;
     }
 
-    if (!PASSWORD_REGEX.test(password)) {
-      showAlert(
-        "Password Complexity",
-        "Password must include at least one uppercase letter, one lowercase letter, and one number."
-      );
+    if (password !== confirmPassword) {
+      setConfirmPasswordError("Passwords do not match");
+      showAlert("Password Mismatch", "Passwords do not match. Please re-enter to confirm.");
       return;
     }
 
@@ -262,27 +310,83 @@ export default function RegisterScreen({ navigation }) {
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#888" style={styles.inputIcon} />
+          {/* Password Input */}
+          <View style={[styles.inputContainer, !!passwordError && styles.inputContainerError]}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={20}
+              color={passwordError ? "#DC2626" : "#888"}
+              style={styles.inputIcon}
+            />
             <TextInput
-              style={styles.input}
-              placeholder="Password (min 8 chars, A-Z, a-z, 0-9)"
-              placeholderTextColor="#aaa"
+              style={[styles.input, !!passwordError && styles.inputErrorText]}
+              placeholder="Password"
+              placeholderTextColor={passwordError ? "#F87171" : "#aaa"}
               secureTextEntry={!showPassword}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (errorMessage) setErrorMessage("");
-              }}
+              onChangeText={handlePasswordChange}
               value={password}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons
                 name={showPassword ? "eye-off-outline" : "eye-outline"}
                 size={20}
-                color="#888"
+                color={passwordError ? "#DC2626" : "#888"}
               />
             </TouchableOpacity>
           </View>
+
+          {passwordError ? (
+            <View style={styles.fieldErrorContainer}>
+              <Ionicons name="alert-circle-outline" size={18} color="#DC2626" style={styles.fieldErrorIcon} />
+              <View style={styles.fieldErrorTextWrapper}>
+                <Text style={styles.fieldErrorTitle}>Password does not meet security requirements</Text>
+                <Text style={styles.fieldErrorDescription}>
+                  Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #).
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <Text style={styles.fieldHelperText}>
+              Must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #).
+            </Text>
+          )}
+
+          {/* Confirm Password Input */}
+          <View style={[styles.inputContainer, !!confirmPasswordError && styles.inputContainerError]}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={20}
+              color={confirmPasswordError ? "#DC2626" : "#888"}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={[styles.input, !!confirmPasswordError && styles.inputErrorText]}
+              placeholder="Confirm Password"
+              placeholderTextColor={confirmPasswordError ? "#F87171" : "#aaa"}
+              secureTextEntry={!showConfirmPassword}
+              onChangeText={handleConfirmPasswordChange}
+              value={confirmPassword}
+            />
+            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+              <Ionicons
+                name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color={confirmPasswordError ? "#DC2626" : "#888"}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {confirmPasswordError ? (
+            <View style={styles.fieldErrorContainer}>
+              <Ionicons name="alert-circle-outline" size={18} color="#DC2626" style={styles.fieldErrorIcon} />
+              <View style={styles.fieldErrorTextWrapper}>
+                <Text style={styles.fieldErrorTitle}>{confirmPasswordError}</Text>
+                <Text style={styles.fieldErrorDescription}>
+                  Please ensure both passwords match.
+                </Text>
+              </View>
+            </View>
+          ) : null}
 
           <TouchableOpacity
             style={styles.termsRow}
@@ -454,6 +558,12 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     backgroundColor: "#f9f9f9",
   },
+  inputContainerError: {
+    borderColor: "#DC2626",
+    borderWidth: 1.5,
+    backgroundColor: "#FEF2F2",
+    marginBottom: 6,
+  },
   inputIcon: {
     marginRight: 10,
   },
@@ -461,6 +571,45 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#333",
+  },
+  inputErrorText: {
+    color: "#991B1B",
+  },
+  fieldErrorContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    width: "100%",
+    marginTop: -2,
+    marginBottom: 14,
+    paddingHorizontal: 4,
+    gap: 6,
+  },
+  fieldErrorIcon: {
+    marginTop: 2,
+  },
+  fieldErrorTextWrapper: {
+    flex: 1,
+  },
+  fieldErrorTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#DC2626",
+    lineHeight: 18,
+  },
+  fieldErrorDescription: {
+    fontSize: 12,
+    color: "#B91C1C",
+    lineHeight: 16,
+    marginTop: 2,
+  },
+  fieldHelperText: {
+    width: "100%",
+    fontSize: 11,
+    color: "#6B7280",
+    marginTop: -8,
+    marginBottom: 14,
+    paddingHorizontal: 4,
+    lineHeight: 15,
   },
   termsRow: {
     width: "100%",

@@ -25,7 +25,7 @@ const forgotLimiter = rateLimit({
 });
 
 const PHONE_REGEX = /^\+?[0-9]{10,15}$/;
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+const PASSWORD_REGEX = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]).{8,}$/;
 
 const normalizePhone = (value = "") => value.replace(/\s|-/g, "").trim();
 
@@ -123,7 +123,7 @@ router.post("/register", authLimiter, async (req, res) => {
     }
 
     if (!PASSWORD_REGEX.test(password)) {
-      return res.status(400).json({ message: "Password must be at least 8 characters and include uppercase, lowercase, and a number" });
+      return res.status(400).json({ message: "Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)" });
     }
 
     // Verify reCAPTCHA
