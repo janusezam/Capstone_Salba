@@ -19,7 +19,7 @@ const API_BASE_URL = getApiBaseUrl();
 
 export const API_URL = `${API_BASE_URL}/api`;
 export const SOCKET_URL = API_BASE_URL;
-export const REQUEST_TIMEOUT = 5000; // 5 second timeout
+export const REQUEST_TIMEOUT = 15000; // 15 second timeout for field mobile networks
 
 // Helper function to get auth headers
 export const getAuthHeaders = (token) => ({

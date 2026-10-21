@@ -43,7 +43,7 @@ const haversineDistanceMeters = (lat1, lng1, lat2, lng2) => {
 };
 
 export default function MapScreen({ navigation }) {
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
   const { dispatchAlert, sendLocationUpdate, connected, socket } = useSocket();
   const mapRef = useRef(null);
   const [location, setLocation] = useState(null);
@@ -310,6 +310,16 @@ export default function MapScreen({ navigation }) {
       });
 
       console.log('Response status:', response.status, response.ok);
+
+      if (response.status === 401) {
+        console.warn('⚠️ Token expired (401) in MapScreen');
+        Alert.alert(
+          'Session Expired',
+          'Your login session has expired. Please log in again to view your mission.',
+          [{ text: 'Log In', onPress: () => logout() }]
+        );
+        return;
+      }
 
       if (response.ok) {
         const data = await response.json();

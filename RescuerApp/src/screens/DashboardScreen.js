@@ -17,7 +17,7 @@ import { useNotifications } from '../context/NotificationContext';
 import { API_URL, getAuthHeaders, fetchWithTimeout } from '../config/api';
 
 export default function DashboardScreen({ navigation }) {
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
   const { connected, dispatchAlert, socket } = useSocket();
   const { unreadCount, scheduleLocalNotification } = useNotifications();
   const [team, setTeam] = useState(null);
@@ -41,6 +41,22 @@ export default function DashboardScreen({ navigation }) {
 
       console.log('Team response:', teamResponse.status);
       console.log('Mission response:', missionResponse.status);
+
+      // Check for session expiry (401 Unauthorized)
+      if (teamResponse.status === 401 || missionResponse.status === 401) {
+        console.warn('⚠️ Token expired or invalid (401), prompting re-login...');
+        Alert.alert(
+          'Session Expired',
+          'Your login session has expired. Please log in again to view your team and dispatch assignments.',
+          [
+            {
+              text: 'Log In',
+              onPress: () => logout(),
+            },
+          ]
+        );
+        return;
+      }
 
       if (teamResponse.ok) {
         const teamData = await teamResponse.json();
@@ -145,32 +161,45 @@ export default function DashboardScreen({ navigation }) {
     }
   };
 
-  // Handle dispatch alerts
+  // Handle dispatch alerts and team assignments
   useEffect(() => {
     if (dispatchAlert) {
-      console.log('Dispatch alert triggered:', dispatchAlert);
+      console.log('Dispatch/Team alert triggered:', dispatchAlert);
+
+      if (dispatchAlert.type === 'team_removed') {
+        scheduleLocalNotification(
+          'ℹ️ Team Update',
+          dispatchAlert.message || 'You have been removed from your rescue team.'
+        );
+        setTeam(null);
+        setMission(null);
+      } else if (dispatchAlert.team?.status === 'deployed' || dispatchAlert.reportId) {
+        // Show emergency deployment alert
+        scheduleLocalNotification(
+          '🚨 Emergency Dispatch Alert',
+          `Team ${dispatchAlert.team?.name || ''} has been deployed! Check the map for your assigned location.`
+        );
+        Alert.alert(
+          '🚨 DISPATCH ALERT',
+          `You have been deployed!\n\nTeam: ${dispatchAlert.team?.name || ''}\nLocation: ${dispatchAlert.address || 'Check map for details'}`,
+          [
+            { text: 'View Map', onPress: () => navigation.navigate('Map') },
+            { text: 'OK', style: 'cancel' }
+          ]
+        );
+      } else {
+        // Team assignment alert (added to squad)
+        scheduleLocalNotification(
+          '👥 Team Assignment',
+          dispatchAlert.message || `You have been assigned to Team ${dispatchAlert.team?.name || ''}`
+        );
+      }
       
-      // Show local notification
-      scheduleLocalNotification(
-        '🚨 Emergency Dispatch Alert',
-        `Team ${dispatchAlert.team?.name} has been deployed! Check the map for your assigned location.`
-      );
-      
-      // Wait a moment for backend to update, then refresh data
+      // Refresh dashboard data
       setTimeout(() => {
-        console.log('Refreshing dashboard data after deployment...');
+        console.log('Refreshing dashboard data after team/mission update...');
         fetchData();
       }, 500);
-      
-      // Show alert
-      Alert.alert(
-        '🚨 DISPATCH ALERT',
-        `You have been deployed!\n\nTeam: ${dispatchAlert.team?.name}\nLocation: ${dispatchAlert.address || 'Check map for details'}`,
-        [
-          { text: 'View Map', onPress: () => navigation.navigate('Map') },
-          { text: 'OK', style: 'cancel' }
-        ]
-      );
     }
   }, [dispatchAlert]);
 

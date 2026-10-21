@@ -87,6 +87,19 @@ router.patch('/:id', authMiddleware, requireAdmin, async (req, res) => {
       .populate('members', 'name email');
     
     if (!team) return res.status(404).json({ message: 'Team not found' });
+
+    // Emit socket event for real-time leader or team updates
+    if (req.io) {
+      if (leader) {
+        req.io.to(`rescuer_${leader}`).emit('team_assigned', {
+          team,
+          type: 'assignment',
+          message: `You are now the team leader of Team ${team.name}`
+        });
+      }
+      req.io.to('admins').emit('team_updated', { team });
+    }
+
     res.json(team);
   } catch (err) {
     console.error('Update team error:', err);
@@ -121,9 +134,21 @@ router.post('/:id/members', authMiddleware, requireAdmin, async (req, res) => {
       { new: true }
     )
       .populate('leader', 'name email')
-      .populate('members', 'name email');
+      .populate('members', 'name email')
+      .populate('currentMission');
     
     if (!team) return res.status(404).json({ message: 'Team not found' });
+
+    // Emit real-time socket event so rescuer's mobile app immediately updates
+    if (req.io) {
+      req.io.to(`rescuer_${userId}`).emit('team_assigned', {
+        team,
+        type: 'assignment',
+        message: `You have been assigned to Team ${team.name}`
+      });
+      req.io.to('admins').emit('team_updated', { team });
+    }
+
     res.json(team);
   } catch (err) {
     console.error('Add member error:', err);
@@ -143,12 +168,22 @@ router.delete('/:id/members/:userId', authMiddleware, requireAdmin, async (req, 
       .populate('members', 'name email');
     
     // If removed member was leader, clear leader
-    if (team.leader && team.leader._id.toString() === req.params.userId) {
+    if (team && team.leader && team.leader._id.toString() === req.params.userId) {
       team.leader = null;
       await team.save();
     }
     
     if (!team) return res.status(404).json({ message: 'Team not found' });
+
+    // Emit real-time socket event so rescuer knows they were removed
+    if (req.io) {
+      req.io.to(`rescuer_${req.params.userId}`).emit('team_removed', {
+        teamId: req.params.id,
+        message: 'You have been removed from the team'
+      });
+      req.io.to('admins').emit('team_updated', { team });
+    }
+
     res.json(team);
   } catch (err) {
     console.error('Remove member error:', err);

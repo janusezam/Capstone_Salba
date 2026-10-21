@@ -126,6 +126,12 @@ export const SocketProvider = ({ children }) => {
         setDispatchAlert(data);
       });
 
+      // Listen for team removal
+      socketRef.current.on('team_removed', (data) => {
+        console.log('Team removed:', data);
+        setDispatchAlert({ type: 'team_removed', ...data });
+      });
+
       return () => {
         if (socketRef.current) {
           socketRef.current.disconnect();

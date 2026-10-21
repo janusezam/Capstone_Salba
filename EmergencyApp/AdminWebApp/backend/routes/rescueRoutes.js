@@ -34,7 +34,9 @@ router.post('/push-token/clear', authMiddleware, requireRescuer, async (req, res
 // Get rescuer's team info
 router.get('/my-team', authMiddleware, requireRescuer, async (req, res) => {
   try {
-    const team = await Team.findOne({ members: req.user.id })
+    const team = await Team.findOne({
+      $or: [{ members: req.user.id }, { leader: req.user.id }]
+    })
       .populate('leader', 'name email')
       .populate('members', 'name email')
       .populate('currentMission')
@@ -50,7 +52,9 @@ router.get('/my-team', authMiddleware, requireRescuer, async (req, res) => {
 // Get rescuer's current mission
 router.get('/my-mission', authMiddleware, requireRescuer, async (req, res) => {
   try {
-    const team = await Team.findOne({ members: req.user.id }).lean();
+    const team = await Team.findOne({
+      $or: [{ members: req.user.id }, { leader: req.user.id }]
+    }).lean();
     if (!team || !team.currentMission) {
       return res.json(null);
     }
@@ -97,7 +101,9 @@ router.patch('/my-mission/status', authMiddleware, requireRescuer, async (req, r
     }
 
     const [team, rescuerUser] = await Promise.all([
-      Team.findOne({ members: req.user.id }).lean(),
+      Team.findOne({
+        $or: [{ members: req.user.id }, { leader: req.user.id }]
+      }).lean(),
       User.findById(req.user.id).select('name').lean(),
     ]);
 
