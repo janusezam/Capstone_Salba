@@ -101,7 +101,8 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
           navigation.navigate("Home");
         }
       } else {
-        showAlert("Login Failed", data.message || "Invalid credentials. Please verify your phone number and password.");
+        const title = data.code === "OLD_PASSWORD_ENTERED" ? "Old Password Entered" : "Login Failed";
+        showAlert(title, data.message || "Invalid credentials. Please verify your phone number and password.");
       }
     } catch (err) {
       console.error(err);

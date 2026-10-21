@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpires: { type: Date, default: null },
   resetPasswordCode: { type: String, default: null },
   resetPasswordCodeExpires: { type: Date, default: null },
+  previousPassword: { type: String, default: null }, // Hashed previous password for reuse detection
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

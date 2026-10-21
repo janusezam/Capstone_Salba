@@ -123,6 +123,8 @@ export default function ProfileScreen() {
     setPasswordSuccessMsg('');
     if (!val) {
       setNewPasswordError('');
+    } else if (currentPassword && val === currentPassword) {
+      setNewPasswordError('New password cannot be the same as your current password');
     } else if (!isPasswordSecure(val)) {
       setNewPasswordError('Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)');
     } else {
@@ -158,6 +160,10 @@ export default function ProfileScreen() {
     }
 
     if (newPassword) {
+      if (currentPassword && newPassword === currentPassword) {
+        setNewPasswordError('New password cannot be the same as your current password');
+        return;
+      }
       if (!isPasswordSecure(newPassword)) {
         setNewPasswordError('Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)');
         return;

@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
   phone: { type: String, required: true, unique: true, trim: true },
   password: { type: String },
+  previousPassword: { type: String, default: null }, // Hashed previous password for reuse detection
   googleId: { type: String },
   avatar: { type: String },
   authProvider: { type: String, enum: ["local", "google"], default: "local" },

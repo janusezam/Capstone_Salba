@@ -22,10 +22,12 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const recaptchaRef = useRef(null);
 
   const handleLogin = () => {
+    setErrorMessage('');
     if (!username.trim() || !password.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -46,11 +48,17 @@ export default function LoginScreen({ navigation }) {
 
   const onReceiveToken = async (token) => {
     setLoading(true);
+    setErrorMessage('');
     const result = await login(username.trim(), password, token);
     setLoading(false);
 
     if (!result.success) {
-      Alert.alert('Login Failed', result.error);
+      setErrorMessage(result.error);
+      const isOldPassword = result.error?.toLowerCase().includes('old password');
+      Alert.alert(
+        isOldPassword ? '⚠️ Old Password Entered' : 'Login Failed',
+        result.error
+      );
     }
   };
 
@@ -83,6 +91,25 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.formCard}>
           <Text style={styles.welcomeText}>Login to Account</Text>
 
+          {/* Inline Error Banner */}
+          {errorMessage ? (
+            <View style={{
+              backgroundColor: '#FEF2F2',
+              borderColor: '#F87171',
+              borderWidth: 1,
+              borderRadius: 8,
+              padding: 12,
+              marginBottom: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+              <Ionicons name="alert-circle" size={20} color="#DC2626" style={{ marginRight: 8 }} />
+              <Text style={{ color: '#991B1B', fontSize: 13, flex: 1, fontWeight: '500' }}>
+                {errorMessage}
+              </Text>
+            </View>
+          ) : null}
+
           <View style={styles.inputContainer}>
             <Ionicons name="person-outline" size={20} color="#991B1B" style={styles.inputIcon} />
             <TextInput
@@ -90,7 +117,7 @@ export default function LoginScreen({ navigation }) {
               placeholder="Username"
               placeholderTextColor="#9CA3AF"
               value={username}
-              onChangeText={setUsername}
+              onChangeText={(val) => { setUsername(val); setErrorMessage(''); }}
               autoCapitalize="none"
               autoCorrect={false}
             />
@@ -103,7 +130,7 @@ export default function LoginScreen({ navigation }) {
               placeholder="Password"
               placeholderTextColor="#9CA3AF"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(val) => { setPassword(val); setErrorMessage(''); }}
               secureTextEntry={!showPassword}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>

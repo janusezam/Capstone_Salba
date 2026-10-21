@@ -236,6 +236,16 @@ router.post("/login", authLimiter, async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      if (user.previousPassword) {
+        const matchOld = await bcrypt.compare(password, user.previousPassword);
+        if (matchOld) {
+          recordFailure(key);
+          return res.status(401).json({
+            code: "OLD_PASSWORD_ENTERED",
+            message: "You entered your old password. Please enter your new password.",
+          });
+        }
+      }
       const locked = recordFailure(key);
       if (locked) {
         return res.status(429).json({ message: "Too many failed login attempts. Try again in 10 minutes." });
@@ -394,6 +404,14 @@ router.post("/forgot-password/reset", forgotLimiter, async (req, res) => {
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    if (user.password) {
+      const isSamePassword = await bcrypt.compare(String(newPassword), user.password);
+      if (isSamePassword) {
+        return res.status(400).json({ message: "New password cannot be the same as your old password" });
+      }
+    }
+
+    user.previousPassword = user.password;
     user.password = await bcrypt.hash(newPassword, 10);
     user.authProvider = "local";
     await user.save();
@@ -507,6 +525,16 @@ router.put("/change-password", auth, async (req, res) => {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
 
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ message: "New password cannot be the same as your old password" });
+    }
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({ message: "New password cannot be the same as your old password" });
+    }
+
+    user.previousPassword = user.password;
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
     res.json({ message: "Password changed successfully" });

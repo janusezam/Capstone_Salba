@@ -249,8 +249,18 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match)
+    if (!match) {
+      if (user.previousPassword) {
+        const matchOld = await bcrypt.compare(password, user.previousPassword);
+        if (matchOld) {
+          return res.status(401).json({
+            code: 'OLD_PASSWORD_ENTERED',
+            message: 'You entered your old password. Please use your newly updated password.'
+          });
+        }
+      }
       return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
     // Verify reCAPTCHA if provided
     if (recaptchaToken) {
@@ -549,6 +559,14 @@ router.post('/forgot-password/reset', async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)' });
     }
 
+    if (user.password) {
+      const isSamePassword = await bcrypt.compare(String(newPassword), user.password);
+      if (isSamePassword) {
+        return res.status(400).json({ message: 'New password cannot be the same as your old password' });
+      }
+    }
+
+    user.previousPassword = user.password;
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
@@ -633,6 +651,14 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired reset token/code' });
     }
 
+    if (user.password) {
+      const isSamePassword = await bcrypt.compare(String(newPassword), user.password);
+      if (isSamePassword) {
+        return res.status(400).json({ message: 'New password cannot be the same as your old password' });
+      }
+    }
+
+    user.previousPassword = user.password;
     user.password = await bcrypt.hash(String(newPassword), 10);
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
@@ -872,6 +898,16 @@ router.put('/change-password', verifyToken, async (req, res) => {
       return res.status(400).json({ message: 'Current password is incorrect' });
     }
 
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ message: 'New password cannot be the same as your old password' });
+    }
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({ message: 'New password cannot be the same as your old password' });
+    }
+
+    user.previousPassword = user.password;
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
@@ -940,6 +976,14 @@ router.patch('/profile', verifyToken, async (req, res) => {
       if (!isMatch) {
         return res.status(400).json({ message: "Current password is incorrect" });
       }
+      if (currentPassword === newPassword) {
+        return res.status(400).json({ message: "New password cannot be the same as your old password" });
+      }
+      const isSamePassword = await bcrypt.compare(newPassword, user.password);
+      if (isSamePassword) {
+        return res.status(400).json({ message: "New password cannot be the same as your old password" });
+      }
+      user.previousPassword = user.password;
       user.password = await bcrypt.hash(newPassword, 10);
     }
 

@@ -1547,6 +1547,11 @@ function AdminDashboard() {
 
   // Save profile changes
   const handleSaveProfile = async () => {
+    if (profileData.newPassword && profileData.currentPassword && profileData.newPassword === profileData.currentPassword) {
+      showToast('New password cannot be the same as your current password', 'error');
+      return;
+    }
+
     if (profileData.newPassword && profileData.newPassword !== profileData.confirmPassword) {
       showToast('New passwords do not match', 'error');
       return;
