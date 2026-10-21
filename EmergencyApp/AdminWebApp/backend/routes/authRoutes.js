@@ -16,6 +16,9 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const buildResetCode = () => String(Math.floor(100000 + Math.random() * 900000));
 
+const PASSWORD_REGEX = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]).{8,}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const isSmtpConfigured = () => {
   return Boolean(process.env.MAIL_HOST && process.env.MAIL_USER && process.env.MAIL_PASS);
 };
@@ -116,6 +119,12 @@ router.post('/register', async (req, res) => {
       if (!name || !normalizedEmail || !normalizedUsername || !password)
         return res.status(400).json({ message: 'Name, email, username and password required' });
 
+      if (!EMAIL_REGEX.test(normalizedEmail))
+        return res.status(400).json({ message: 'Please enter a valid email address' });
+
+      if (!PASSWORD_REGEX.test(password))
+        return res.status(400).json({ message: 'Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)' });
+
       const existingUsername = await User.findOne({ username: normalizedUsername });
       if (existingUsername)
         return res.status(400).json({ message: 'Username already taken' });
@@ -151,6 +160,14 @@ router.post('/register', async (req, res) => {
     // standard registration (requires name, password, and either email or phone)
     if (!name || (!normalizedEmail && !normalizedPhone) || !password) {
       return res.status(400).json({ message: 'Name, password, and email or phone number are required' });
+    }
+
+    if (normalizedEmail && !EMAIL_REGEX.test(normalizedEmail)) {
+      return res.status(400).json({ message: 'Please enter a valid email address' });
+    }
+
+    if (!PASSWORD_REGEX.test(password)) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)' });
     }
 
     // check duplicates
