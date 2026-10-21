@@ -32,7 +32,7 @@ if (fs.existsSync(indexPath)) {
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="DisasterSOS" />
+    <meta name="apple-mobile-web-app-title" content="SALBA" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icon.png" />
     <link rel="apple-touch-icon" href="/assets/icon.png" />
     <style>
@@ -51,10 +51,10 @@ if (fs.existsSync(indexPath)) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('/sw.js')
             .then(function(reg) {
-              console.log('[DisasterSOS SW] Registered successfully, scope:', reg.scope);
+              console.log('[SALBA SW] Registered successfully, scope:', reg.scope);
             })
             .catch(function(err) {
-              console.warn('[DisasterSOS SW] Registration failed:', err);
+              console.warn('[SALBA SW] Registration failed:', err);
             });
         });
       }
@@ -68,7 +68,7 @@ if (fs.existsSync(indexPath)) {
     html = html.replace(/<link\s+rel=["']manifest["'][^>]*>/i, pwaTags.trim());
   }
 
-  if (!html.includes('[DisasterSOS SW]')) {
+  if (!html.includes('[SALBA SW]')) {
     html = html.replace('</body>', `${swScript}\n</body>`);
   }
 

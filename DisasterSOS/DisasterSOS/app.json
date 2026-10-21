@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "DisasterSOS",
+    "name": "SALBA",
     "slug": "DisasterSOS",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -40,8 +40,8 @@
       "bundler": "metro",
       "output": "single",
       "favicon": "./assets/favicon.png",
-      "name": "SALBA DisasterSOS",
-      "shortName": "DisasterSOS",
+      "name": "SALBA",
+      "shortName": "SALBA",
       "themeColor": "#dc2626",
       "backgroundColor": "#ffffff",
       "display": "standalone",
