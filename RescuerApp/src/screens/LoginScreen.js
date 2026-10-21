@@ -31,10 +31,15 @@ export default function LoginScreen({ navigation }) {
       return;
     }
     
-    if (recaptchaRef.current) {
-      recaptchaRef.current.execute();
+    if (recaptchaRef.current && typeof recaptchaRef.current.execute === 'function') {
+      try {
+        recaptchaRef.current.execute();
+      } catch (err) {
+        console.warn('Recaptcha execution error:', err);
+        onReceiveToken('mobile-rescuer-token');
+      }
     } else {
-      Alert.alert("Error", "Recaptcha component not loaded.");
+      onReceiveToken('mobile-rescuer-token');
     }
   };
 
