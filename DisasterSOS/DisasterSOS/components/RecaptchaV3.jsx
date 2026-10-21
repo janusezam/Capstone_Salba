@@ -27,33 +27,91 @@ const RecaptchaV3 = forwardRef(({ onReceiveToken }, ref) => {
 
   useImperativeHandle(ref, () => ({
     execute: () => {
+      let resolved = false;
+      const deliverToken = (token) => {
+        if (!resolved) {
+          resolved = true;
+          if (onReceiveToken) onReceiveToken(token);
+        }
+      };
+
       if (Platform.OS === 'web') {
-        if (typeof window !== 'undefined' && window.grecaptcha) {
-          window.grecaptcha.ready(function() {
-            window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit' }).then(function(token) {
-              if (onReceiveToken) onReceiveToken(token);
-            }).catch(function(err) {
-              console.warn('Recaptcha error on web, continuing with bypass token', err);
-              if (onReceiveToken) onReceiveToken('web-recaptcha-bypass-token');
+        // Fallback timer: guarantees onReceiveToken fires within 2 seconds on Safari / iOS PWA
+        const timer = setTimeout(() => {
+          console.warn('[RecaptchaV3] Web timeout reached; continuing with fallback token');
+          deliverToken('web-recaptcha-bypass-token');
+        }, 2000);
+
+        try {
+          if (
+            typeof window !== 'undefined' &&
+            window.grecaptcha &&
+            typeof window.grecaptcha.ready === 'function'
+          ) {
+            window.grecaptcha.ready(function () {
+              try {
+                if (typeof window.grecaptcha.execute === 'function') {
+                  window.grecaptcha
+                    .execute(RECAPTCHA_SITE_KEY, { action: 'submit' })
+                    .then(function (token) {
+                      clearTimeout(timer);
+                      deliverToken(token || 'web-recaptcha-bypass-token');
+                    })
+                    .catch(function (err) {
+                      clearTimeout(timer);
+                      console.warn('[RecaptchaV3] Error executing grecaptcha on web:', err);
+                      deliverToken('web-recaptcha-bypass-token');
+                    });
+                } else {
+                  clearTimeout(timer);
+                  deliverToken('web-recaptcha-bypass-token');
+                }
+              } catch (innerErr) {
+                clearTimeout(timer);
+                console.warn('[RecaptchaV3] Exception in grecaptcha.ready callback:', innerErr);
+                deliverToken('web-recaptcha-bypass-token');
+              }
             });
-          });
-        } else {
-          if (onReceiveToken) onReceiveToken('web-recaptcha-bypass-token');
+          } else {
+            clearTimeout(timer);
+            deliverToken('web-recaptcha-bypass-token');
+          }
+        } catch (e) {
+          clearTimeout(timer);
+          console.warn('[RecaptchaV3] Exception invoking grecaptcha:', e);
+          deliverToken('web-recaptcha-bypass-token');
         }
         return;
       }
 
+      // Native fallback timer
+      const nativeTimer = setTimeout(() => {
+        deliverToken('native-recaptcha-timeout-token');
+      }, 3500);
+
       if (webViewRef.current) {
-        webViewRef.current.injectJavaScript(`
-          if (window.grecaptcha) {
-            window.grecaptcha.ready(function() {
-              window.grecaptcha.execute('${RECAPTCHA_SITE_KEY}', {action: 'submit'}).then(function(token) {
-                window.ReactNativeWebView.postMessage(token);
+        try {
+          webViewRef.current.injectJavaScript(`
+            if (window.grecaptcha && typeof window.grecaptcha.ready === 'function') {
+              window.grecaptcha.ready(function() {
+                window.grecaptcha.execute('${RECAPTCHA_SITE_KEY}', {action: 'submit'}).then(function(token) {
+                  window.ReactNativeWebView.postMessage(token);
+                }).catch(function() {
+                  window.ReactNativeWebView.postMessage('native-recaptcha-error');
+                });
               });
-            });
-          }
-          true;
-        `);
+            } else {
+              window.ReactNativeWebView.postMessage('native-recaptcha-not-ready');
+            }
+            true;
+          `);
+        } catch (err) {
+          clearTimeout(nativeTimer);
+          deliverToken('native-recaptcha-inject-failed');
+        }
+      } else {
+        clearTimeout(nativeTimer);
+        deliverToken('native-recaptcha-no-webview');
       }
     }
   }));

@@ -5,17 +5,10 @@ const distDir = path.join(__dirname, '..', 'dist');
 const indexPath = path.join(distDir, 'index.html');
 const publicDir = path.join(__dirname, '..', 'public');
 
-// Copy public files (sw.js, manifest.json, etc.) to dist if needed
+// Copy public files and directories (sw.js, manifest.json, assets, etc.) to dist
 if (fs.existsSync(publicDir) && fs.existsSync(distDir)) {
-  const files = fs.readdirSync(publicDir);
-  for (const file of files) {
-    const src = path.join(publicDir, file);
-    const dest = path.join(distDir, file);
-    if (!fs.existsSync(dest) || fs.statSync(src).mtime > fs.statSync(dest).mtime) {
-      fs.copyFileSync(src, dest);
-      console.log(`✓ Copied ${file} to dist/`);
-    }
-  }
+  fs.cpSync(publicDir, distDir, { recursive: true });
+  console.log('✓ Copied public assets to dist/');
 }
 
 if (fs.existsSync(indexPath)) {
