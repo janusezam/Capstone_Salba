@@ -28,13 +28,32 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
   
   const recaptchaRef = React.useRef(null);
 
-  const normalizePhoneInput = (val) => {
-    if (!val) return "";
-    let clean = val.replace(/[^0-9+]/g, "").trim();
-    if (/^9\d{9}$/.test(clean)) {
-      clean = "0" + clean;
+  const handlePhoneChange = (val) => {
+    if (errorMessage) setErrorMessage("");
+
+    let digits = val.replace(/\D/g, "");
+
+    // Strip pasted 63 or +63
+    if (digits.startsWith("63")) {
+      digits = digits.slice(2);
     }
-    return clean;
+
+    // Automatically strip leading zeros (cannot type 0)
+    while (digits.startsWith("0")) {
+      digits = digits.slice(1);
+    }
+
+    // Only allow starting with 9
+    if (digits.length > 0 && !digits.startsWith("9")) {
+      digits = "";
+    }
+
+    // Cap at exactly 10 digits
+    if (digits.length > 10) {
+      digits = digits.slice(0, 10);
+    }
+
+    setPhone(digits);
   };
 
   const showAlert = (title, message) => {
@@ -54,9 +73,12 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
 
   const handleLogin = () => {
     setErrorMessage("");
-    const cleanPhone = normalizePhoneInput(phone);
-    if (!cleanPhone || !password) {
-      showAlert("Missing Fields", "Please enter your phone number and password.");
+    if (!phone || phone.length !== 10) {
+      showAlert("Invalid Phone", "Please enter your 10-digit mobile number starting with 9 (e.g., 9123456789).");
+      return;
+    }
+    if (!password) {
+      showAlert("Missing Password", "Please enter your password.");
       return;
     }
 
@@ -76,11 +98,18 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
   const onReceiveToken = async (token) => {
     try {
       setErrorMessage("");
-      const cleanPhone = normalizePhoneInput(phone);
+      const fullPhone = "0" + phone;
+      const payload = {
+        phone: fullPhone,
+        identifier: fullPhone,
+        password,
+        recaptchaToken: token || "web-recaptcha-bypass-token",
+      };
+
       const res = await fetch(`${BASE_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: cleanPhone, password, recaptchaToken: token || "web-recaptcha-bypass-token" }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
 
@@ -88,7 +117,7 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
         await AsyncStorage.setItem("userToken", data.token);
         await AsyncStorage.setItem("userData", JSON.stringify(data.user));
         // Store phone separately for quick access
-        await AsyncStorage.setItem("userPhone", data.user.phone || cleanPhone);
+        await AsyncStorage.setItem("userPhone", data.user.phone || cleanPhone || "");
         console.log('✓ [LoginScreen] User stored in AsyncStorage:', {
           id: data.user._id,
           name: data.user.name,
@@ -137,16 +166,21 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
             </View>
           ) : null}
 
-          {/* Phone Input */}
+          {/* GCash-style Phone Input */}
           <View style={styles.inputContainer}>
             <Ionicons name="call-outline" size={20} color="#888" style={styles.inputIcon} />
+            <View style={styles.countryCodeBadge}>
+              <Text style={styles.countryCodeText}>+63</Text>
+              <View style={styles.countryCodeDivider} />
+            </View>
             <TextInput
-              style={styles.input}
-              placeholder="Phone Number"
+              style={styles.phoneInput}
+              placeholder="9XX XXX XXXX"
               placeholderTextColor="#aaa"
               keyboardType="phone-pad"
+              maxLength={10}
               autoCapitalize="none"
-              onChangeText={setPhone}
+              onChangeText={handlePhoneChange}
               value={phone}
             />
           </View>
@@ -307,6 +341,29 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#333",
+  },
+  countryCodeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: 6,
+  },
+  countryCodeText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#222",
+  },
+  countryCodeDivider: {
+    width: 1,
+    height: 18,
+    backgroundColor: "#ccc",
+    marginLeft: 8,
+  },
+  phoneInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+    paddingVertical: 0,
+    letterSpacing: 0.5,
   },
   loginButton: {
     width: "100%",

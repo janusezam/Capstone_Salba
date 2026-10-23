@@ -36,6 +36,7 @@ export default function RegisterScreen({ navigation }) {
 
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
   const recaptchaRef = React.useRef(null);
 
@@ -79,14 +80,34 @@ export default function RegisterScreen({ navigation }) {
     }
   };
 
-  const normalizePhoneInput = (val) => {
-    if (!val) return "";
-    let clean = val.replace(/[^0-9+]/g, "").trim();
-    // Normalize 9XXXXXXXXX (10 digits starting with 9) to 09XXXXXXXXX
-    if (/^9\d{9}$/.test(clean)) {
-      clean = "0" + clean;
+  const handlePhoneChange = (val) => {
+    if (errorMessage) setErrorMessage("");
+    if (phoneError) setPhoneError("");
+
+    let digits = val.replace(/\D/g, "");
+
+    // Strip pasted 63 or +63
+    if (digits.startsWith("63")) {
+      digits = digits.slice(2);
     }
-    return clean;
+
+    // Automatically strip leading zeros (cannot type 0)
+    while (digits.startsWith("0")) {
+      digits = digits.slice(1);
+    }
+
+    // Only allow starting with 9
+    if (digits.length > 0 && !digits.startsWith("9")) {
+      setPhoneError("Mobile number must start with 9");
+      digits = "";
+    }
+
+    // Cap at exactly 10 digits
+    if (digits.length > 10) {
+      digits = digits.slice(0, 10);
+    }
+
+    setPhone(digits);
   };
 
   const showAlert = (title, message, isError = true) => {
@@ -119,9 +140,8 @@ export default function RegisterScreen({ navigation }) {
 
     const trimmedName = name.trim();
     const trimmedEmail = email.trim().toLowerCase();
-    const cleanPhone = normalizePhoneInput(phone);
 
-    if (!trimmedName || !trimmedEmail || !cleanPhone || !password || !confirmPassword) {
+    if (!trimmedName || !trimmedEmail || !phone || !password || !confirmPassword) {
       showAlert("Missing Fields", "Please fill in all fields.");
       return;
     }
@@ -131,8 +151,9 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
-    if (cleanPhone.length < 10 || cleanPhone.length > 13) {
-      showAlert("Invalid Phone", "Please enter a valid Philippine mobile number (e.g. 09123456789 or +639123456789).");
+    if (phone.length !== 10 || !/^9\d{9}$/.test(phone)) {
+      setPhoneError("Phone number must be exactly 10 digits starting with 9 (e.g. 9123456789)");
+      showAlert("Invalid Phone", "Please enter a valid 10-digit mobile number starting with 9 (e.g. 9123456789).");
       return;
     }
 
@@ -172,9 +193,9 @@ export default function RegisterScreen({ navigation }) {
   const onReceiveToken = async (token) => {
     try {
       setErrorMessage("");
-      const cleanPhone = normalizePhoneInput(phone);
       const trimmedEmail = email.trim().toLowerCase();
       const trimmedName = name.trim();
+      const fullPhone = "0" + phone;
 
       const res = await fetch(`${BASE_URL}/api/users/register`, {
         method: "POST",
@@ -182,7 +203,7 @@ export default function RegisterScreen({ navigation }) {
         body: JSON.stringify({
           name: trimmedName,
           email: trimmedEmail,
-          phone: cleanPhone,
+          phone: fullPhone,
           password,
           recaptchaToken: token || "web-recaptcha-bypass-token",
           role: "user",
@@ -294,21 +315,32 @@ export default function RegisterScreen({ navigation }) {
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={20} color="#888" style={styles.inputIcon} />
+          {/* GCash-style Phone Input */}
+          <View style={[styles.inputContainer, !!phoneError && styles.inputContainerError]}>
+            <Ionicons name="call-outline" size={20} color={phoneError ? "#DC2626" : "#888"} style={styles.inputIcon} />
+            <View style={styles.countryCodeBadge}>
+              <Text style={styles.countryCodeText}>+63</Text>
+              <View style={styles.countryCodeDivider} />
+            </View>
             <TextInput
-              style={styles.input}
-              placeholder="Phone Number (e.g., 09123456789)"
+              style={styles.phoneInput}
+              placeholder="9XX XXX XXXX"
               placeholderTextColor="#aaa"
               keyboardType="phone-pad"
+              maxLength={10}
               autoCapitalize="none"
-              onChangeText={(text) => {
-                setPhone(text);
-                if (errorMessage) setErrorMessage("");
-              }}
+              onChangeText={handlePhoneChange}
               value={phone}
             />
           </View>
+          {phoneError ? (
+            <View style={styles.fieldErrorContainer}>
+              <Ionicons name="alert-circle-outline" size={18} color="#DC2626" style={styles.fieldErrorIcon} />
+              <View style={styles.fieldErrorTextWrapper}>
+                <Text style={styles.fieldErrorTitle}>{phoneError}</Text>
+              </View>
+            </View>
+          ) : null}
 
           {/* Password Input */}
           <View style={[styles.inputContainer, !!passwordError && styles.inputContainerError]}>
@@ -571,6 +603,29 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#333",
+  },
+  countryCodeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: 6,
+  },
+  countryCodeText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#222",
+  },
+  countryCodeDivider: {
+    width: 1,
+    height: 18,
+    backgroundColor: "#ccc",
+    marginLeft: 8,
+  },
+  phoneInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+    paddingVertical: 0,
+    letterSpacing: 0.5,
   },
   inputErrorText: {
     color: "#991B1B",

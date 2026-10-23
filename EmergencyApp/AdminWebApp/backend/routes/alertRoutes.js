@@ -9,6 +9,7 @@ const cacheManager = require('../utils/cacheManager');
 const { resolveLocationName } = require('../utils/locationResolver');
 const { authMiddleware } = require('../middleware/authMiddleware');
 const { alertLimiter } = require('../middleware/adaptiveRateLimiter');
+const { getPhoneVariants } = require('../utils/phoneUtils');
 
 const router = express.Router();
 
@@ -866,9 +867,7 @@ router.get('/my-reports', authMiddleware, async (req, res) => {
       $or: [
         { userId: String(userId) },
         ...(userPhone ? [
-          { senderPhone: userPhone },
-          { senderPhone: userPhone.startsWith('+63') ? '0' + userPhone.slice(3) : userPhone },
-          { senderPhone: userPhone.startsWith('0') ? '+63' + userPhone.slice(1) : userPhone },
+          { senderPhone: { $in: getPhoneVariants(userPhone) } },
         ] : [])
       ]
     };

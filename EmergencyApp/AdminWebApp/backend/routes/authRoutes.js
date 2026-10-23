@@ -8,6 +8,7 @@ const User = require('../models/User');
 const PasswordResetOtp = require('../models/PasswordResetOtp');
 const { OAuth2Client } = require('google-auth-library');
 const { authMiddleware, requireAdmin } = require('../middleware/authMiddleware');
+const { normalizePhilippinePhone, getPhoneVariants } = require('../utils/phoneUtils');
 
 const router = express.Router();
 
@@ -111,7 +112,7 @@ router.post('/register', async (req, res) => {
     const { name, email, username, phone, password, role, termsAccepted, termsVersion, termsAcceptedAt } = req.body;
     const normalizedEmail = email ? String(email).trim().toLowerCase() : '';
     const normalizedUsername = username ? String(username).trim() : '';
-    const normalizedPhone = phone ? String(phone).replace(/\s|-/g, '').trim() : '';
+    const normalizedPhone = phone ? normalizePhilippinePhone(phone) : '';
     const acceptedVersion = termsVersion || '2026-04-09';
 
     // Rescuers use username, others use email/phone
@@ -176,12 +177,12 @@ router.post('/register', async (req, res) => {
       if (existingEmail) return res.status(400).json({ message: 'Email already registered' });
     }
     if (normalizedPhone) {
+      if (!/^09\d{9}$/.test(normalizedPhone)) {
+        return res.status(400).json({ message: 'Phone number must be an 11-digit mobile number starting with 09 (e.g., 09123456789)' });
+      }
+      const phoneVariants = getPhoneVariants(normalizedPhone);
       const existingPhone = await User.findOne({
-        $or: [
-          { phone: normalizedPhone },
-          { phone: normalizedPhone.startsWith('+63') ? '0' + normalizedPhone.slice(3) : normalizedPhone },
-          { phone: normalizedPhone.startsWith('0') ? '+63' + normalizedPhone.slice(1) : normalizedPhone }
-        ]
+        phone: { $in: phoneVariants }
       });
       if (existingPhone) return res.status(400).json({ message: 'Phone number already registered' });
     }
@@ -221,8 +222,8 @@ router.post('/login', async (req, res) => {
     const normalizedEmail = email ? String(email).trim().toLowerCase() : '';
     const normalizedUsername = username ? String(username).trim() : '';
     const normalizedIdentifier = identifier ? String(identifier).trim() : '';
-    const normalizedPhone = phone ? String(phone).replace(/\s|-/g, '').trim() : '';
-    const loginValue = normalizedIdentifier || normalizedEmail || normalizedUsername || normalizedPhone;
+    const rawPhone = phone ? String(phone).replace(/\s|-/g, '').trim() : '';
+    const loginValue = normalizedIdentifier || normalizedEmail || normalizedUsername || rawPhone;
 
     if (!loginValue || !password) {
       return res.status(400).json({ message: 'Phone number, email, or username and password are required' });
@@ -231,18 +232,15 @@ router.post('/login', async (req, res) => {
     let user;
     if (loginValue.includes('@')) {
       user = await User.findOne({ email: loginValue.toLowerCase() });
-    } else if (normalizedPhone || /^\+?[0-9]{7,15}$/.test(loginValue)) {
-      const clean = normalizedPhone || loginValue.replace(/\s|-/g, '').trim();
+    } else {
+      const phoneVariants = getPhoneVariants(rawPhone || loginValue);
       user = await User.findOne({
         $or: [
-          { phone: clean },
-          { phone: clean.startsWith('+63') ? '0' + clean.slice(3) : clean },
-          { phone: clean.startsWith('0') ? '+63' + clean.slice(1) : clean },
-          { username: loginValue }
+          { phone: { $in: phoneVariants } },
+          { username: loginValue },
+          { email: loginValue.toLowerCase() }
         ]
       });
-    } else {
-      user = await User.findOne({ username: loginValue });
     }
 
     if (!user)
@@ -421,12 +419,9 @@ router.post('/forgot-password/request-otp', async (req, res) => {
         return res.status(404).json({ message: 'No registered account found with this email address.' });
       }
     } else if (normalizedPhone) {
+      const phoneVariants = getPhoneVariants(normalizedPhone);
       user = await User.findOne({
-        $or: [
-          { phone: normalizedPhone },
-          { phone: normalizedPhone.startsWith('+63') ? '0' + normalizedPhone.slice(3) : normalizedPhone },
-          { phone: normalizedPhone.startsWith('0') ? '+63' + normalizedPhone.slice(1) : normalizedPhone }
-        ]
+        phone: { $in: phoneVariants }
       });
       if (!user) {
         return res.status(404).json({ message: 'No registered account found with this phone number.' });
@@ -544,11 +539,11 @@ router.post('/forgot-password/reset', async (req, res) => {
 
     let user = await User.findOne({ email: identifier });
     if (!user) {
+      const phoneVariants = getPhoneVariants(identifier);
       user = await User.findOne({
         $or: [
-          { phone: identifier },
-          { phone: identifier.startsWith('+63') ? '0' + identifier.slice(3) : identifier },
-          { phone: identifier.startsWith('0') ? '+63' + identifier.slice(1) : identifier }
+          { phone: { $in: phoneVariants } },
+          { username: identifier }
         ]
       });
     }
