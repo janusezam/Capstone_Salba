@@ -20,6 +20,7 @@ export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +29,7 @@ export default function RegisterScreen({ navigation }) {
 
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
 
   const isPasswordSecure = (pwd) => {
     if (!pwd || pwd.length < 8) return false;
@@ -67,11 +69,41 @@ export default function RegisterScreen({ navigation }) {
     }
   };
 
+  const handlePhoneChange = (val) => {
+    if (phoneError) setPhoneError('');
+
+    let digits = val.replace(/\D/g, '');
+
+    // Strip pasted 63 or +63
+    if (digits.startsWith('63')) {
+      digits = digits.slice(2);
+    }
+
+    // Automatically strip leading zeros (cannot type 0)
+    while (digits.startsWith('0')) {
+      digits = digits.slice(1);
+    }
+
+    // Only allow starting with 9
+    if (digits.length > 0 && !digits.startsWith('9')) {
+      setPhoneError('Mobile number must start with 9');
+      digits = '';
+    }
+
+    // Cap at exactly 10 digits
+    if (digits.length > 10) {
+      digits = digits.slice(0, 10);
+    }
+
+    setPhone(digits);
+  };
+
   const handleRegister = async () => {
     setPasswordError('');
     setConfirmPasswordError('');
+    setPhoneError('');
 
-    if (!name.trim() || !email.trim() || !username.trim() || !password.trim() || !confirmPassword.trim()) {
+    if (!name.trim() || !email.trim() || !username.trim() || !phone || !password.trim() || !confirmPassword.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -87,6 +119,12 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
+    if (phone.length !== 10 || !/^9\d{9}$/.test(phone)) {
+      setPhoneError('Phone number must be exactly 10 digits starting with 9 (e.g. 9123456789)');
+      Alert.alert('Invalid Phone', 'Please enter a valid 10-digit mobile number starting with 9 (e.g. 9123456789).');
+      return;
+    }
+
     if (!isPasswordSecure(password)) {
       setPasswordError('Password does not meet security requirements');
       return;
@@ -98,7 +136,8 @@ export default function RegisterScreen({ navigation }) {
     }
 
     setLoading(true);
-    const result = await register(name.trim(), email.trim().toLowerCase(), username.trim(), password);
+    const fullPhone = '0' + phone;
+    const result = await register(name.trim(), email.trim().toLowerCase(), username.trim(), fullPhone, password);
     setLoading(false);
 
     if (!result.success) {
@@ -173,6 +212,33 @@ export default function RegisterScreen({ navigation }) {
               autoCorrect={false}
             />
           </View>
+
+          {/* GCash-style Phone Input */}
+          <View style={[styles.inputContainer, !!phoneError && styles.inputContainerError]}>
+            <Ionicons name="call-outline" size={20} color={phoneError ? "#DC2626" : "#991B1B"} style={styles.inputIcon} />
+            <View style={styles.countryCodeBadge}>
+              <Text style={styles.countryCodeText}>+63</Text>
+              <View style={styles.countryCodeDivider} />
+            </View>
+            <TextInput
+              style={styles.phoneInput}
+              placeholder="9XX XXX XXXX"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="phone-pad"
+              maxLength={10}
+              autoCapitalize="none"
+              onChangeText={handlePhoneChange}
+              value={phone}
+            />
+          </View>
+          {phoneError ? (
+            <View style={styles.fieldErrorContainer}>
+              <Ionicons name="alert-circle-outline" size={18} color="#DC2626" style={styles.fieldErrorIcon} />
+              <View style={styles.fieldErrorTextWrapper}>
+                <Text style={styles.fieldErrorTitle}>{phoneError}</Text>
+              </View>
+            </View>
+          ) : null}
 
           {/* Password Input */}
           <View style={[styles.inputContainer, !!passwordError && styles.inputContainerError]}>
@@ -383,6 +449,29 @@ const styles = StyleSheet.create({
     height: 50,
     fontSize: 15,
     color: '#111827',
+  },
+  countryCodeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 8,
+  },
+  countryCodeText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  countryCodeDivider: {
+    width: 1,
+    height: 18,
+    backgroundColor: '#D1D5DB',
+    marginLeft: 8,
+  },
+  phoneInput: {
+    flex: 1,
+    height: 50,
+    fontSize: 15,
+    color: '#111827',
+    letterSpacing: 0.5,
   },
   inputErrorText: {
     color: '#991B1B',

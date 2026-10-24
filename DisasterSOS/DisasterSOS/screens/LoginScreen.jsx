@@ -117,7 +117,7 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
         await AsyncStorage.setItem("userToken", data.token);
         await AsyncStorage.setItem("userData", JSON.stringify(data.user));
         // Store phone separately for quick access
-        await AsyncStorage.setItem("userPhone", data.user.phone || cleanPhone || "");
+        await AsyncStorage.setItem("userPhone", data.user.phone || fullPhone || "");
         console.log('✓ [LoginScreen] User stored in AsyncStorage:', {
           id: data.user._id,
           name: data.user.name,

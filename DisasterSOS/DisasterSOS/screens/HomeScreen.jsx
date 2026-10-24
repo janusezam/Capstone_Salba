@@ -13,6 +13,8 @@ import {
   Platform,
   TextInput,
   Pressable,
+  KeyboardAvoidingView,
+  Keyboard,
 } from "react-native";
 import * as Location from "expo-location";
 import MapView, { Marker, Polyline } from "react-native-maps";
@@ -167,6 +169,31 @@ export default function HomeScreen() {
   const [lastViewedReportUpdatedAt, setLastViewedReportUpdatedAt] = useState(null);
   const navigation = useNavigation();
   const { user, logout } = useAuth();
+  const scrollViewRef = useRef(null);
+  const [isNoteFocused, setIsNoteFocused] = useState(false);
+
+  const handleNoteFocus = (e) => {
+    setIsNoteFocused(true);
+    if (Platform.OS === 'web') {
+      setTimeout(() => {
+        try {
+          e?.target?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+        } catch (err) {
+          if (typeof window !== 'undefined') {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+          }
+        }
+      }, 300);
+    } else {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 150);
+    }
+  };
+
+  const handleNoteBlur = () => {
+    setIsNoteFocused(false);
+  };
 
   // Load last viewed report timestamp from AsyncStorage on user change
   useEffect(() => {
@@ -528,8 +555,21 @@ export default function HomeScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: "#fff" }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
+    >
+      <ScrollView
+        ref={scrollViewRef}
+        contentContainerStyle={[
+          styles.scrollContainer,
+          isNoteFocused && styles.scrollContainerFocused,
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.container}>
         {/* Header with notification bell and burger menu */}
         <View style={styles.header}>
           <TouchableOpacity 
@@ -1170,13 +1210,15 @@ export default function HomeScreen() {
         <View style={styles.noteContainer}>
           <Text style={styles.noteLabel}>Optional Note</Text>
           <TextInput
-            style={styles.noteInput}
+            style={[styles.noteInput, isNoteFocused && styles.noteInputFocused]}
             placeholder="Add extra details (optional)"
             placeholderTextColor="#999"
             multiline
             numberOfLines={3}
             value={note}
             onChangeText={setNote}
+            onFocus={handleNoteFocus}
+            onBlur={handleNoteBlur}
           />
         </View>
 
@@ -1197,7 +1239,8 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -1205,12 +1248,15 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
   },
+  scrollContainerFocused: {
+    paddingBottom: Platform.OS === 'web' ? 280 : 180,
+  },
   container: {
-    flex: 1,
+    width: "100%",
     backgroundColor: "#fff",
     alignItems: "center",
     paddingTop: 50,
-    paddingBottom: 30,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: "row",
@@ -1505,6 +1551,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
     color: "#333",
     textAlignVertical: "top",
+  },
+  noteInputFocused: {
+    borderColor: "#d32f2f",
+    backgroundColor: "#fff",
+    borderWidth: 1.5,
   },
   successOverlay: {
     position: "absolute",

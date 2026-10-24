@@ -22,14 +22,24 @@ export default function ProfileScreen() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   
+  const extract10Digits = (phoneVal) => {
+    if (!phoneVal) return '';
+    let digits = String(phoneVal).replace(/\D/g, '');
+    if (digits.startsWith('63')) digits = digits.slice(2);
+    while (digits.startsWith('0')) digits = digits.slice(1);
+    return digits.slice(0, 10);
+  };
+
   // Edit fields
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [phone, setPhone] = useState(user?.phone || '');
+  const [phone, setPhone] = useState(extract10Digits(user?.phone));
+  const [phoneError, setPhoneError] = useState('');
 
   // Saved profile fields (upper card only changes when profile is saved)
   const [savedName, setSavedName] = useState(user?.name || '');
   const [savedEmail, setSavedEmail] = useState(user?.email || '');
+  const [savedPhone, setSavedPhone] = useState(user?.phone || '');
   const [profileSuccessMsg, setProfileSuccessMsg] = useState('');
 
   // Password fields and verification states
@@ -59,7 +69,8 @@ export default function ProfileScreen() {
       setSavedName(user.name || '');
       setEmail(user.email || '');
       setSavedEmail(user.email || '');
-      setPhone(user.phone || '');
+      setPhone(extract10Digits(user.phone));
+      setSavedPhone(user.phone || '');
     }
   }, [user]);
 
@@ -152,10 +163,46 @@ export default function ProfileScreen() {
     }
   };
 
+  const handlePhoneChange = (val) => {
+    if (phoneError) setPhoneError('');
+
+    let digits = val.replace(/\D/g, '');
+
+    // Strip pasted 63 or +63
+    if (digits.startsWith('63')) {
+      digits = digits.slice(2);
+    }
+
+    // Automatically strip leading zeros (cannot type 0)
+    while (digits.startsWith('0')) {
+      digits = digits.slice(1);
+    }
+
+    // Only allow starting with 9
+    if (digits.length > 0 && !digits.startsWith('9')) {
+      setPhoneError('Mobile number must start with 9');
+      digits = '';
+    }
+
+    // Cap at exactly 10 digits
+    if (digits.length > 10) {
+      digits = digits.slice(0, 10);
+    }
+
+    setPhone(digits);
+  };
+
   const handleSaveProfile = async () => {
     setProfileSuccessMsg('');
+    setPhoneError('');
     if (!name.trim()) {
       Alert.alert('Error', 'Name is required');
+      return;
+    }
+
+    if (phone && (phone.length !== 10 || !/^9\d{9}$/.test(phone))) {
+      setPhoneError('Phone number must be exactly 10 digits starting with 9 (e.g. 9123456789)');
+      Alert.alert('Invalid Phone', 'Please enter a valid 10-digit mobile number starting with 9 (e.g. 9123456789).');
       return;
     }
 
@@ -180,7 +227,8 @@ export default function ProfileScreen() {
 
     setSaving(true);
 
-    const updates = { name: name.trim(), email: email.trim(), phone: phone.trim() };
+    const fullPhone = phone ? '0' + phone : '';
+    const updates = { name: name.trim(), email: email.trim(), phone: fullPhone };
     if (newPassword) {
       updates.currentPassword = currentPassword;
       updates.newPassword = newPassword;
@@ -192,6 +240,7 @@ export default function ProfileScreen() {
     if (result.success) {
       setSavedName(name.trim());
       setSavedEmail(email.trim());
+      setSavedPhone(fullPhone);
       setProfileSuccessMsg('Profile updated successfully');
       setEditing(false);
       setCurrentPassword('');
@@ -200,6 +249,7 @@ export default function ProfileScreen() {
       setConfirmPassword('');
       setNewPasswordError('');
       setConfirmPasswordError('');
+      setPhoneError('');
       setTimeout(() => setProfileSuccessMsg(''), 4000);
     } else {
       Alert.alert('Error', result.error || 'Failed to update profile');
@@ -221,7 +271,8 @@ export default function ProfileScreen() {
     setEditing(false);
     setName(savedName);
     setEmail(savedEmail);
-    setPhone(user?.phone || '');
+    setPhone(extract10Digits(savedPhone || user?.phone));
+    setPhoneError('');
     setCurrentPassword('');
     setCurrentPasswordVerified(false);
     setCurrentPasswordError('');
@@ -338,17 +389,28 @@ export default function ProfileScreen() {
 
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Phone Number</Text>
-              <View style={styles.inputContainer}>
-                <Ionicons name="call-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+              <View style={[styles.inputContainer, phoneError ? styles.inputError : null]}>
+                <Ionicons name="call-outline" size={18} color={phoneError ? "#DC2626" : "#6B7280"} style={styles.inputIcon} />
+                <View style={styles.countryCodeBadge}>
+                  <Text style={styles.countryCodeText}>+63</Text>
+                  <View style={styles.countryCodeDivider} />
+                </View>
                 <TextInput
-                  style={styles.input}
+                  style={styles.phoneInput}
                   value={phone}
-                  onChangeText={setPhone}
-                  placeholder="Enter phone number"
+                  onChangeText={handlePhoneChange}
+                  placeholder="9XX XXX XXXX"
                   placeholderTextColor="#9CA3AF"
                   keyboardType="phone-pad"
+                  maxLength={10}
                 />
               </View>
+              {phoneError ? (
+                <View style={styles.errorRow}>
+                  <Ionicons name="alert-circle" size={14} color="#DC2626" style={{ marginRight: 4 }} />
+                  <Text style={styles.errorText}>{phoneError}</Text>
+                </View>
+              ) : null}
             </View>
 
             <View style={styles.divider} />
@@ -544,7 +606,7 @@ export default function ProfileScreen() {
               </View>
               <View>
                 <Text style={styles.infoLabel}>Phone Number</Text>
-                <Text style={styles.infoValue}>{user?.phone || 'Not provided'}</Text>
+                <Text style={styles.infoValue}>{savedPhone || user?.phone || 'Not provided'}</Text>
               </View>
             </View>
           </View>
@@ -811,6 +873,30 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#111827',
     fontWeight: '500',
+  },
+  countryCodeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 6,
+  },
+  countryCodeText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  countryCodeDivider: {
+    width: 1,
+    height: 18,
+    backgroundColor: '#D1D5DB',
+    marginLeft: 8,
+  },
+  phoneInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#111827',
+    fontWeight: '500',
+    letterSpacing: 0.5,
+    paddingVertical: 0,
   },
   inputError: {
     borderColor: '#DC2626',

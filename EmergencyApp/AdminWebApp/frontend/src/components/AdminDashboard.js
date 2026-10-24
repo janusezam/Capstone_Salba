@@ -1262,6 +1262,7 @@ function AdminDashboard() {
       const response = await API.post("/auth/create-rescuer", {
         name: newRescuer.name,
         email: newRescuer.email,
+        phone: newRescuer.phone,
         password: newRescuer.phone, // Use phone as default password for rescuer
         role: "rescuer",
         specialty: newRescuer.specialty,

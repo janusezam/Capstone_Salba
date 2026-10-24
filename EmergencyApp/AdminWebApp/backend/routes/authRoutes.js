@@ -115,13 +115,16 @@ router.post('/register', async (req, res) => {
     const normalizedPhone = phone ? normalizePhilippinePhone(phone) : '';
     const acceptedVersion = termsVersion || '2026-04-09';
 
-    // Rescuers use username, others use email/phone
+    // Rescuers use username, email, and phone
     if (role === 'rescuer') {
-      if (!name || !normalizedEmail || !normalizedUsername || !password)
-        return res.status(400).json({ message: 'Name, email, username and password required' });
+      if (!name || !normalizedEmail || !normalizedUsername || !normalizedPhone || !password)
+        return res.status(400).json({ message: 'Name, email, username, phone number, and password required' });
 
       if (!EMAIL_REGEX.test(normalizedEmail))
         return res.status(400).json({ message: 'Please enter a valid email address' });
+
+      if (!/^09\d{9}$/.test(normalizedPhone))
+        return res.status(400).json({ message: 'Phone number must be an 11-digit mobile number starting with 09 (e.g., 09123456789)' });
 
       if (!PASSWORD_REGEX.test(password))
         return res.status(400).json({ message: 'Password must be at least 8 characters long and include a mix of letters, numbers, and symbols (e.g., !, @, #)' });
@@ -133,6 +136,11 @@ router.post('/register', async (req, res) => {
       const existingEmail = await User.findOne({ email: normalizedEmail });
       if (existingEmail)
         return res.status(400).json({ message: 'Email already registered' });
+
+      const phoneVariants = getPhoneVariants(normalizedPhone);
+      const existingPhone = await User.findOne({ phone: { $in: phoneVariants } });
+      if (existingPhone)
+        return res.status(400).json({ message: 'Phone number already registered' });
 
       const hashed = await bcrypt.hash(password, 10);
       const user = await User.create({
@@ -690,7 +698,7 @@ const verifyAdmin = (req, res, next) => {
 // Admin creates rescuer manually
 router.post('/create-rescuer', verifyAdmin, async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone, specialty, team } = req.body;
 
     if (!name || !email || !password)
       return res.status(400).json({ message: 'All fields required' });
@@ -699,13 +707,29 @@ router.post('/create-rescuer', verifyAdmin, async (req, res) => {
     if (existing)
       return res.status(400).json({ message: 'Email already registered' });
 
+    let normalizedPhone = '';
+    if (phone) {
+      normalizedPhone = normalizePhilippinePhone(phone);
+      if (!/^09\d{9}$/.test(normalizedPhone)) {
+        return res.status(400).json({ message: 'Phone number must be an 11-digit mobile number starting with 09 (e.g., 09123456789)' });
+      }
+      const phoneVariants = getPhoneVariants(normalizedPhone);
+      const existingPhone = await User.findOne({ phone: { $in: phoneVariants } });
+      if (existingPhone) {
+        return res.status(400).json({ message: 'Phone number already registered' });
+      }
+    }
+
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
       email,
+      phone: normalizedPhone,
       password: hashed,
       role: "rescuer",
+      specialty: specialty || '',
+      team: team || '',
     });
 
     res.json({ message: "Rescuer created successfully", user });
@@ -810,7 +834,22 @@ router.put('/profile', verifyToken, async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     if (name) user.name = name;
-    if (phone) user.phone = phone;
+    if (phone !== undefined) {
+      if (String(phone).trim() !== '') {
+        const normalizedPhone = normalizePhilippinePhone(phone);
+        if (!/^09\d{9}$/.test(normalizedPhone)) {
+          return res.status(400).json({ message: 'Phone number must be an 11-digit mobile number starting with 09 (e.g., 09123456789)' });
+        }
+        const phoneVariants = getPhoneVariants(normalizedPhone);
+        const existingPhone = await User.findOne({ phone: { $in: phoneVariants }, _id: { $ne: user._id } });
+        if (existingPhone) {
+          return res.status(400).json({ message: 'Phone number already registered by another account' });
+        }
+        user.phone = normalizedPhone;
+      } else {
+        user.phone = '';
+      }
+    }
     if (birthday !== undefined) user.birthday = birthday;
     if (location !== undefined) user.location = location;
     if (avatar) user.avatar = avatar;
@@ -934,8 +973,23 @@ router.patch('/profile', verifyToken, async (req, res) => {
       user.username = username;
     }
     
-    // Update phone
-    if (phone) user.phone = phone;
+    // Update phone with Philippine normalization, validation, and uniqueness check
+    if (phone !== undefined) {
+      if (String(phone).trim() !== '') {
+        const normalizedPhone = normalizePhilippinePhone(phone);
+        if (!/^09\d{9}$/.test(normalizedPhone)) {
+          return res.status(400).json({ message: 'Phone number must be an 11-digit mobile number starting with 09 (e.g., 09123456789)' });
+        }
+        const phoneVariants = getPhoneVariants(normalizedPhone);
+        const existingPhone = await User.findOne({ phone: { $in: phoneVariants }, _id: { $ne: user._id } });
+        if (existingPhone) {
+          return res.status(400).json({ message: 'Phone number already registered by another account' });
+        }
+        user.phone = normalizedPhone;
+      } else {
+        user.phone = '';
+      }
+    }
     
     // Update job title
     if (jobTitle !== undefined) user.jobTitle = jobTitle;
