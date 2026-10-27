@@ -322,10 +322,16 @@ function RescueMap({ rescue, onRealTimeUpdate, externalLocationUpdate }) {
         }
       } catch (err) {
         console.error("Route fetch error:", err);
-        console.log("⚠️ Route service unavailable, will use straight line fallback");
-        setRouteCoordinates([]); // Clear any partial data
-        setRouteStatus("error");
-        setError("Route service unavailable. Showing direct path instead.");
+        console.log("⚠️ Route service unavailable, retaining current route if available");
+        // Keep existing route coordinates if already present to avoid abrupt route disappearance
+        setRouteCoordinates((current) => {
+          if (current && current.length > 0) {
+            return current;
+          }
+          setRouteStatus("error");
+          setError("Route service unavailable. Showing direct path instead.");
+          return [];
+        });
       }
     };
 
@@ -552,7 +558,11 @@ function RescueMap({ rescue, onRealTimeUpdate, externalLocationUpdate }) {
             {/* Route Polyline */}
             {routeCoordinates.length > 0 && (
               <Polyline
-                positions={routeCoordinates.map((coord) => [coord.lat, coord.lng])}
+                positions={
+                  rescuerLocation?.lat && rescuerLocation?.lng
+                    ? [[rescuerLocation.lat, rescuerLocation.lng], ...routeCoordinates.map((coord) => [coord.lat, coord.lng])]
+                    : routeCoordinates.map((coord) => [coord.lat, coord.lng])
+                }
                 color={routeStatus === "success" ? "#3b82f6" : "#ef4444"}
                 weight={3}
                 opacity={0.8}

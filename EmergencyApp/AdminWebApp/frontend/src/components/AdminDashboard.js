@@ -2840,16 +2840,22 @@ function AdminDashboard() {
                           let routeLat = null;
                           let routeLng = null;
 
-                          if (report.assignedRescuer?.rescuerId) {
-                            const rescuerIdStr = String(report.assignedRescuer.rescuerId);
-                            if (liveRescuerLocations[rescuerIdStr]?.lat && liveRescuerLocations[rescuerIdStr]?.lng) {
-                              routeLat = liveRescuerLocations[rescuerIdStr].lat;
-                              routeLng = liveRescuerLocations[rescuerIdStr].lng;
-                            } else if (report.assignedRescuer.rescuerLat && report.assignedRescuer.rescuerLng) {
-                              // Fallback to report's static assignment coordinates if no live update
-                              routeLat = report.assignedRescuer.rescuerLat;
-                              routeLng = report.assignedRescuer.rescuerLng;
-                            }
+                          const reportIdStr = String(report._id || report.id || '');
+                          const rescuerIdStr = report.assignedRescuer?.rescuerId ? String(report.assignedRescuer.rescuerId) : null;
+                          const teamIdStr = report.assignedTeam?._id ? String(report.assignedTeam._id) : null;
+
+                          // Check live rescuer locations by rescuerId, reportId, or teamId
+                          const liveUpdate = (rescuerIdStr && liveRescuerLocations[rescuerIdStr]) ||
+                                             (reportIdStr && liveRescuerLocations[reportIdStr]) ||
+                                             (teamIdStr && liveRescuerLocations[teamIdStr]);
+
+                          if (liveUpdate?.lat && liveUpdate?.lng) {
+                            routeLat = liveUpdate.lat;
+                            routeLng = liveUpdate.lng;
+                          } else if (report.assignedRescuer?.rescuerLat && report.assignedRescuer?.rescuerLng) {
+                            // Fallback to report's static assignment coordinates if no live update
+                            routeLat = report.assignedRescuer.rescuerLat;
+                            routeLng = report.assignedRescuer.rescuerLng;
                           } else if (report.assignedTeam?.members?.length > 0) {
                             // Find the first team member that has an active location
                             for (const member of report.assignedTeam.members) {
@@ -2874,7 +2880,7 @@ function AdminDashboard() {
                                   endLng={report.lng}
                                 />
                                 {/* If the rescuer isn't in liveRescuerLocations but we have their coordinates from the report, render a marker for them here so they don't disappear */}
-                                {(!liveRescuerLocations[String(report.assignedRescuer?.rescuerId)] && report.assignedRescuer?.rescuerLat && report.assignedRescuer?.rescuerLng) && (
+                                {(!liveUpdate && report.assignedRescuer?.rescuerLat && report.assignedRescuer?.rescuerLng) && (
                                   <Marker
                                     position={[routeLat, routeLng]}
                                     icon={getRescuerIcon(report.assignedRescuer.rescuerId)}

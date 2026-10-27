@@ -53,6 +53,7 @@ export default function MapScreen({ navigation }) {
   const [watchingLocation, setWatchingLocation] = useState(false);
   const [routeCoordinates, setRouteCoordinates] = useState(null);
   const [routeLoading, setRouteLoading] = useState(false);
+  const [routeStatus, setRouteStatus] = useState('idle'); // idle, loading, success, arrived, fallback
   const [missionStatusUpdating, setMissionStatusUpdating] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const locationSubscription = useRef(null);
@@ -117,7 +118,7 @@ export default function MapScreen({ navigation }) {
     fetchMission();
   }, [dispatchAlert]);
 
-  // Listen directly for mission completion socket events to immediately refresh/clear state
+  // Listen directly for mission completion and status update events (including auto-arrival triggered by backend)
   useEffect(() => {
     if (!socket) return;
 
@@ -126,15 +127,71 @@ export default function MapScreen({ navigation }) {
       fetchMission();
     };
 
+    const handleMissionStatusUpdated = (data) => {
+      console.log('📡 [MAP] rescuer_mission_status_updated received:', data);
+      const incomingReportId = data?.reportId ? String(data.reportId) : null;
+      setMission((prev) => {
+        if (!prev || !prev.report) return prev;
+        const currentReportId = String(prev.report._id || prev.report.id || '');
+        if (!incomingReportId || incomingReportId === currentReportId) {
+          return {
+            ...prev,
+            report: {
+              ...prev.report,
+              rescuerMissionStatus: data.status || prev.report.rescuerMissionStatus,
+              arrivedAt: data.status === 'ongoing' ? (data.updatedAt || new Date()) : prev.report.arrivedAt,
+            }
+          };
+        }
+        return prev;
+      });
+    };
+
     socket.on('mission_complete', handleMissionComplete);
+    socket.on('rescuer_mission_status_updated', handleMissionStatusUpdated);
 
     return () => {
       socket.off('mission_complete', handleMissionComplete);
+      socket.off('rescuer_mission_status_updated', handleMissionStatusUpdated);
     };
   }, [socket]);
 
   const fetchRoute = async (startLoc, endLoc, force = false) => {
     if (!startLoc?.latitude || !startLoc?.longitude || !endLoc?.latitude || !endLoc?.longitude) {
+      return;
+    }
+
+    const distanceToIncident = haversineDistanceMeters(
+      startLoc.latitude,
+      startLoc.longitude,
+      endLoc.latitude,
+      endLoc.longitude
+    );
+
+    // If within 50 meters, rescuer is on scene / at the incident location
+    if (distanceToIncident <= 50) {
+      console.log(`🎯 [MAP] Rescuer is at incident location (${Math.round(distanceToIncident)}m). Arrival detected.`);
+      setRouteLoading(false);
+      setRouteStatus('arrived');
+      setRouteCoordinates([
+        { latitude: startLoc.latitude, longitude: startLoc.longitude },
+        { latitude: endLoc.latitude, longitude: endLoc.longitude },
+      ]);
+
+      // If report is still marked as 'on_the_way', auto-transition to 'ongoing' (Arrived) locally
+      if (mission?.report?.rescuerMissionStatus === 'on_the_way') {
+        setMission((prev) => {
+          if (!prev || !prev.report) return prev;
+          return {
+            ...prev,
+            report: {
+              ...prev.report,
+              rescuerMissionStatus: 'ongoing',
+              arrivedAt: prev.report.arrivedAt || new Date(),
+            }
+          };
+        });
+      }
       return;
     }
 
@@ -152,7 +209,7 @@ export default function MapScreen({ navigation }) {
     const elapsedMs = now - (last.time || 0);
 
     // Skip recalculation if already loaded and rescuer hasn't moved significantly (>25m)
-    if (!force && routeCoordinates && routeCoordinates.length > 2) {
+    if (!force && routeCoordinates && routeCoordinates.length >= 2 && routeStatus === 'success') {
       if (movedMeters < 25 && targetMovedMeters < 10 && elapsedMs < 20000) {
         return;
       }
@@ -198,6 +255,7 @@ export default function MapScreen({ navigation }) {
 
       if (currentFetchId === fetchSequenceRef.current) {
         setRouteCoordinates(coordinates);
+        setRouteStatus('success');
       }
     } catch (error) {
       console.warn('⚠️ Route fetch issue:', error.message);
@@ -205,9 +263,10 @@ export default function MapScreen({ navigation }) {
       // Preserve existing valid road route on temporary network error
       if (currentFetchId === fetchSequenceRef.current) {
         setRouteCoordinates((prev) => {
-          if (prev && prev.length > 2) {
+          if (prev && prev.length >= 2 && routeStatus === 'success') {
             return prev; // keep existing road path
           }
+          setRouteStatus('fallback');
           return [
             { latitude: startLoc.latitude, longitude: startLoc.longitude },
             { latitude: endLoc.latitude, longitude: endLoc.longitude },
@@ -561,7 +620,7 @@ export default function MapScreen({ navigation }) {
         {/* Line connecting your location to mission */}
         {location && mission?.report && (
           <>
-            {routeCoordinates && routeCoordinates.length > 2 ? (
+            {routeCoordinates && routeCoordinates.length >= 2 && routeStatus !== 'fallback' ? (
               <Polyline
                 key={`route-road-${routeCoordinates.length}-${routeCoordinates[0]?.latitude?.toFixed(4)}-${routeCoordinates[0]?.longitude?.toFixed(4)}`}
                 coordinates={routeCoordinates}
@@ -603,36 +662,55 @@ export default function MapScreen({ navigation }) {
         )}
       </View>
 
-      {/* Route Status Debug */}
-      {mission?.report && (
-        <View style={{
-          position: 'absolute',
-          top: 10,
-          left: 10,
-          right: 10,
-          backgroundColor: routeCoordinates && routeCoordinates.length > 2 ? '#10B981' : '#EF4444',
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderRadius: 6,
-          zIndex: 100,
-        }}>
-          {routeLoading && (
-            <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>
-              ⏳ Fetching route...
-            </Text>
-          )}
-          {!routeLoading && routeCoordinates && routeCoordinates.length > 2 && (
-            <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>
-              ✅ Route loaded ({routeCoordinates.length} points)
-            </Text>
-          )}
-          {!routeLoading && (!routeCoordinates || routeCoordinates.length <= 2) && (
-            <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>
-              ❌ Direct line fallback (calculating road path...)
-            </Text>
-          )}
-        </View>
-      )}
+      {/* Route Status Banner */}
+      {mission?.report && (() => {
+        const dist = location ? haversineDistanceMeters(location.latitude, location.longitude, mission.report.lat, mission.report.lng) : null;
+        const isArrived = routeStatus === 'arrived' || (dist !== null && dist <= 50) || mission.report.rescuerMissionStatus === 'ongoing';
+
+        let bannerBg = '#10B981'; // Green
+        if (routeLoading) {
+          bannerBg = '#3B82F6'; // Blue
+        } else if (isArrived || (routeCoordinates && routeCoordinates.length >= 2 && routeStatus !== 'fallback')) {
+          bannerBg = '#10B981'; // Green
+        } else {
+          bannerBg = '#F59E0B'; // Amber warning
+        }
+
+        return (
+          <View style={{
+            position: 'absolute',
+            top: 10,
+            left: 10,
+            right: 10,
+            backgroundColor: bannerBg,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            borderRadius: 6,
+            zIndex: 100,
+          }}>
+            {routeLoading && (
+              <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>
+                ⏳ Fetching route...
+              </Text>
+            )}
+            {!routeLoading && isArrived && (
+              <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>
+                🎯 At incident location {dist !== null ? `(${Math.round(dist)}m)` : ''} — On scene
+              </Text>
+            )}
+            {!routeLoading && !isArrived && routeCoordinates && routeCoordinates.length >= 2 && routeStatus !== 'fallback' && (
+              <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>
+                ✅ Route loaded ({routeCoordinates.length} points)
+              </Text>
+            )}
+            {!routeLoading && !isArrived && (!routeCoordinates || routeStatus === 'fallback') && (
+              <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>
+                ⚠️ Direct line path (driving route unavailable)
+              </Text>
+            )}
+          </View>
+        );
+      })()}
 
       {/* Mission Info Card */}
       {mission?.report ? (

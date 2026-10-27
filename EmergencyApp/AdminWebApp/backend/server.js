@@ -291,7 +291,7 @@ io.on('connection', (socket) => {
                   reportUpdate.status = 'in_progress';
                 }
 
-                io.to('admins').emit('rescuer_mission_status_updated', {
+                const arrivalPayload = {
                   reportId,
                   status: 'ongoing',
                   note: 'Arrival auto-detected by system (GPS proximity < 50m).',
@@ -300,8 +300,9 @@ io.on('connection', (socket) => {
                   updatedAt: now,
                   responseDurationMinutes: reportUpdate.responseDurationMinutes,
                   responseDistanceMeters: reportUpdate.responseDistanceMeters,
-                });
-                io.to('admins').emit('alert_updated', reportUpdate);
+                };
+                io.emit('rescuer_mission_status_updated', arrivalPayload);
+                io.emit('alert_updated', reportUpdate);
               }
             }
 
@@ -384,7 +385,7 @@ io.on('connection', (socket) => {
                 reportUpdate.status = 'in_progress';
               }
 
-              io.to('admins').emit('rescuer_mission_status_updated', {
+              const directArrivalPayload = {
                 reportId,
                 status: 'ongoing',
                 note: 'Arrival auto-detected by system (GPS proximity < 50m).',
@@ -393,8 +394,9 @@ io.on('connection', (socket) => {
                 updatedAt: now,
                 responseDurationMinutes: reportUpdate.responseDurationMinutes,
                 responseDistanceMeters: reportUpdate.responseDistanceMeters,
-              });
-              io.to('admins').emit('alert_updated', reportUpdate);
+              };
+              io.emit('rescuer_mission_status_updated', directArrivalPayload);
+              io.emit('alert_updated', reportUpdate);
             }
           }
 
