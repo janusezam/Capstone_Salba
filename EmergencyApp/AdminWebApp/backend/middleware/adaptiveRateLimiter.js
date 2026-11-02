@@ -79,7 +79,7 @@ const generalApiLimiter = new SlidingWindowLimiter(
 
 const authLimiter = new SlidingWindowLimiter(
   15 * 60 * 1000, // 15 minutes
-  15,             // 15 attempts
+  30,             // 30 attempts per 15 minutes
   'Too many authentication attempts. Please try again in 15 minutes.'
 );
 
@@ -87,5 +87,13 @@ module.exports = {
   SlidingWindowLimiter,
   alertLimiter: alertLimiter.middleware(),
   generalApiLimiter: generalApiLimiter.middleware(),
-  authLimiter: authLimiter.middleware(req => req.body?.email || req.ip),
+  authLimiter: authLimiter.middleware(req => {
+    return (
+      (req.body?.email && String(req.body.email).trim().toLowerCase()) ||
+      (req.body?.username && String(req.body.username).trim()) ||
+      (req.body?.identifier && String(req.body.identifier).trim()) ||
+      (req.body?.phone && String(req.body.phone).trim()) ||
+      req.ip
+    );
+  }),
 };

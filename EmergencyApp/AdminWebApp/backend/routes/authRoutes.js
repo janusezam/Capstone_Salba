@@ -9,6 +9,7 @@ const PasswordResetOtp = require('../models/PasswordResetOtp');
 const { OAuth2Client } = require('google-auth-library');
 const { authMiddleware, requireAdmin } = require('../middleware/authMiddleware');
 const { normalizePhilippinePhone, getPhoneVariants } = require('../utils/phoneUtils');
+const { authLimiter } = require('../middleware/adaptiveRateLimiter');
 
 const router = express.Router();
 
@@ -107,7 +108,7 @@ router.get('/users', authMiddleware, requireAdmin, async (req, res) => {
 /* ------------------------------
    REGISTER
 --------------------------------*/
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
   try {
     const { name, email, username, phone, password, role, termsAccepted, termsVersion, termsAcceptedAt } = req.body;
     const normalizedEmail = email ? String(email).trim().toLowerCase() : '';
@@ -224,7 +225,7 @@ router.post('/register', async (req, res) => {
 /* ------------------------------
    LOGIN
 --------------------------------*/
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, username, identifier, phone, password, recaptchaToken } = req.body;
     const normalizedEmail = email ? String(email).trim().toLowerCase() : '';
@@ -361,7 +362,7 @@ const generateOtpEmailHtml = (otp, title = "Password Reset Verification Code") =
 /* ------------------------------
    FORGOT PASSWORD
 --------------------------------*/
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', authLimiter, async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -414,7 +415,7 @@ router.post('/forgot-password', async (req, res) => {
 /* ------------------------------
    MOBILE OTP FORGOT PASSWORD (DisasterSOS)
 --------------------------------*/
-router.post('/forgot-password/request-otp', async (req, res) => {
+router.post('/forgot-password/request-otp', authLimiter, async (req, res) => {
   try {
     const { phone, email } = req.body;
     const normalizedEmail = email ? String(email).trim().toLowerCase() : null;
@@ -474,7 +475,7 @@ router.post('/forgot-password/request-otp', async (req, res) => {
   }
 });
 
-router.post('/forgot-password/verify-otp', async (req, res) => {
+router.post('/forgot-password/verify-otp', authLimiter, async (req, res) => {
   try {
     const { email, phone, otp } = req.body;
     const identifier = (email ? String(email).trim().toLowerCase() : (phone ? String(phone).replace(/\s|-/g, '').trim() : ''));
@@ -525,7 +526,7 @@ router.post('/forgot-password/verify-otp', async (req, res) => {
   }
 });
 
-router.post('/forgot-password/reset', async (req, res) => {
+router.post('/forgot-password/reset', authLimiter, async (req, res) => {
   try {
     const { email, phone, newPassword, resetToken } = req.body;
     const identifier = email ? String(email).trim().toLowerCase() : (phone ? String(phone).replace(/\s|-/g, '').trim() : null);
@@ -583,7 +584,7 @@ router.post('/forgot-password/reset', async (req, res) => {
 /* ------------------------------
    VERIFY RESET CODE
 --------------------------------*/
-router.post('/verify-code', async (req, res) => {
+router.post('/verify-code', authLimiter, async (req, res) => {
   try {
     const { email, code } = req.body;
 
@@ -615,7 +616,7 @@ router.post('/verify-code', async (req, res) => {
 /* ------------------------------
    RESET PASSWORD
 --------------------------------*/
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', authLimiter, async (req, res) => {
   try {
     const { email, code, token, newPassword } = req.body;
 
@@ -1060,7 +1061,7 @@ router.patch('/profile', verifyToken, async (req, res) => {
 /* ------------------------------
    GOOGLE OAUTH LOGIN
 --------------------------------*/
-router.post('/google-login', async (req, res) => {
+router.post('/google-login', authLimiter, async (req, res) => {
   try {
     const { credential, termsAccepted, termsVersion, termsAcceptedAt, recaptchaToken } = req.body;
 

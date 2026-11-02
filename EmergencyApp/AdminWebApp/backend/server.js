@@ -93,7 +93,7 @@ app.use((req, res, next) => {
 });
 
 // Mount routes with rate limiting protection
-app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/users', authRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/route', routeProxy);
