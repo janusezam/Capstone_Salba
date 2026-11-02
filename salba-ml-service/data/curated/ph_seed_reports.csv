@@ -1,0 +1,121 @@
+text,disaster_type,severity,legitimate,lang
+"Tabang! Naay sunog sa among silingan, daghan tawo natanggong sa sulod",Fire,critical,1,ceb
+"Sunog dako kaayo sa merkado, nikaylap na sa mga balay palihug dali",Fire,critical,1,ceb
+"May sunog dito sa purok 5 may batang naipit sa loob ng bahay tulong!!",Fire,critical,1,tl
+"Nasusunog ang bahay namin may matanda pa sa loob saklolo",Fire,critical,1,tl
+"Fire spreading to 3 houses already people trapped send fire truck now",Fire,critical,1,en
+"Kalayo sa boarding house duha ka tawo wala pa makagawas",Fire,critical,1,ceb
+"Naay sunog sa balay sa amoang silingan, baga ang aso",Fire,high,1,ceb
+"Sunog sa bodega malapit sa highway, malaki na ang apoy",Fire,high,1,tl
+"house on fire near the school thick black smoke pls send bfp",Fire,high,1,en
+"Nagkalayo ang poste sa kuryente ug nisiklab sa atop sa balay",Fire,high,1,ceb
+"May sunog sa kusina ng kapitbahay kumakalat sa kisame",Fire,high,1,tl
+"Grass fire near houses in sitio, nagkaylap tungod sa hangin",Fire,high,1,ceb
+"Naay aso gikan sa bakanteng lote, morag sunog sa sagbot",Fire,moderate,1,ceb
+"Smoke coming from the transformer near the chapel",Fire,moderate,1,en
+"May usok sa likod ng palengke parang may nasusunog na basura",Fire,moderate,1,tl
+"Gisunog nga sagbot duol sa koral, wala pa maabot sa balay",Fire,moderate,1,ceb
+"Gamay nga sunog sa basurahan, napalong na sa mga silingan",Fire,low,1,ceb
+"Maliit na sunog sa damuhan kontrolado na namin",Fire,low,1,tl
+"small trash fire already put out just reporting",Fire,low,1,en
+"Gamay ra nga kalayo sa drum sa basura, okay na",Fire,low,1,ceb
+"Tabang! Nagbaha diri sa purok 3 kutob na sa liog ang tubig naa mi sa atop",Flood,critical,1,ceb
+"Baha na hanggang bubong may mga bata sa atop ng bahay rescue please",Flood,critical,1,tl
+"Flash flood sa suba, naanod ang usa ka bata palihug tabang",Flood,critical,1,ceb
+"River overflowing fast, family stranded on roof need rescue boat",Flood,critical,1,en
+"Nalunod ang kapitbahay namin sa baha hindi pa nakikita",Flood,critical,1,tl
+"Kusog kaayo ang sulog sa baha, naay tigulang natanggong sa balay",Flood,critical,1,ceb
+"Nagbaha na kutob hawak ang tubig, nisulod na sa mga balay",Flood,high,1,ceb
+"Baha hanggang baywang sa kalsada, kailangan namin ma-evacuate",Flood,high,1,tl
+"floodwater waist deep inside houses need evacuation for elderly",Flood,high,1,en
+"Misaka ang tubig sa Sawaga river, nag-apaw na sa dalan",Flood,high,1,ceb
+"Binabaha na ang bahay namin, pataas ng pataas ang tubig",Flood,high,1,tl
+"Ang creek nag-overflow, nalunop ang mga balay sa ubos",Flood,high,1,ceb
+"Baha sa kalsada kutob tuhod, dili makaagi ang motor",Flood,moderate,1,ceb
+"Bumaha sa harap ng bahay hanggang tuhod pero hindi pa pumapasok",Flood,moderate,1,tl
+"street flooded knee deep near the market cars stalled",Flood,moderate,1,en
+"Nag-apaw ang kanal tungod sa kusog nga ulan",Flood,moderate,1,ceb
+"Gamay nga baha sa dalan, nihubas na pud",Flood,low,1,ceb
+"Konting baha lang sa kanto humuhupa na",Flood,low,1,tl
+"water level of the river rising but still within banks, monitoring",Flood,low,1,en
+"Taas na ang tubig sa suba pero wala pa nag-apaw, nagbantay mi",Flood,low,1,ceb
+"Linog! Naguba ang balay, naay natabunan sa sulod palihug tabang",Earthquake,critical,1,ceb
+"Lumindol ng malakas gumuho ang paaralan may mga estudyanteng naipit",Earthquake,critical,1,tl
+"strong earthquake building collapsed people trapped under rubble",Earthquake,critical,1,en
+"Nilinog kusog, natumpag ang simbahan, naay mga samaran ug patay",Earthquake,critical,1,ceb
+"Kusog kaayo ang linog, naliki ang bungbong sa among balay",Earthquake,high,1,ceb
+"Malakas na lindol may bitak na ang pader at bumagsak ang kisame",Earthquake,high,1,tl
+"strong quake cracked walls and broke windows two injured",Earthquake,high,1,en
+"Nikurog ang yuta, nabuak ang mga bildo ug naay naangol",Earthquake,high,1,ceb
+"Naay linog, nauyog ang mga butang pero wala may nadaot",Earthquake,moderate,1,ceb
+"Lumindol dito ramdam na ramdam pero mukhang ok naman lahat",Earthquake,moderate,1,tl
+"felt moderate shaking for about 10 seconds lights swinging",Earthquake,moderate,1,en
+"Linog gamay ra, walay nadaot",Earthquake,low,1,ceb
+"Mahinang lindol naramdaman namin walang nasira",Earthquake,low,1,tl
+"slight tremor felt no damage",Earthquake,low,1,en
+"Nidahili ang yuta sa bukid, natabunan ang duha ka balay naay tawo sa sulod",Landslide,critical,1,ceb
+"Gumuho ang lupa natabunan ang bahay may pamilya sa loob tulong",Landslide,critical,1,tl
+"landslide buried houses along the highway people missing",Landslide,critical,1,en
+"Pagdahili sa Sayre highway, naay sakyanan natabunan",Landslide,critical,1,ceb
+"Nidahili ang yuta, sirado ang dalan paingon sa barangay",Landslide,high,1,ceb
+"Landslide sa kalsada hindi madaanan, delikado sa mga bahay malapit",Landslide,high,1,tl
+"mudslide blocked the road and threatening houses below the slope",Landslide,high,1,en
+"Nahulog ang dagkong bato gikan sa bukid ngadto sa dalan",Landslide,high,1,ceb
+"Gamay nga dahili sa kilid sa dalan, usa ra ka lane ang maagian",Landslide,moderate,1,ceb
+"May konting guho ng lupa sa gilid ng daan",Landslide,moderate,1,tl
+"small landslide on one lane of the road soil still loose",Landslide,moderate,1,en
+"Naay mga bato nahulog sa kanal, walay naigo",Landslide,low,1,ceb
+"Konting lupa bumagsak sa gilid nalinis na",Landslide,low,1,tl
+"few rocks rolled down near the road already cleared",Landslide,low,1,en
+"Bagyo kusog kaayo ang hangin, nalupad ang atop, naay naigo sa kahoy",Typhoon,critical,1,ceb
+"Sobrang lakas ng bagyo bumagsak ang puno sa bahay may naipit",Typhoon,critical,1,tl
+"typhoon winds ripped off roofs trees fell on houses people injured",Typhoon,critical,1,en
+"Kusog nga hangin sa bagyo, natumba ang mga poste sa kuryente ug nalupad ang yero",Typhoon,high,1,ceb
+"Malakas na hangin natanggal ang bubong ng bahay namin",Typhoon,high,1,tl
+"strong winds toppled electric posts and blew away tin roofs",Typhoon,high,1,en
+"Bagyo, natumba ang kahoy sa dalan, sirado ang agianan",Typhoon,moderate,1,ceb
+"Maulan at mahangin may natumbang sanga sa kalsada",Typhoon,moderate,1,tl
+"gusty winds and heavy rain small branches down",Typhoon,moderate,1,en
+"Kusog ang ulan ug hangin pero okay ra mi diri",Typhoon,low,1,ceb
+"Mahangin lang at umaambon walang problema",Typhoon,low,1,tl
+"light rain and breeze, just monitoring the storm",Typhoon,low,1,en
+"test lang ni sa app",,,0,ceb
+"testing testing pila ka minuto mo abot",,,0,ceb
+"joke lang walang sunog",,,0,tl
+"binuang lang ni walay baha",,,0,ceb
+"haha prank lang yan",,,0,tl
+"test report please ignore",,,0,en
+"just testing the sos button",,,0,en
+"lol fake alarm",,,0,en
+"hello po test",,,0,tl
+"sample report for capstone demo",,,0,en
+"drill only do not dispatch",,,0,en
+"simulation exercise lang ni sa barangay",,,0,ceb
+"charot walang lindol",,,0,tl
+"pangatik ra ko ani",,,0,ceb
+"ang init grabe parang nasusunog ako haha",,,0,tl
+"this song is fire lol",,,0,en
+"nalunod ako sa assignments",,,0,tl
+"baha ng luha manood ng kdrama",,,0,tl
+"my phone is dying lol",,,0,en
+"murag linog akong tiyan sa kagutom haha",,,0,ceb
+"asa ang pinakaduol nga jollibee",,,0,ceb
+"good morning po sa lahat",,,0,tl
+"musta mo diha",,,0,ceb
+"pila ang plete sa jeep paingon sa poblacion",,,0,ceb
+"sorry napindot lang",,,0,tl
+"wrong press sorry",,,0,en
+"accidentally pressed the button",,,0,en
+"pasensya na test ra",,,0,ceb
+"ok",,,0,en
+"hi",,,0,en
+"asdfgh",,,0,en
+"dummy data",,,0,en
+"ignore this mock alert",,,0,en
+"trial run of the system",,,0,en
+"wala ra, na pindot ra nako",,,0,ceb
+"walang emergency nagtetest lang",,,0,tl
+"fire drill sa school karon, practice ra",,,0,ceb
+"earthquake drill bukas sa munisipyo",,,0,tl
+"selfie with the fire truck haha",,,0,en
+"kapoy kaayo mura kog gibagyo",,,0,ceb

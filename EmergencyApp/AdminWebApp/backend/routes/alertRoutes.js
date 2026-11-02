@@ -4,6 +4,7 @@ const HazardZone = require('../models/HazardZone');
 const User = require('../models/User');
 const malaybalayLocations = require('../utils/malaybalayLocations');
 const enhancedML = require('../utils/enhancedMLModel');
+const mlServiceClient = require('../utils/mlServiceClient');
 const groqService = require('../utils/groqService');
 const cacheManager = require('../utils/cacheManager');
 const { resolveLocationName } = require('../utils/locationResolver');
@@ -340,6 +341,7 @@ router.post('/', alertLimiter, async (req, res) => {
       resolvedLocationName = locationName.trim();
     }
 
+    const rawUserNote = String(req.body.note || req.body.description || '').trim();
     const report = await Report.create({
       clientRequestId: clientRequestId || undefined,
       userId: userId || null, // Can be null for anonymous reports
@@ -347,7 +349,7 @@ router.post('/', alertLimiter, async (req, res) => {
       lng: longitude,
       accuracy: 10,
       severity: severityMap[normalizedType] || 'moderate',
-      note: `${type || 'Unknown'} - ${resolvedLocationName || 'Location not specified'}`,
+      note: rawUserNote || `${type || 'Unknown'} - ${resolvedLocationName || 'Location not specified'}`,
       geofenceRadiusMeters: 100,
       disasterType: type,
       locationName: resolvedLocationName,
@@ -622,66 +624,121 @@ router.post('/', alertLimiter, async (req, res) => {
           console.log(`[AI] Suspicious jump detected for alert ${report._id}:`, suspiciousJump);
         }
 
-        // Verify report legitimacy using AI (fallback)
+        // Query recent nearby reports (within ~2km and 30 mins) for spatio-temporal cluster corroboration
         const recentReports = await Report.find({
-          lat: { $gte: latitude - 0.05, $lte: latitude + 0.05 },
-          lng: { $gte: longitude - 0.05, $lte: longitude + 0.05 },
+          lat: { $gte: latitude - 0.02, $lte: latitude + 0.02 },
+          lng: { $gte: longitude - 0.02, $lte: longitude + 0.02 },
           createdAt: { $gte: new Date(Date.now() - 1000 * 60 * 30) }, // Last 30 minutes
           _id: { $ne: report._id } // Exclude current report
         }).lean();
 
-        // 1. Evaluate with Groq AI for intelligent classification and legitimacy
-        const aiEvaluation = await groqService.evaluateReportAI(
-          { disasterType: type, reportText: locationName, lat: latitude, lng: longitude },
+        const currentReporterId = userId?.toString() || userPhone || senderPhone || userName || null;
+        const uniqueOtherReporters = new Set(
           recentReports
+            .filter(entry => {
+              if (!type || !entry.disasterType) return true;
+              return String(entry.disasterType).toLowerCase() === String(type).toLowerCase();
+            })
+            .map(entry => entry.userId?.toString() || entry.senderPhone || entry.senderName)
+            .filter(id => Boolean(id) && id !== currentReporterId)
         );
+        const clusterCount = uniqueOtherReporters.size + 1;
 
+        let basePredictions = null;
         let finalSeverity = report.severity;
-        let isLegit = true;
-        let aiConfidence = 0.8;
-        let disasterTypeConf = 0.9;
-        let aiReason = null;
 
-        if (aiEvaluation && aiEvaluation.success) {
-          finalSeverity = aiEvaluation.severity || finalSeverity;
-          isLegit = aiEvaluation.isLegitimate !== false;
-          aiConfidence = aiEvaluation.confidence || 0.8;
-          aiReason = aiEvaluation.reason;
-          if (aiEvaluation.classification && aiEvaluation.classification !== type) {
-            type = aiEvaluation.classification;
-            report.disasterType = type;
-            disasterTypeConf = 0.95;
+        // 1. Primary: Evaluate with SALBA Python ML Service v2 (Calibrated Multilingual & Malaybalay Spatial Engine)
+        try {
+          const mlResult = await mlServiceClient.evaluateReportFast({
+            description: rawUserNote,
+            latitude,
+            longitude,
+            textLength: rawUserNote.length,
+            disasterType: type || '',
+            nearbyReportsCount: clusterCount,
+          });
+
+          if (mlResult && mlResult.success) {
+            const isLegit = mlResult.verification?.is_legitimate !== false;
+            const rawVerConf = mlResult.verification?.confidence ?? 0.95;
+            const legitScore = mlResult.verification?.legitimacy_score != null
+              ? mlResult.verification.legitimacy_score
+              : (isLegit ? rawVerConf : Math.max(0.02, 1 - rawVerConf));
+
+            finalSeverity = mlResult.severity?.level || finalSeverity;
+            const predType = mlResult.classification?.disaster_type || type;
+            if (predType && predType !== type && rawUserNote.length > 0 && isLegit) {
+              report.disasterType = predType;
+            }
+
+            basePredictions = {
+              disasterType: predType,
+              disasterTypeConfidence: mlResult.classification?.confidence || 0.95,
+              severity: finalSeverity,
+              severityConfidence: mlResult.severity?.confidence || 0.78,
+              isLegitimate: isLegit,
+              legitimacyConfidence: legitScore,
+              overall: mlResult.overall || {
+                confidence: 0.88,
+                recommendation: isLegit ? 'admin_review' : 'flag_false_alarm',
+              },
+            };
           }
-        } else {
-          // Fallback to local heuristic if Groq fails
-          const verification = enhancedML.verifyReport(
-            { lat: latitude, lng: longitude, disasterType: type, reportText: locationName, userId },
-            recentReports
-          );
-          const assessment = enhancedML.assessSeverity(type, latitude, longitude, locationName || '');
-          finalSeverity = assessment.severity || finalSeverity;
-          isLegit = verification.isValid !== false;
-          aiConfidence = Math.max(0.5, Math.min(0.99, Number(verification.confidence || 0.7)));
-          aiReason = verification.recommendation;
+        } catch (mlErr) {
+          console.log('[AI] Python ML service v2 unavailable on /api/alerts, falling back to Groq/Heuristic');
         }
 
-        // Build dynamic confidence instead of fixed values.
-        const disasterTypeConfidence = Math.max(0.7, Math.min(0.99, type ? disasterTypeConf : 0.78));
+        // 2. Fallback: Evaluate with Groq AI or local heuristic if Python ML Service is offline
+        if (!basePredictions) {
+          const aiEvaluation = await groqService.evaluateReportAI(
+            { disasterType: type, reportText: rawUserNote || locationName, lat: latitude, lng: longitude },
+            recentReports
+          );
 
-        // Update report with ML predictions
-        const basePredictions = {
-          disasterType: type,
-          disasterTypeConfidence,
-          severity: finalSeverity,
-          severityConfidence: aiConfidence,
-          isLegitimate: isLegit,
-          legitimacyConfidence: aiConfidence,
-          overall: {
-            confidence: aiConfidence,
-            recommendation: isLegit ? 'admin_review' : 'flag_false_alarm',
-            reason: aiReason,
+          let isLegit = true;
+          let aiConfidence = 0.8;
+          let disasterTypeConf = 0.9;
+          let aiReason = null;
+          let currentType = type;
+
+          if (aiEvaluation && aiEvaluation.success) {
+            finalSeverity = aiEvaluation.severity || finalSeverity;
+            isLegit = aiEvaluation.isLegitimate !== false;
+            aiConfidence = aiEvaluation.confidence || 0.8;
+            aiReason = aiEvaluation.reason;
+            if (aiEvaluation.classification && aiEvaluation.classification !== currentType) {
+              currentType = aiEvaluation.classification;
+              report.disasterType = currentType;
+              disasterTypeConf = 0.95;
+            }
+          } else {
+            const verification = enhancedML.verifyReport(
+              { lat: latitude, lng: longitude, disasterType: currentType, reportText: rawUserNote || locationName, userId },
+              recentReports
+            );
+            const assessment = enhancedML.assessSeverity(currentType, latitude, longitude, rawUserNote || locationName || '');
+            finalSeverity = assessment.severity || finalSeverity;
+            isLegit = verification.isValid !== false;
+            aiConfidence = Math.max(0.5, Math.min(0.99, Number(verification.confidence || 0.7)));
+            aiReason = verification.recommendation;
           }
-        };
+
+          const disasterTypeConfidence = Math.max(0.7, Math.min(0.99, currentType ? disasterTypeConf : 0.78));
+
+          basePredictions = {
+            disasterType: currentType,
+            disasterTypeConfidence,
+            severity: finalSeverity,
+            severityConfidence: aiConfidence,
+            isLegitimate: isLegit,
+            legitimacyConfidence: isLegit ? aiConfidence : Math.min(aiConfidence, 0.2),
+            overall: {
+              confidence: aiConfidence,
+              recommendation: isLegit ? 'admin_review' : 'flag_false_alarm',
+              reason: aiReason,
+            }
+          };
+        }
 
         report.mlPredictions = suspiciousJump.suspicious
           ? {

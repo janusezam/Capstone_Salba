@@ -45,27 +45,26 @@ router.post('/classify', authMiddleware, async (req, res) => {
   try {
     const { description, latitude, longitude, disasterType } = req.body;
 
-    // For one-tap SOS: if no description but disasterType provided, return it with confidence
     if (!description && !disasterType) {
       return res.status(400).json({ message: 'description or disasterType required' });
     }
 
-    // If disasterType provided (one-tap), return it for AI verification
+    const result = await mlServiceClient.classifyDisaster(description || '', latitude, longitude, disasterType);
+    if (result && result.success) {
+      return res.json(result);
+    }
+
+    // Fallback for one-tap SOS if Python ML service is offline
     if (!description && disasterType) {
       return res.json({
         success: true,
         isOneTapSOS: true,
         classification: disasterType,
-        confidence: 1.0,
+        confidence: 0.95,
         message: 'One-tap SOS - awaiting AI verification'
       });
     }
 
-    if (!description) {
-      return res.status(400).json({ message: 'description required' });
-    }
-
-    const result = await mlServiceClient.classifyDisaster(description, latitude, longitude);
     res.json(result);
   } catch (err) {
     console.error('Classification error:', err);
@@ -76,10 +75,23 @@ router.post('/classify', authMiddleware, async (req, res) => {
 // POST /api/ml/predict-severity - Predict severity of disaster
 router.post('/predict-severity', authMiddleware, async (req, res) => {
   try {
-    const { description, disasterType } = req.body;
+    const { description, disasterType, latitude, longitude, nearbyReportsCount } = req.body;
+
+    if (!description && !disasterType) {
+      return res.status(400).json({ message: 'description or disasterType required' });
+    }
+
+    const result = await mlServiceClient.predictSeverity(description || '', (description || '').length, {
+      latitude,
+      longitude,
+      disasterType,
+      nearbyReportsCount,
+    });
+    if (result && result.success) {
+      return res.json(result);
+    }
 
     if (!description && disasterType) {
-      // Use base severity from disasterType
       const baseSeverityMap = {
         'Fire': 'critical',
         'Earthquake': 'high',
@@ -91,16 +103,11 @@ router.post('/predict-severity', authMiddleware, async (req, res) => {
         success: true,
         isOneTapSOS: true,
         severity: baseSeverityMap[disasterType] || 'moderate',
-        confidence: 1.0,
-        message: 'Severity assessed by AI - awaiting admin dispatch decision'
+        confidence: 0.78,
+        message: 'Severity assessed by fallback heuristic - awaiting admin dispatch decision'
       });
     }
 
-    if (!description) {
-      return res.status(400).json({ message: 'description required' });
-    }
-
-    const result = await mlServiceClient.predictSeverity(description);
     res.json(result);
   } catch (err) {
     console.error('Severity prediction error:', err);

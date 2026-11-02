@@ -1,6 +1,6 @@
 /**
  * ML Service Client
- * Integrates with SALBA ML Service (Flask backend)
+ * Integrates with SALBA ML Service v2 (Flask Calibrated Multilingual & Spatial Engine)
  * Provides disaster classification, severity prediction, and false alarm detection
  */
 
@@ -14,7 +14,7 @@ class MLServiceClient {
     this.baseURL = ML_SERVICE_URL.endsWith('/') ? ML_SERVICE_URL : `${ML_SERVICE_URL}/`;
     this.client = axios.create({
       baseURL: this.baseURL,
-      timeout: 3000, // Reduced timeout for faster failure
+      timeout: 3000, // 3s timeout; v2 inference completes in < 15ms
     });
     
     // Simple in-memory cache for predictions (auto-clear every 5 minutes)
@@ -25,10 +25,10 @@ class MLServiceClient {
   }
 
   /**
-   * Generate cache key from report data
+   * Generate cache key from report data (including disasterType and cluster count)
    */
-  _getCacheKey(description, latitude, longitude) {
-    const data = `${description}|${latitude}|${longitude}`;
+  _getCacheKey(description, latitude, longitude, disasterType = '', nearbyReportsCount = 1) {
+    const data = `${description || ''}|${latitude}|${longitude}|${disasterType || ''}|${nearbyReportsCount || 1}`;
     return crypto.createHash('md5').update(data).digest('hex');
   }
 
@@ -41,6 +41,8 @@ class MLServiceClient {
       return {
         success: true,
         status: response.data.status,
+        version: response.data.version,
+        engine: response.data.engine,
         models: response.data.models,
       };
     } catch (error) {
@@ -57,14 +59,16 @@ class MLServiceClient {
    * @param {string} description - Report text/description
    * @param {number} latitude - Report latitude
    * @param {number} longitude - Report longitude
+   * @param {string} disasterType - Optional user-selected disaster type
    * @returns {Promise<Object>} Classification result with disaster type and confidence
    */
-  async classifyDisaster(description, latitude, longitude) {
+  async classifyDisaster(description, latitude, longitude, disasterType = null) {
     try {
       const response = await this.client.post('classify', {
-        description,
+        description: description || '',
         latitude,
         longitude,
+        disaster_type: disasterType,
       });
 
       return {
@@ -88,13 +92,19 @@ class MLServiceClient {
    * Predict severity level
    * @param {string} description - Report text/description
    * @param {number} textLength - Length of description
+   * @param {Object} options - Optional spatial context (latitude, longitude, disasterType, nearbyReportsCount)
    * @returns {Promise<Object>} Severity prediction with level and confidence
    */
-  async predictSeverity(description, textLength = null) {
+  async predictSeverity(description, textLength = null, options = {}) {
     try {
+      const desc = description || '';
       const response = await this.client.post('severity', {
-        description,
-        text_length: textLength || description.length,
+        description: desc,
+        text_length: textLength != null ? textLength : desc.length,
+        latitude: options.latitude,
+        longitude: options.longitude,
+        disaster_type: options.disasterType,
+        nearby_reports_count: options.nearbyReportsCount || 1,
       });
 
       return {
@@ -118,13 +128,18 @@ class MLServiceClient {
    * Verify if report is legitimate or false alarm
    * @param {string} description - Report text/description
    * @param {number} hasPrankKeywords - Whether prank keywords detected
+   * @param {Object} options - Optional spatial context
    * @returns {Promise<Object>} Verification result
    */
-  async verifyReport(description, hasPrankKeywords = 0) {
+  async verifyReport(description, hasPrankKeywords = 0, options = {}) {
     try {
       const response = await this.client.post('verify', {
-        description,
+        description: description || '',
         has_prank_keywords: hasPrankKeywords,
+        latitude: options.latitude,
+        longitude: options.longitude,
+        disaster_type: options.disasterType,
+        nearby_reports_count: options.nearbyReportsCount || 1,
       });
 
       return {
@@ -151,16 +166,17 @@ class MLServiceClient {
   async evaluateReport(reportData) {
     try {
       const {
-        description,
+        description = '',
         disasterType,
         latitude,
         longitude,
         textLength,
         hasPrankKeywords = 0,
+        nearbyReportsCount = 1,
       } = reportData;
 
       // Check cache first
-      const cacheKey = this._getCacheKey(description, latitude, longitude);
+      const cacheKey = this._getCacheKey(description, latitude, longitude, disasterType, nearbyReportsCount);
       if (this.predictionCache.has(cacheKey)) {
         return this.predictionCache.get(cacheKey);
       }
@@ -170,8 +186,9 @@ class MLServiceClient {
         disaster_type: disasterType,
         latitude,
         longitude,
-        text_length: textLength || description.length,
+        text_length: textLength != null ? textLength : description.length,
         has_prank_keywords: hasPrankKeywords,
+        nearby_reports_count: nearbyReportsCount,
       });
 
       const result = {
@@ -208,17 +225,16 @@ class MLServiceClient {
   }
 
   /**
-   * FAST MODE: Quick predictions for real-time updates (100-300ms)
-   * Uses parallel ML inference. Good for dashboard auto-refresh.
+   * FAST MODE: Synchronous < 15ms v2 inference for real-time triage
    * @param {Object} reportData - Report data
    * @returns {Promise<Object>} Fast evaluation result
    */
   async evaluateReportFast(reportData) {
     try {
-      const { description, latitude, longitude, textLength, disasterType } = reportData;
+      const { description = '', latitude, longitude, textLength, disasterType, nearbyReportsCount = 1 } = reportData;
 
-      // Check cache first
-      const cacheKey = this._getCacheKey(description, latitude, longitude);
+      // Check cache first (keyed by description, coords, disasterType, and cluster count)
+      const cacheKey = this._getCacheKey(description, latitude, longitude, disasterType, nearbyReportsCount);
       if (this.predictionCache.has(cacheKey)) {
         return this.predictionCache.get(cacheKey);
       }
@@ -228,8 +244,10 @@ class MLServiceClient {
         description,
         latitude,
         longitude,
-        text_length: textLength || description.length,
+        text_length: textLength != null ? textLength : description.length,
         disasterType: disasterType || '',
+        disaster_type: disasterType || '',
+        nearby_reports_count: nearbyReportsCount || 1,
       });
 
       const result = {

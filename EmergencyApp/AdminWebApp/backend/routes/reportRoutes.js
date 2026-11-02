@@ -289,14 +289,38 @@ router.post('/', authMiddleware, async (req, res) => {
           };
         };
         
-        // Step 1: Check database cache first (< 1ms)
-        let cachedPredictions = await PredictionCache.getCache(description, lat, lng);
-        if (cachedPredictions) {
-          r.mlPredictions = applySuspiciousOverride(cachedPredictions);
-          r.mlProcessedAt = new Date();
-          await r.save();
-          console.log('[OK] Used database cache for predictions');
-          return;
+        // Query recent nearby reports (within ~2km and 30 mins) to detect genuine disaster clusters
+        const recentReports = await Report.find({
+          lat: { $gte: lat - 0.02, $lte: lat + 0.02 },
+          lng: { $gte: lng - 0.02, $lte: lng + 0.02 },
+          createdAt: { $gte: new Date(Date.now() - 1000 * 60 * 30) },
+          _id: { $ne: r._id }
+        }).select('userId senderPhone senderName disasterType').lean();
+
+        // Ensure cluster corroboration is from DISTINCT users/devices and compatible disaster types
+        const currentUserId = req.user?.id?.toString();
+        const uniqueOtherReporters = new Set(
+          recentReports
+            .filter(entry => {
+              if (!disasterType || !entry.disasterType) return true;
+              return String(entry.disasterType).toLowerCase() === String(disasterType).toLowerCase();
+            })
+            .map(entry => entry.userId?.toString() || entry.senderPhone || entry.senderName)
+            .filter(id => Boolean(id) && id !== currentUserId)
+        );
+
+        const clusterCount = uniqueOtherReporters.size + 1;
+
+        // Step 1: Check database cache only for isolated single reports (clusters must be dynamically evaluated)
+        if (clusterCount === 1) {
+          let cachedPredictions = await PredictionCache.getCache(description, lat, lng);
+          if (cachedPredictions) {
+            r.mlPredictions = applySuspiciousOverride(cachedPredictions);
+            r.mlProcessedAt = new Date();
+            await r.save();
+            console.log('[OK] Used database cache for predictions');
+            return;
+          }
         }
         
         // Step 2: Try Python ML service, Groq LLM, or local heuristics in sequence
@@ -310,19 +334,26 @@ router.post('/', authMiddleware, async (req, res) => {
             longitude: lng,
             textLength: description.length,
             disasterType: disasterType || '',
+            nearbyReportsCount: clusterCount,
           });
 
           if (mlResult && mlResult.success) {
+            const isLegit = mlResult.verification?.is_legitimate !== false;
+            const rawVerConf = mlResult.verification?.confidence ?? 0.9;
+            const legitScore = mlResult.verification?.legitimacy_score != null
+              ? mlResult.verification.legitimacy_score
+              : (isLegit ? rawVerConf : Math.max(0.02, 1 - rawVerConf));
+
             basePredictions = {
               disasterType: mlResult.classification?.disaster_type || disasterType,
               disasterTypeConfidence: mlResult.classification?.confidence || 0.85,
               severity: mlResult.severity?.level || resolvedSeverity,
               severityConfidence: mlResult.severity?.confidence || 0.85,
-              isLegitimate: mlResult.verification?.is_legitimate !== false,
-              legitimacyConfidence: mlResult.verification?.confidence || 0.9,
+              isLegitimate: isLegit,
+              legitimacyConfidence: legitScore,
               overall: mlResult.overall || {
                 confidence: 0.85,
-                recommendation: mlResult.verification?.is_legitimate !== false ? 'admin_review' : 'flag_false_alarm'
+                recommendation: isLegit ? 'admin_review' : 'flag_false_alarm'
               },
             };
           }
@@ -398,11 +429,19 @@ router.post('/', authMiddleware, async (req, res) => {
         if (basePredictions) {
           const predictions = applySuspiciousOverride(basePredictions);
           r.mlPredictions = predictions;
+          if (predictions.severity && predictions.isLegitimate !== false) {
+            r.severity = predictions.severity;
+          }
+          if (!r.disasterType && predictions.disasterType) {
+            r.disasterType = predictions.disasterType;
+          }
           r.mlProcessedAt = new Date();
           await r.save();
           
-          // Cache result for future use
-          await PredictionCache.setCache(description, lat, lng, basePredictions);
+          // Cache result for future use only for isolated single reports
+          if (clusterCount === 1) {
+            await PredictionCache.setCache(description, lat, lng, basePredictions);
+          }
           console.log('[AI] ML predictions completed successfully for report:', r._id);
 
           // Broadcast to connected admins that ML predictions have been updated

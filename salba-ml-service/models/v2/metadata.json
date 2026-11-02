@@ -1,0 +1,79 @@
+{
+  "version": "2.0.0",
+  "trained_at": "2026-10-30T22:57:55",
+  "corpus_rows": 163052,
+  "type_classes": [
+    "Earthquake",
+    "Fire",
+    "Flood",
+    "Landslide",
+    "Typhoon"
+  ],
+  "severity_classes": [
+    "low",
+    "moderate",
+    "high",
+    "critical"
+  ],
+  "datasets": [
+    "QCRI/CrisisBench-all-lang (Alam et al., 2021) CC BY-NC-SA 4.0",
+    "community-datasets/disaster_response_messages (Appen / Figure Eight)",
+    "SALBA Philippine seed set (data/curated/ph_seed_reports.csv)"
+  ],
+  "metrics": {
+    "type": {
+      "n_test": 9300,
+      "accuracy": 0.8404301075268817,
+      "macro_f1": 0.8635546081113553,
+      "weighted_f1": 0.837000681657179,
+      "ece": 0.03834524225200328,
+      "brier": 0.24765880055407952,
+      "ph_n": 2758,
+      "ph_accuracy": 0.5841189267585206,
+      "ph_macro_f1": 0.5630464483601758,
+      "ph_seed_n": 16,
+      "ph_seed_accuracy": 0.6875,
+      "baseline_logreg": {
+        "accuracy": 0.7603225806451613,
+        "macro_f1": 0.7598084947681618
+      }
+    },
+    "severity": {
+      "n_test": 12593,
+      "accuracy": 0.6164535853251807,
+      "macro_f1": 0.5919672353765519,
+      "weighted_f1": 0.6099380527812271,
+      "ece": 0.02676478829463643,
+      "brier": 0.5142697558061953,
+      "quadratic_kappa": 0.5527035675786358,
+      "ph_n": 2758,
+      "ph_accuracy": 0.6501087744742567,
+      "ph_macro_f1": 0.4463392227165377,
+      "ph_seed_n": 16,
+      "ph_seed_accuracy": 0.625,
+      "baseline_logreg": {
+        "accuracy": 0.4716112125784166,
+        "macro_f1": 0.43868661295919975
+      }
+    },
+    "legitimacy": {
+      "n_test": 21404,
+      "accuracy": 0.7791534292655579,
+      "macro_f1": 0.7408700029000299,
+      "weighted_f1": 0.7781901778667898,
+      "ece": 0.035475645619351744,
+      "brier": 0.312599521126377,
+      "ph_n": 2933,
+      "ph_accuracy": 0.799181725196045,
+      "ph_macro_f1": 0.5631082054740927,
+      "ph_seed_n": 24,
+      "ph_seed_accuracy": 0.9166666666666666,
+      "brier_binary": 0.1562997605631885,
+      "baseline_logreg": {
+        "accuracy": 0.7071108204074005,
+        "macro_f1": 0.6948106774816515
+      }
+    }
+  },
+  "train_seconds": 915.7
+}

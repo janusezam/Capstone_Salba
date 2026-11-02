@@ -147,6 +147,7 @@ router.post("/", requireAuth, async (req, res) => {
             latitude: reportData.lat,
             longitude: reportData.lng,
             locationName: reportData.locationName,
+            note: req.body.note || req.body.description || "",
             userId: reportData.userId,
             userName: reportData.senderName,
             userPhone: req.body.userPhone || "",

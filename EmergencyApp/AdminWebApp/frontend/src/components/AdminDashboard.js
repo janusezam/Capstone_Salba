@@ -118,7 +118,7 @@ const getTimeAgo = (dateInput) => {
   return `${days}d ago`;
 };
 
-const TEST_REPORT_REGEX = /\b(test|testing|prank|dummy|sample|drill|simulation|simulated|mock|trial)\b/i;
+const TEST_REPORT_REGEX = /\b(test|testing|prank|dummy|sample|drill|simulation|simulated|mock|trial|joke\s+lang|binuang|charot)\b/i;
 
 const isForceTestModeEnabled = () => {
   if (typeof window === 'undefined') return false;
@@ -247,20 +247,27 @@ const generateAISummary = (alert, contextReports = []) => {
   }
 
   const ml = alert.mlPredictions;
-  const confidenceLevel = ml.overall?.confidence || ml.legitimacyConfidence || 0;
+  const isFlaggedFalseAlarm = ml.isLegitimate === false;
+  const rawLegitConf = typeof ml.legitimacyConfidence === 'number' ? ml.legitimacyConfidence : 0;
+  const effectiveLegitConf = isFlaggedFalseAlarm ? Math.min(rawLegitConf, 0.22) : rawLegitConf;
+  const confidenceLevel = isFlaggedFalseAlarm
+    ? effectiveLegitConf
+    : (ml.overall?.confidence || effectiveLegitConf || 0);
   const disasterType = ml.disasterType || alert.disasterType || "Unknown";
   const severity = ml.severity || alert.severity || "Unknown";
   const typeConfidence = ml.disasterTypeConfidence ? Math.round(ml.disasterTypeConfidence * 100) : 0;
   const severityConfidence = ml.severityConfidence ? Math.round(ml.severityConfidence * 100) : 0;
-  const legitimacyConfidence = ml.legitimacyConfidence ? Math.round(ml.legitimacyConfidence * 100) : 0;
+  const legitimacyConfidence = Math.round(effectiveLegitConf * 100);
 
   let summary = "";
   
   // Determine confidence level interpretation
   if (likelyTestReport) {
     summary = `🧪 Test Content Detected: This report appears to be a test/drill entry and should not be treated as a live emergency.`;
+  } else if (isFlaggedFalseAlarm) {
+    summary = `⚠️ Potential False Alarm Detected: The AI Verification Engine flagged this report as non-legitimate or prank/drill activity.`;
   } else if (confidenceLevel >= 0.9) {
-    summary = `🎯 Very High Confidence: The AI system is highly confident this is a legitimate {${toTitleCase(disasterType)}} incident.`;
+    summary = `🎯 Very High Confidence: The AI system is highly confident this is a legitimate ${toTitleCase(disasterType)} incident.`;
   } else if (confidenceLevel >= 0.7) {
     summary = `✅ High Confidence: The AI system is confident this is a legitimate ${toTitleCase(disasterType)} incident.`;
   } else if (confidenceLevel >= 0.5) {
