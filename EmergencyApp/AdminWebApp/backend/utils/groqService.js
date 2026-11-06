@@ -140,7 +140,12 @@ function generateFallbackPriority(reports) {
     'flood': 8,
     'landslide': 7,
     'missing': 6,
-    'other': 5
+    'other': 5,
+    'drowning': 10,
+    'trapped': 9,
+    'medical assistance': 9,
+    'vehicular accident': 8,
+    'lost': 6
   };
 
   const scored = reports.map(report => {
@@ -234,7 +239,7 @@ Incoming Report Details:
 - Recent Nearby Reports (last 30m): ${recentReports.length}
 
 Instructions:
-1. Classification: Based on the description, confirm or correct the disaster type (Fire, Flood, Earthquake, Landslide, Typhoon, Medical, Other).
+1. Classification: Based on the description, confirm or correct the disaster type (Fire, Flood, Earthquake, Landslide, Typhoon, Drowning, Vehicular accident, Trapped, Lost, Medical assistance, Other). If the user selected Drowning, Vehicular accident, Trapped, Lost, or Medical assistance, preserve that exact classification unless it is clearly a prank.
 2. Severity: Assess contextual severity (low, moderate, high, critical). 
    - 'small', 'minor', 'trash can', 'controlled' -> low or moderate
    - 'spreading', 'trapped', 'huge', 'life threatening' -> high or critical

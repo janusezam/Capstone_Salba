@@ -20,6 +20,11 @@ class SALBAIntelligenceEngine {
       'Earthquake': ['earthquake', 'quake', 'tremor', 'seismic', 'shaking'],
       'Landslide': ['landslide', 'mudslide', 'soil', 'ground failure', 'slope'],
       'Typhoon': ['typhoon', 'storm', 'wind', 'cyclone', 'hurricane', 'heavy rain'],
+      'Drowning': ['drowning', 'drown', 'submerged', 'nalumos', 'nalunod', 'river', 'water', 'swimming'],
+      'Vehicular accident': ['accident', 'collision', 'crash', 'vehicle', 'car', 'motorcycle', 'truck', 'bangga', 'disgrasya', 'nabangga'],
+      'Trapped': ['trapped', 'stuck', 'pinned', 'naipit', 'natanggong', 'locked', 'collapsed'],
+      'Lost': ['lost', 'missing', 'nawala', 'nasaag', 'stranded', 'hiker', 'child'],
+      'Medical assistance': ['medical', 'ambulance', 'heart attack', 'stroke', 'unconscious', 'bleeding', 'injured', 'seizure', 'kuyapan', 'walang malay', 'breathing'],
     };
 
     let classification = disasterType;
@@ -68,6 +73,11 @@ class SALBAIntelligenceEngine {
       'Flood': 'moderate',
       'Landslide': 'moderate',
       'Typhoon': 'high',
+      'Drowning': 'critical',
+      'Vehicular accident': 'high',
+      'Trapped': 'critical',
+      'Lost': 'moderate',
+      'Medical assistance': 'high',
     };
 
     const severity = baseSeverity[disasterType] || 'moderate';
@@ -158,6 +168,11 @@ class SALBAIntelligenceEngine {
         'Flood': 'high',
         'Landslide': 'high',
         'Typhoon': 'critical',
+        'Drowning': 'critical',
+        'Vehicular accident': 'high',
+        'Trapped': 'critical',
+        'Lost': 'moderate',
+        'Medical assistance': 'high',
       };
 
       const assessedSeverity = (baseSeverity[disasterType] || 'moderate');

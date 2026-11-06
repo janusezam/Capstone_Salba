@@ -54,6 +54,16 @@ const getDisasterIconAndColor = (type) => {
       return { name: "warning", color: "#78350F", label: "Landslide" };
     case 'typhoon':
       return { name: "thunderstorm", color: "#1E3A8A", label: "Typhoon" };
+    case 'drowning':
+      return { name: "water-outline", color: "#0284C7", label: "Drowning" };
+    case 'vehicular accident':
+      return { name: "car", color: "#EA580C", label: "Vehicular accident" };
+    case 'trapped':
+      return { name: "lock-closed", color: "#7C3AED", label: "Trapped" };
+    case 'lost':
+      return { name: "compass", color: "#D97706", label: "Lost" };
+    case 'medical assistance':
+      return { name: "medkit", color: "#DC2626", label: "Medical assistance" };
     default:
       return { name: "alert-circle", color: "#DC2626", label: type || "Emergency" };
   }

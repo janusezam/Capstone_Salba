@@ -26,7 +26,8 @@ from utils.preprocessing import (
     find_nearest_hazard_zone,
     HOTSPOT_COUNTS,
     extract_spatial_features,
-    apply_emergency_safeguards
+    apply_emergency_safeguards,
+    OTHER_EMERGENCY_CANONICAL
 )
 
 load_dotenv()
@@ -84,6 +85,7 @@ def evaluate_report_v2(data):
     lng = float(data.get('longitude', data.get('lng', 125.126)))
     barangay = str(data.get('barangay') or data.get('locationName') or find_nearest_barangay(lat, lng))
     user_disaster_type = data.get('disaster_type') or data.get('disasterType') or None
+    canonical_other_type = OTHER_EMERGENCY_CANONICAL.get(str(user_disaster_type or '').strip().lower())
     
     nearby_count = int(data.get('nearby_reports_count') or data.get('nearbyReportsCount') or data.get('cluster_size') or 1)
     
@@ -128,7 +130,7 @@ def evaluate_report_v2(data):
         # 6. Hybrid Spatial Fusion for Short Reports (<= 6 words)
         # If citizen typed a brief emergency note, fuse lexical signal with Malaybalay spatial engine
         leg_idx_tentative = int(np.argmax(proba_leg))
-        if len(tokens) <= 6 and spatial_severity_pkg and leg_classes[leg_idx_tentative] == 'legitimate':
+        if len(tokens) <= 6 and spatial_severity_pkg and leg_classes[leg_idx_tentative] == 'legitimate' and not canonical_other_type:
             pred_type_tentative = type_classes[int(np.argmax(proba_type))]
             sp_feat = extract_spatial_features(lat, lng, disaster_type=pred_type_tentative, cluster_count=nearby_count, barangay=barangay)
             sp_proba_sev = spatial_severity_pkg['model'].predict_proba([sp_feat])[0]
@@ -152,6 +154,10 @@ def evaluate_report_v2(data):
         pred_type = type_classes[type_idx]
         type_conf = float(proba_type[type_idx])
         type_probabilities = {c: round(float(proba_type[i]), 4) for i, c in enumerate(type_classes)}
+        if canonical_other_type:
+            pred_type = canonical_other_type
+            type_conf = 1.0
+            type_probabilities = {canonical_other_type: 1.0}
 
         sev_idx = int(np.argmax(proba_sev))
         pred_sev = sev_classes[sev_idx]

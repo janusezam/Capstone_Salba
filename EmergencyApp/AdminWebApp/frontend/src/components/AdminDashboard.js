@@ -278,7 +278,9 @@ const generateAISummary = (alert, contextReports = []) => {
 
   // Add specific analysis
   summary += `\n\n📊 AI Analysis:\n`;
-  summary += `• Disaster Type: ${toTitleCase(disasterType)} (${typeConfidence}% confidence)\n`;
+  const isOtherEmergencyType = ['drowning', 'vehicular accident', 'trapped', 'lost', 'medical assistance'].includes(String(disasterType || '').trim().toLowerCase());
+  const typeLabel = isOtherEmergencyType ? `${toTitleCase(disasterType)} (User Reported)` : `${toTitleCase(disasterType)} (${typeConfidence}% confidence)`;
+  summary += `• ${isOtherEmergencyType ? 'Emergency Type' : 'Disaster Type'}: ${typeLabel}\n`;
   summary += `• Predicted Severity: ${toTitleCase(severity)} (${severityConfidence}% confidence)\n`;
   summary += `• Legitimacy Score: ${legitimacyConfidence}%\n`;
   summary += `${hotspotSummary}\n`;

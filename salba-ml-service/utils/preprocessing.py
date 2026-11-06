@@ -313,7 +313,19 @@ EMERGENCY_WORDS = {
     'linog', 'lindol', 'liki', 'nangliki', 'gumuho', 'shaking', 'tremor', 'earthquake',
     'dahili', 'nidahili', 'landslide', 'guho', 'yuta', 'natabunan',
     'bagyo', 'typhoon', 'storm', 'hangin',
-    'naipit', 'trapped', 'trap', 'sugatan', 'samad', 'patay', 'casualty', 'dead'
+    'naipit', 'trapped', 'trap', 'sugatan', 'samad', 'patay', 'casualty', 'dead',
+    'accident', 'bangga', 'disgrasya', 'nabangga', 'collision', 'crash', 'vehicular',
+    'medical', 'ambulance', 'heart', 'stroke', 'unconscious', 'kuyapan', 'bleeding',
+    'dugo', 'fracture', 'bali', 'injured', 'nalumos', 'drown', 'nawala', 'nasaag',
+    'missing', 'lost', 'stranded', 'stuck', 'pinned', 'natanggong', 'breathing', 'seizure'
+}
+
+OTHER_EMERGENCY_CANONICAL = {
+    'drowning': 'Drowning',
+    'vehicular accident': 'Vehicular accident',
+    'trapped': 'Trapped',
+    'lost': 'Lost',
+    'medical assistance': 'Medical assistance',
 }
 
 PRANK_WORDS = {
@@ -362,7 +374,8 @@ def apply_emergency_safeguards(norm_text, tokens, proba_type, proba_sev, proba_l
        real emergency calls from being classified as 'low' severity.
     """
     tok_set = set(tokens)
-    has_emergency = bool(tok_set & EMERGENCY_WORDS)
+    other_canonical = OTHER_EMERGENCY_CANONICAL.get(str(user_disaster_type or '').strip().lower())
+    has_emergency = bool(tok_set & EMERGENCY_WORDS) or (bool(other_canonical) and len(tokens) >= 2)
     has_prank = bool(tok_set & PRANK_WORDS)
     
     # 1. Legitimacy Safeguard
@@ -402,12 +415,14 @@ def apply_emergency_safeguards(norm_text, tokens, proba_type, proba_sev, proba_l
     crit_words = {
         'trapped', 'naipit', 'nalunod', 'drowning', 'patay', 'dead', 'casualty', 'casualties',
         'lapas-ulo', 'stranded', 'natabunan', 'buried', 'unconscious', 'bleeding', 'nalumos',
-        'hawak', 'chest'
+        'hawak', 'chest', 'stroke', 'cardiac', 'kuyapan', 'head-on', 'pinned', 'seizure'
     }
     high_words = {
         'nangliki', 'naliki', 'liki', 'gumuho', 'collapsed', 'collapse', 'dako', 'dakong',
         'kusog', 'grabe', 'nagkalat', 'spreading', 'lapas', 'roof', 'atop',
-        'merkado', 'highway', 'blocked'
+        'merkado', 'highway', 'blocked', 'accident', 'bangga', 'disgrasya', 'nabangga',
+        'collision', 'crash', 'ambulance', 'medical', 'injured', 'sugatan', 'samad',
+        'fracture', 'bali', 'dugo', 'stuck', 'natanggong', 'nawala', 'nasaag', 'missing'
     }
 
     if not has_prank:
@@ -421,10 +436,14 @@ def apply_emergency_safeguards(norm_text, tokens, proba_type, proba_sev, proba_l
         elif has_emergency:
             # Active emergency distress call should never default to 'low' severity
             p_sev[low_idx] = min(p_sev[low_idx], 0.05)
-            if hazard_risk == 'HIGH':
+            if other_canonical in ('Drowning', 'Trapped'):
+                p_sev = _boost_class_prob(p_sev, crit_idx if bool(tok_set & crit_words) else high_idx, 0.70)
+            elif other_canonical in ('Vehicular accident', 'Medical assistance'):
+                p_sev = _boost_class_prob(p_sev, high_idx, 0.66)
+            elif hazard_risk == 'HIGH' and not other_canonical:
                 p_sev = _boost_class_prob(p_sev, high_idx, 0.65)
             else:
-                p_sev = _boost_class_prob(p_sev, mod_idx, 0.62)
+                p_sev = _boost_class_prob(p_sev, mod_idx, 0.64)
     else:
         # Prank / test / drill -> downgrade severity to low
         p_sev = _boost_class_prob(p_sev, low_idx, 0.75)

@@ -80,6 +80,16 @@ const getDisasterIconAndColor = (type) => {
       return { name: "warning", color: "#78350F", label: "Landslide" };
     case 'typhoon':
       return { name: "thunderstorm", color: "#1E3A8A", label: "Typhoon" };
+    case 'drowning':
+      return { name: "water-outline", color: "#0284C7", label: "Drowning" };
+    case 'vehicular accident':
+      return { name: "car", color: "#EA580C", label: "Vehicular accident" };
+    case 'trapped':
+      return { name: "lock-closed", color: "#7C3AED", label: "Trapped" };
+    case 'lost':
+      return { name: "compass", color: "#D97706", label: "Lost" };
+    case 'medical assistance':
+      return { name: "medkit", color: "#DC2626", label: "Medical assistance" };
     default:
       return { name: "alert-circle", color: "#DC2626", label: type || "Emergency" };
   }
@@ -371,6 +381,31 @@ export default function HomeScreen() {
     { label: "Typhoon", value: "Typhoon", icon: "thunderstorm" },
   ];
 
+  const otherEmergencyOptions = [
+    { label: "Drowning", value: "Drowning", icon: "water-outline" },
+    { label: "Vehicular accident", value: "Vehicular accident", icon: "car" },
+    { label: "Trapped", value: "Trapped", icon: "lock-closed" },
+    { label: "Lost", value: "Lost", icon: "compass" },
+    { label: "Medical assistance", value: "Medical assistance", icon: "medkit" },
+  ];
+
+  const [isOthersView, setIsOthersView] = useState(false);
+  const isOtherEmergencySelected = isOthersView || otherEmergencyOptions.some(opt => opt.value === disasterType);
+
+  // Reset to main disaster selection whenever user leaves the screen and comes back
+  useEffect(() => {
+    if (!navigation?.addListener) return;
+    const unsubscribeBlur = navigation.addListener("blur", () => {
+      setIsOthersView(false);
+      setDisasterType((prev) =>
+        otherEmergencyOptions.some((opt) => opt.value === prev) ? null : prev
+      );
+    });
+    return () => {
+      if (unsubscribeBlur) unsubscribeBlur();
+    };
+  }, [navigation]);
+
   // Fetch user's current location on mount
   useEffect(() => {
     const fetchUserLocation = async () => {
@@ -418,7 +453,20 @@ export default function HomeScreen() {
     }
 
     if (!disasterType) {
-      Alert.alert("Select Disaster Type", "Please choose a disaster type first before sending an alert.");
+      Alert.alert(
+        isOthersView ? "Select Emergency Type" : "Select Disaster Type",
+        isOthersView
+          ? "Please choose an emergency type first before sending an alert."
+          : "Please choose a disaster type first before sending an alert."
+      );
+      return;
+    }
+
+    if (isOtherEmergencySelected && !note.trim()) {
+      Alert.alert(
+        "Note Required",
+        `Please enter a note describing the ${disasterType.toLowerCase()} situation before sending the alert.`
+      );
       return;
     }
 
@@ -427,16 +475,19 @@ export default function HomeScreen() {
   };
 
   const openCamera = async () => {
+    // Capture selected values in closure before navigating to CameraScreen
+    const selectedType = disasterType;
+    const selectedNote = note;
     // Retrieve auth token so CameraScreen can authenticate the upload
     const token = await AsyncStorage.getItem("userToken");
     navigation.navigate("Camera", {
       token,
-      onPhotoUploaded: (photoUrl) => proceedWithAlert(photoUrl),
-      onSkip: () => proceedWithAlert(null),
+      onPhotoUploaded: (photoUrl) => proceedWithAlert(photoUrl, selectedType, selectedNote),
+      onSkip: () => proceedWithAlert(null, selectedType, selectedNote),
     });
   };
 
-  const proceedWithAlert = async (photoUrl = null) => {
+  const proceedWithAlert = async (photoUrl = null, submittedType = disasterType, submittedNote = note) => {
     setLoading(true);
     try {
       // Get user data
@@ -485,11 +536,11 @@ export default function HomeScreen() {
       const nearestLocation = getNearestBarangay(coords.latitude, coords.longitude);
 
       const data = {
-        type: disasterType,
+        type: submittedType,
         latitude: coords.latitude,
         longitude: coords.longitude,
         locationName: nearestLocation.fullName,
-        note: note.trim(),
+        note: (submittedNote || "").trim(),
         userId: user?._id,
         userName: user?.name || "Anonymous",
         userPhone: userPhone || "",
@@ -520,7 +571,8 @@ export default function HomeScreen() {
           useNativeDriver: true,
         }).start(() => {
           setShowSuccess(false);
-          // Reset form for next report (button remains locked until cooldown ends)
+          // Reset form for next report (always default back to disaster selection)
+          setIsOthersView(false);
           setDisasterType(null);
           setNote("");
         });
@@ -1183,35 +1235,96 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <View style={styles.disasterGrid}>
-          {disasterOptions.map((item) => (
-            <TouchableOpacity
-              key={item.value}
-              style={[
-                styles.disasterCard,
-                disasterType === item.value && styles.disasterCardSelected
-              ]}
-              onPress={() => setDisasterType(item.value)}
-            >
-              <Ionicons 
-                name={item.icon} 
-                size={32} 
-                color={disasterType === item.value ? "#fff" : "#d32f2f"} 
-              />
-              <Text style={[
-                styles.disasterCardText,
-                disasterType === item.value && styles.disasterCardTextSelected
-              ]}>
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          {!isOthersView ? (
+            <>
+              {disasterOptions.map((item) => (
+                <TouchableOpacity
+                  key={item.value}
+                  style={[
+                    styles.disasterCard,
+                    disasterType === item.value && styles.disasterCardSelected
+                  ]}
+                  onPress={() => setDisasterType(item.value)}
+                >
+                  <Ionicons 
+                    name={item.icon} 
+                    size={32} 
+                    color={disasterType === item.value ? "#fff" : "#d32f2f"} 
+                  />
+                  <Text style={[
+                    styles.disasterCardText,
+                    disasterType === item.value && styles.disasterCardTextSelected
+                  ]}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                key="others-toggle"
+                style={styles.disasterCard}
+                onPress={() => {
+                  setIsOthersView(true);
+                  setDisasterType(null);
+                }}
+              >
+                <Ionicons name="ellipsis-horizontal-circle" size={32} color="#d32f2f" />
+                <Text style={styles.disasterCardText}>Others</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              {otherEmergencyOptions.map((item) => (
+                <TouchableOpacity
+                  key={item.value}
+                  style={[
+                    styles.disasterCard,
+                    disasterType === item.value && styles.disasterCardSelected
+                  ]}
+                  onPress={() => setDisasterType(item.value)}
+                >
+                  <Ionicons 
+                    name={item.icon} 
+                    size={32} 
+                    color={disasterType === item.value ? "#fff" : "#d32f2f"} 
+                  />
+                  <Text style={[
+                    styles.disasterCardText,
+                    disasterType === item.value && styles.disasterCardTextSelected
+                  ]}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                key="back-to-disasters"
+                style={[styles.disasterCard, styles.backToDisastersCard]}
+                onPress={() => {
+                  setIsOthersView(false);
+                  setDisasterType(null);
+                }}
+              >
+                <Ionicons name="arrow-back-circle" size={32} color="#374151" />
+                <Text style={[styles.disasterCardText, { color: "#374151" }]}>Back</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
         <View style={styles.noteContainer}>
-          <Text style={styles.noteLabel}>Optional Note</Text>
+          <Text style={[styles.noteLabel, isOtherEmergencySelected && styles.noteLabelRequired]}>
+            {isOtherEmergencySelected ? "Required Note *" : "Optional Note"}
+          </Text>
           <TextInput
-            style={[styles.noteInput, isNoteFocused && styles.noteInputFocused]}
-            placeholder="Add extra details (optional)"
+            style={[
+              styles.noteInput,
+              isOtherEmergencySelected && !note.trim() && styles.noteInputRequired,
+              isNoteFocused && styles.noteInputFocused
+            ]}
+            placeholder={
+              isOtherEmergencySelected
+                ? "Describe the emergency situation (Required)"
+                : "Add extra details (optional)"
+            }
             placeholderTextColor="#999"
             multiline
             numberOfLines={3}
@@ -1531,6 +1644,11 @@ const styles = StyleSheet.create({
   disasterCardTextSelected: {
     color: '#fff',
   },
+  backToDisastersCard: {
+    backgroundColor: '#f3f4f6',
+    borderColor: '#9ca3af',
+    borderStyle: 'dashed',
+  },
   noteContainer: {
     width: "85%",
     marginTop: 12,
@@ -1540,6 +1658,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#444",
     marginBottom: 6,
+  },
+  noteLabelRequired: {
+    color: "#d32f2f",
+    fontWeight: "700",
   },
   noteInput: {
     minHeight: 84,
@@ -1551,6 +1673,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
     color: "#333",
     textAlignVertical: "top",
+  },
+  noteInputRequired: {
+    borderColor: "#fca5a5",
+    backgroundColor: "#fff5f5",
   },
   noteInputFocused: {
     borderColor: "#d32f2f",

@@ -148,6 +148,11 @@ router.post('/', authMiddleware, async (req, res) => {
       'flood': 'high',
       'landslide': 'high',
       'typhoon': 'high',
+      'drowning': 'high',
+      'vehicular accident': 'high',
+      'trapped': 'high',
+      'lost': 'moderate',
+      'medical assistance': 'high',
     };
     
     const resolvedSeverity = disasterType 
@@ -260,6 +265,14 @@ router.post('/', authMiddleware, async (req, res) => {
 
       try {
         const description = note || '';
+        const normalizedReportType = String(disasterType || '').trim().toLowerCase();
+        const isOtherEmergency = [
+          'drowning',
+          'vehicular accident',
+          'trapped',
+          'lost',
+          'medical assistance',
+        ].includes(normalizedReportType);
         suspiciousJump = await assessSuspiciousLocationJump({
           userId: req.user.id,
           currentReportId: r._id,
@@ -345,8 +358,8 @@ router.post('/', authMiddleware, async (req, res) => {
               : (isLegit ? rawVerConf : Math.max(0.02, 1 - rawVerConf));
 
             basePredictions = {
-              disasterType: mlResult.classification?.disaster_type || disasterType,
-              disasterTypeConfidence: mlResult.classification?.confidence || 0.85,
+              disasterType: isOtherEmergency ? disasterType : (mlResult.classification?.disaster_type || disasterType),
+              disasterTypeConfidence: isOtherEmergency ? 1.0 : (mlResult.classification?.confidence || 0.85),
               severity: mlResult.severity?.level || resolvedSeverity,
               severityConfidence: mlResult.severity?.confidence || 0.85,
               isLegitimate: isLegit,
@@ -378,8 +391,8 @@ router.post('/', authMiddleware, async (req, res) => {
 
             if (aiEvaluation && aiEvaluation.success) {
               basePredictions = {
-                disasterType: aiEvaluation.classification || disasterType,
-                disasterTypeConfidence: 0.9,
+                disasterType: isOtherEmergency ? disasterType : (aiEvaluation.classification || disasterType),
+                disasterTypeConfidence: isOtherEmergency ? 1.0 : 0.9,
                 severity: aiEvaluation.severity || resolvedSeverity,
                 severityConfidence: aiEvaluation.confidence || 0.85,
                 isLegitimate: aiEvaluation.isLegitimate !== false,

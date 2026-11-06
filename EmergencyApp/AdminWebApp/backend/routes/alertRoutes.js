@@ -200,6 +200,19 @@ router.post('/', alertLimiter, async (req, res) => {
   try {
     const { type, latitude, longitude, locationName, userId, userName, userPhone, senderPhone, clientRequestId } = req.body;
     const normalizedType = String(type || '').trim().toLowerCase();
+    const OTHER_EMERGENCY_TYPES = new Set([
+      'drowning',
+      'vehicular accident',
+      'trapped',
+      'lost',
+      'medical assistance',
+    ]);
+    const isOtherEmergency = OTHER_EMERGENCY_TYPES.has(normalizedType);
+    const rawUserNote = String(req.body.note || req.body.description || '').trim();
+    // rawUserNote extracted at top of route
+    if (isOtherEmergency && !rawUserNote) {
+      return res.status(400).json({ message: 'A note is required for this emergency type' });
+    }
     const reporterFilters = [];
     if (userId) reporterFilters.push({ userId });
     if (userPhone || senderPhone) reporterFilters.push({ senderPhone: userPhone || senderPhone });
@@ -328,6 +341,11 @@ router.post('/', alertLimiter, async (req, res) => {
       flood: 'moderate',
       landslide: 'moderate',
       typhoon: 'moderate',
+      drowning: 'moderate',
+      'vehicular accident': 'moderate',
+      trapped: 'moderate',
+      lost: 'moderate',
+      'medical assistance': 'moderate',
     };
 
     // Resolve location using GeoJSON boundaries with fallback to nearest-point
@@ -341,7 +359,7 @@ router.post('/', alertLimiter, async (req, res) => {
       resolvedLocationName = locationName.trim();
     }
 
-    const rawUserNote = String(req.body.note || req.body.description || '').trim();
+    // rawUserNote extracted at top of route
     const report = await Report.create({
       clientRequestId: clientRequestId || undefined,
       userId: userId || null, // Can be null for anonymous reports
@@ -473,6 +491,7 @@ router.post('/', alertLimiter, async (req, res) => {
     setImmediate(async () => {
       try {
         // Find active hazard zones from in-memory cache (5 min TTL)
+        if (isOtherEmergency) return;
         const allActiveHazardZones = await cacheManager.getOrSet(
           'active_hazard_zones',
           async () => HazardZone.find({ isActive: true }).lean(),
@@ -666,14 +685,14 @@ router.post('/', alertLimiter, async (req, res) => {
               : (isLegit ? rawVerConf : Math.max(0.02, 1 - rawVerConf));
 
             finalSeverity = mlResult.severity?.level || finalSeverity;
-            const predType = mlResult.classification?.disaster_type || type;
-            if (predType && predType !== type && rawUserNote.length > 0 && isLegit) {
+            const predType = isOtherEmergency ? type : (mlResult.classification?.disaster_type || type);
+            if (!isOtherEmergency && predType && predType !== type && rawUserNote.length > 0 && isLegit) {
               report.disasterType = predType;
             }
 
             basePredictions = {
               disasterType: predType,
-              disasterTypeConfidence: mlResult.classification?.confidence || 0.95,
+              disasterTypeConfidence: isOtherEmergency ? 1.0 : (mlResult.classification?.confidence || 0.95),
               severity: finalSeverity,
               severityConfidence: mlResult.severity?.confidence || 0.78,
               isLegitimate: isLegit,
@@ -706,7 +725,7 @@ router.post('/', alertLimiter, async (req, res) => {
             isLegit = aiEvaluation.isLegitimate !== false;
             aiConfidence = aiEvaluation.confidence || 0.8;
             aiReason = aiEvaluation.reason;
-            if (aiEvaluation.classification && aiEvaluation.classification !== currentType) {
+            if (!isOtherEmergency && aiEvaluation.classification && aiEvaluation.classification !== currentType) {
               currentType = aiEvaluation.classification;
               report.disasterType = currentType;
               disasterTypeConf = 0.95;
