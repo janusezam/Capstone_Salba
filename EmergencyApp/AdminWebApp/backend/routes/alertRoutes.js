@@ -7,8 +7,9 @@ const enhancedML = require('../utils/enhancedMLModel');
 const mlServiceClient = require('../utils/mlServiceClient');
 const groqService = require('../utils/groqService');
 const cacheManager = require('../utils/cacheManager');
+const jwt = require('jsonwebtoken');
 const { resolveLocationName } = require('../utils/locationResolver');
-const { authMiddleware } = require('../middleware/authMiddleware');
+const { authMiddleware, requireAdmin } = require('../middleware/authMiddleware');
 const { alertLimiter } = require('../middleware/adaptiveRateLimiter');
 const { getPhoneVariants } = require('../utils/phoneUtils');
 
@@ -181,11 +182,11 @@ router.get('/locations/barangays', async (req, res) => {
   }
 });
 
-// GET /api/alerts/phone/:phone - Get alerts for a specific sender phone
-router.get('/phone/:phone', async (req, res) => {
+// GET /api/alerts/phone/:phone - Get alerts for a specific sender phone (authenticated)
+router.get('/phone/:phone', authMiddleware, async (req, res) => {
   try {
     const { phone } = req.params;
-    const reports = await Report.find({ senderPhone: phone })
+    const reports = await Report.find({ senderPhone: { $in: getPhoneVariants(phone) } })
       .sort({ createdAt: -1 })
       .lean();
     res.json(reports);
@@ -195,10 +196,36 @@ router.get('/phone/:phone', async (req, res) => {
   }
 });
 
-// POST /api/alerts -- create emergency alert from mobile app (no auth, rate limited)
+// POST /api/alerts -- create emergency alert from mobile app (rate limited, verifies blocked status)
 router.post('/', alertLimiter, async (req, res) => {
   try {
-    const { type, latitude, longitude, locationName, userId, userName, userPhone, senderPhone, clientRequestId } = req.body;
+    let { type, latitude, longitude, locationName, userId, userName, userPhone, senderPhone, clientRequestId } = req.body;
+
+    // Verify JWT if provided in Authorization header and enforce blocked user check
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const rawToken = authHeader.split(' ')[1];
+      if (rawToken && rawToken !== 'null' && rawToken !== 'undefined') {
+        try {
+          const payload = jwt.verify(rawToken, process.env.JWT_SECRET);
+          if (payload?.id) {
+            userId = String(payload.id);
+          }
+        } catch (_) {
+          // Continue with body userId if token expired during emergency, still checked against DB below
+        }
+      }
+    }
+
+    if (userId || userPhone || senderPhone) {
+      const lookupPhone = userPhone || senderPhone;
+      const senderUser = userId
+        ? await User.findById(userId).select('blocked name phone').lean()
+        : await User.findOne({ phone: { $in: getPhoneVariants(lookupPhone) } }).select('blocked name phone').lean();
+      if (senderUser?.blocked) {
+        return res.status(403).json({ message: 'Your account has been suspended by an administrator.' });
+      }
+    }
     const normalizedType = String(type || '').trim().toLowerCase();
     const OTHER_EMERGENCY_TYPES = new Set([
       'drowning',
@@ -823,7 +850,7 @@ router.post('/', alertLimiter, async (req, res) => {
 });
 
 // POST /api/alerts/analyze-priority - Groq AI prioritization of critical reports
-router.post('/analyze-priority', async (req, res) => {
+router.post('/analyze-priority', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { language = 'en' } = req.body;
     
@@ -886,8 +913,8 @@ router.post('/analyze-priority', async (req, res) => {
   }
 });
 
-// GET /api/alerts -- get all alerts/reports
-router.get('/', async (req, res) => {
+// GET /api/alerts -- get all alerts/reports (authenticated)
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const alerts = await Report.find()
       .populate('userId', 'name email')
@@ -1011,6 +1038,36 @@ router.get('/my-reports', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('❌ Get my reports error:', err);
     res.status(500).json({ success: false, message: 'Failed to load reports', error: err.message });
+  }
+});
+
+// DELETE /api/alerts/my-reports - Clear user's alert history (protected route)
+router.delete('/my-reports', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized - no user ID' });
+    }
+
+    const user = await User.findById(userId).lean();
+    const userPhone = user?.phone ? String(user.phone).replace(/\s|-/g, '').trim() : '';
+
+    const query = {
+      $or: [
+        { userId: String(userId) },
+        ...(userPhone ? [{ senderPhone: { $in: getPhoneVariants(userPhone) } }] : [])
+      ]
+    };
+
+    const result = await Report.deleteMany(query);
+    res.json({
+      success: true,
+      message: 'Alert history cleared successfully',
+      deletedCount: result.deletedCount,
+    });
+  } catch (err) {
+    console.error('❌ Clear my reports error:', err);
+    res.status(500).json({ success: false, message: 'Failed to clear alert history', error: err.message });
   }
 });
 

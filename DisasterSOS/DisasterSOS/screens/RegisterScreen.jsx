@@ -227,7 +227,7 @@ export default function RegisterScreen({ navigation }) {
         }
         if (data.user) {
           await AsyncStorage.setItem("userData", JSON.stringify(data.user));
-          await AsyncStorage.setItem("userPhone", data.user.phone || cleanPhone);
+          await AsyncStorage.setItem("userPhone", data.user.phone || fullPhone);
         }
 
         showAlert("Account Created", "Your account has been registered successfully! Taking you to the emergency dashboard...", false);

@@ -19,14 +19,17 @@ const groq = new Groq({
  */
 async function findDisasterKeywords(text) {
   try {
+    const escapeRegExp = (str = '') => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const searchTerms = text.toLowerCase().split(/\s+/).filter(t => t.length > 2);
+    const safeTerms = searchTerms.map(escapeRegExp);
+    if (safeTerms.length === 0) return [];
     
     const matches = await BilingualTerm.find({
       $or: [
         { keywords: { $in: searchTerms } },
-        { english: { $regex: searchTerms.join('|'), $options: 'i' } },
-        { bisaya: { $regex: searchTerms.join('|'), $options: 'i' } },
-        { tagalog: { $regex: searchTerms.join('|'), $options: 'i' } }
+        { english: { $regex: safeTerms.join('|'), $options: 'i' } },
+        { bisaya: { $regex: safeTerms.join('|'), $options: 'i' } },
+        { tagalog: { $regex: safeTerms.join('|'), $options: 'i' } }
       ]
     });
 
@@ -145,8 +148,8 @@ Priority 3: [Report ID] - [Reason] (Urgency: X/10)
 Overall: [One sentence strategic recommendation in chosen language]`;
 
     // Call Groq API
-    const message = await groq.messages.create({
-      model: 'mixtral-8x7b-32768',
+    const message = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
       max_tokens: 1024,
       messages: [
         {
@@ -157,7 +160,7 @@ Overall: [One sentence strategic recommendation in chosen language]`;
     });
 
     // Parse response
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    const responseText = message.choices?.[0]?.message?.content || '';
     
     // Extract priorities
     const lines = responseText.split('\n');
@@ -220,8 +223,8 @@ async function translateDisasterText(text, targetLanguage = 'en') {
   try {
     const sourceLanguage = targetLanguage === 'en' ? 'bisaya' : 'en';
     
-    const messages = await groq.messages.create({
-      model: 'mixtral-8x7b-32768',
+    const messages = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
       max_tokens: 512,
       messages: [
         {
@@ -240,7 +243,7 @@ Provide only the translation, no explanation.`
       original: text,
       sourceLanguage: sourceLanguage,
       targetLanguage: targetLanguage,
-      translation: messages.content[0].type === 'text' ? messages.content[0].text : '',
+      translation: (messages.choices?.[0]?.message?.content || '').trim(),
       timestamp: new Date().toISOString()
     };
   } catch (error) {

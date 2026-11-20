@@ -2733,15 +2733,15 @@ function AdminDashboard() {
                                   <button
                                     onClick={async () => {
                                       try {
-                                        // Fetch full report details from backend
-                                        const response = await fetch(`${API_BASE_URL}/reports`);
-                                        const result = await response.json();
-                                        const fullReport = result.data?.find(r => r._id === alert.id);
-                                        if (fullReport) {
-                                          console.log('[View Details] Full report fetched with senderPhone:', fullReport.senderPhone);
-                                          setSelectedReportForDetails(fullReport);
+                                        const alertId = alert._id || alert.id;
+                                        if (alertId) {
+                                          const res = await API.get(`/reports/${alertId}`);
+                                          if (res.data?.report) {
+                                            setSelectedReportForDetails(res.data.report);
+                                          } else {
+                                            setSelectedReportForDetails(alert);
+                                          }
                                         } else {
-                                          console.warn('[View Details] Report not found in list, using alert data');
                                           setSelectedReportForDetails(alert);
                                         }
                                         setShowReportDetailsModal(true);
@@ -6031,13 +6031,18 @@ function AdminDashboard() {
                                         onClick={async () => {
                                           setSelectedRescuerForDetails(rescuer);
                                           try {
-                                            const res = await API.get(`/rescue`);
-                                            // Filter rescues to only show ones where this rescuer was assigned
-                                            const rescuerRescues = (res.data || []).filter(r => {
-                                              // Handle string and ObjectId comparisons
-                                              const rescuerIdStr = rescuer._id?.toString();
-                                              const assignedIds = (r.assignedRescuers || []).map(id => id?.toString());
-                                              return assignedIds.includes(rescuerIdStr) || r.rescuerId?.toString() === rescuerIdStr;
+                                            const sourceReports = (allReports && allReports.length > 0) ? allReports : reports;
+                                            const rescuerIdStr = rescuer._id?.toString();
+                                            const rescuerTeamIdStr = rescuer.teamId?._id?.toString() || rescuer.teamId?.toString();
+                                            const rescuerRescues = (sourceReports || []).filter(r => {
+                                              const assignedToStr = r.assignedTo?._id?.toString() || r.assignedTo?.toString();
+                                              const assignedRescuerId = r.assignedRescuer?.rescuerId?.toString();
+                                              const assignedTeamStr = r.assignedTeam?._id?.toString() || r.assignedTeam?.toString();
+                                              const resolvedByStr = r.resolvedBy?._id?.toString() || r.resolvedBy?.toString();
+                                              return (
+                                                (rescuerIdStr && (assignedToStr === rescuerIdStr || assignedRescuerId === rescuerIdStr || resolvedByStr === rescuerIdStr)) ||
+                                                (rescuerTeamIdStr && assignedTeamStr === rescuerTeamIdStr)
+                                              );
                                             });
                                             console.log(`Found ${rescuerRescues.length} rescues for rescuer ${rescuer.name} (${rescuer._id})`);
                                             setRescuerRescueHistory(rescuerRescues);

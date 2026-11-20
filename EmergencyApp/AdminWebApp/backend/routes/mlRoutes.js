@@ -389,7 +389,7 @@ function getSeverityRecommendation(severity) {
 }
 
 // GET /api/ml/cache-stats - Get prediction cache performance stats
-router.get('/cache-stats', requireAdmin, async (req, res) => {
+router.get('/cache-stats', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const PredictionCache = require('../models/PredictionCache');
     const stats = await PredictionCache.getStats();
@@ -407,7 +407,7 @@ router.get('/cache-stats', requireAdmin, async (req, res) => {
 });
 
 // POST /api/ml/clear-cache - Clear prediction cache (admin only)
-router.post('/clear-cache', requireAdmin, async (req, res) => {
+router.post('/clear-cache', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const PredictionCache = require('../models/PredictionCache');
     const result = await PredictionCache.deleteMany({});

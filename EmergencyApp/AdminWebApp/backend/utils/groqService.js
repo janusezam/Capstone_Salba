@@ -87,11 +87,14 @@ RESPOND WITH EXACT JSON FORMAT (no markdown, just JSON):
 
     console.log('🤖 Groq Analysis Request - Analyzing', criticalReports.length, 'critical reports');
 
-    const message = await groq.messages.create({
-      model: 'mixtral-8x7b-32768',
+    const message = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
       max_tokens: 2000,
-      system: 'You are an expert emergency response coordinator. Your goal is to help emergency managers prioritize response to critical incidents. Return ONLY valid JSON, no markdown formatting.',
       messages: [
+        {
+          role: 'system',
+          content: 'You are an expert emergency response coordinator. Your goal is to help emergency managers prioritize response to critical incidents. Return ONLY valid JSON, no markdown formatting.'
+        },
         {
           role: 'user',
           content: prompt
@@ -100,7 +103,7 @@ RESPOND WITH EXACT JSON FORMAT (no markdown, just JSON):
     });
 
     // Extract response
-    let responseText = message.content[0].text;
+    let responseText = message.choices?.[0]?.message?.content || '';
     
     // Remove markdown code blocks if present
     responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
@@ -196,8 +199,8 @@ async function translateBisaya(text, targetLanguage = 'en') {
         ? `Translate this Bisaya/Cebuano/Filipino text to English. Return ONLY the translation, no explanation. Text: "${text}"`
         : `Translate this English text to natural Bisaya/Cebuano/Filipino. Return ONLY the translation, no explanation. Text: "${text}"`;
 
-    const message = await groq.messages.create({
-      model: 'mixtral-8x7b-32768',
+    const message = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
       max_tokens: 500,
       messages: [
         {
@@ -207,7 +210,7 @@ async function translateBisaya(text, targetLanguage = 'en') {
       ]
     });
 
-    return message.content[0].text.trim();
+    return (message.choices?.[0]?.message?.content || text).trim();
 
   } catch (error) {
     console.error('Translation error:', error.message);
@@ -261,11 +264,14 @@ RESPOND ONLY WITH EXACT JSON FORMAT (no markdown, just JSON):
 }
 `;
 
-    const message = await groq.messages.create({
-      model: 'mixtral-8x7b-32768',
+    const message = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
       max_tokens: 500,
-      system: 'You are an expert emergency response coordinator. Return ONLY valid JSON, no markdown formatting.',
       messages: [
+        {
+          role: 'system',
+          content: 'You are an expert emergency response coordinator. Return ONLY valid JSON, no markdown formatting.'
+        },
         {
           role: 'user',
           content: prompt
@@ -273,7 +279,7 @@ RESPOND ONLY WITH EXACT JSON FORMAT (no markdown, just JSON):
       ]
     });
 
-    let responseText = message.content[0].text;
+    let responseText = message.choices?.[0]?.message?.content || '';
     responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
     const analysisResult = JSON.parse(responseText.trim());
 

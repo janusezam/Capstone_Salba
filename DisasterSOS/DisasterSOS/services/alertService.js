@@ -6,22 +6,35 @@ console.log('Sending to:', `${BASE_URL}/api/alerts`);
 export const sendAlert = async (data) => {
   try {
     const token = await AsyncStorage.getItem("userToken");
+    const payload = {
+      ...data,
+      clientRequestId: data.clientRequestId || `sos-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+    };
     console.log('📱 [sendAlert] Data being sent:', {
-      type: data.type,
-      userName: data.userName,
-      userPhone: data.userPhone,
-      latitude: data.latitude,
-      longitude: data.longitude,
-      locationName: data.locationName,
+      type: payload.type,
+      userName: payload.userName,
+      userPhone: payload.userPhone,
+      latitude: payload.latitude,
+      longitude: payload.longitude,
+      locationName: payload.locationName,
+      clientRequestId: payload.clientRequestId,
     });
-    const response = await fetch(`${BASE_URL}/api/alerts`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    let response;
+    try {
+      response = await fetch(`${BASE_URL}/api/alerts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       throw new Error(`Failed to send alert: ${response.status}`);

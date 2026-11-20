@@ -12,6 +12,7 @@ const enhancedML = require('../utils/enhancedMLModel');
 const { resolveLocationName } = require('../utils/locationResolver');
 
 const router = express.Router();
+const escapeRegExp = (str = '') => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const toRadians = (deg) => (deg * Math.PI) / 180;
 
@@ -561,15 +562,16 @@ router.get('/export/csv', authMiddleware, requireAdmin, async (req, res) => {
     // Build filter object (same as list endpoint)
     const filter = {};
     if (severity && severity !== 'All') {
-      filter.severity = { $regex: new RegExp(`^${severity}$`, 'i') };
+      filter.severity = { $regex: new RegExp(`^${escapeRegExp(severity)}$`, 'i') };
     }
     if (status && status !== 'All') {
-      filter.status = { $regex: new RegExp(`^${status}$`, 'i') };
+      filter.status = { $regex: new RegExp(`^${escapeRegExp(status)}$`, 'i') };
     }
     if (search) {
+      const safeSearch = escapeRegExp(search);
       filter.$or = [
-        { note: { $regex: search, $options: 'i' } },
-        { 'mlPredictions.disasterType': { $regex: search, $options: 'i' } }
+        { note: { $regex: safeSearch, $options: 'i' } },
+        { 'mlPredictions.disasterType': { $regex: safeSearch, $options: 'i' } }
       ];
     }
     if (startDate || endDate) {
@@ -786,19 +788,20 @@ router.get('/', authMiddleware, requireAdmin, async (req, res) => {
 
     // Filter by severity (case-insensitive)
     if (severity && severity !== 'All') {
-      filter.severity = { $regex: new RegExp(`^${severity}$`, 'i') };
+      filter.severity = { $regex: new RegExp(`^${escapeRegExp(severity)}$`, 'i') };
     }
 
     // Filter by status (case-insensitive)
     if (status && status !== 'All') {
-      filter.status = { $regex: new RegExp(`^${status}$`, 'i') };
+      filter.status = { $regex: new RegExp(`^${escapeRegExp(status)}$`, 'i') };
     }
 
     // Search by note/description or disaster type
     if (search) {
+      const safeSearch = escapeRegExp(search);
       filter.$or = [
-        { note: { $regex: search, $options: 'i' } },
-        { 'mlPredictions.disasterType': { $regex: search, $options: 'i' } }
+        { note: { $regex: safeSearch, $options: 'i' } },
+        { 'mlPredictions.disasterType': { $regex: safeSearch, $options: 'i' } }
       ];
     }
 

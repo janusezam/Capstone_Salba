@@ -77,7 +77,7 @@ router.patch('/user-feedback/:feedbackId/read', authMiddleware, requireAdmin, as
 });
 
 // Submit feedback for a report's AI prediction
-router.post('/submit-feedback', authMiddleware, async (req, res) => {
+router.post('/submit-feedback', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { reportId, aiPrediction, adminCorrection, feedbackType, notes } = req.body;
     
@@ -127,7 +127,7 @@ router.post('/submit-feedback', authMiddleware, async (req, res) => {
 });
 
 // Confirm AI prediction is correct
-router.post('/confirm-prediction/:reportId', authMiddleware, async (req, res) => {
+router.post('/confirm-prediction/:reportId', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { reportId } = req.params;
     const { aiPrediction } = req.body;
@@ -163,7 +163,7 @@ router.post('/confirm-prediction/:reportId', authMiddleware, async (req, res) =>
 });
 
 // Get feedback history for a report
-router.get('/report-feedback/:reportId', async (req, res) => {
+router.get('/report-feedback/:reportId', authMiddleware, async (req, res) => {
   try {
     const feedback = await AIFeedback.find({ reportId: req.params.reportId })
       .populate('adminId', 'name email')
@@ -176,7 +176,7 @@ router.get('/report-feedback/:reportId', async (req, res) => {
 });
 
 // Get AI accuracy metrics
-router.get('/accuracy-metrics', async (req, res) => {
+router.get('/accuracy-metrics', authMiddleware, async (req, res) => {
   try {
     const allFeedback = await AIFeedback.find({});
     
@@ -224,7 +224,7 @@ router.get('/accuracy-metrics', async (req, res) => {
 });
 
 // Get feedback statistics
-router.get('/stats', async (req, res) => {
+router.get('/stats', authMiddleware, async (req, res) => {
   try {
     const stats = await AIFeedback.aggregate([
       {

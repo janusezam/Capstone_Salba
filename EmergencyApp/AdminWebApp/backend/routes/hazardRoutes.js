@@ -50,7 +50,8 @@ router.get('/zones/risk/:level', async (req, res) => {
 router.get('/zones/location/:location', async (req, res) => {
   try {
     const location = req.params.location.replace(/-/g, ' ');
-    const zone = await HazardZone.findOne({ location: new RegExp(location, 'i') });
+    const escapedLocation = String(location).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const zone = await HazardZone.findOne({ location: new RegExp(escapedLocation, 'i') });
     
     if (!zone) {
       return res.status(404).json({ 

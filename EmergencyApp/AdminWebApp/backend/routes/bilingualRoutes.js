@@ -1,6 +1,7 @@
 const express = require('express');
-const { authMiddleware } = require('../middleware/authMiddleware');
+const { authMiddleware, requireAdmin } = require('../middleware/authMiddleware');
 const BilingualTerm = require('../models/BilingualTerm');
+const escapeRegExp = (str = '') => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const { 
   analyzeCriticalReports, 
   translateDisasterText,
@@ -56,7 +57,7 @@ router.get('/terms/category/:category', async (req, res) => {
     const { category } = req.params;
     
     const terms = await BilingualTerm.find({ 
-      category: new RegExp(category, 'i') 
+      category: new RegExp(escapeRegExp(category), 'i') 
     }).sort({ urgencyScore: -1 });
     
     res.json({
@@ -130,7 +131,7 @@ router.post('/analyze-priority', authMiddleware, async (req, res) => {
     
     // Get critical reports (you'll need to adapt this to your Report model)
     const Report = require('../models/Report');
-    const criticalReports = await Report.find({ severity: 'CRITICAL' })
+    const criticalReports = await Report.find({ severity: 'critical' })
       .limit(10)
       .sort({ createdAt: -1 });
 
@@ -204,7 +205,7 @@ router.get('/stats', authMiddleware, async (req, res) => {
  * Update term urgency score (Admin only)
  * PATCH /api/bilingual/terms/:termId
  */
-router.patch('/terms/:termId', authMiddleware, async (req, res) => {
+router.patch('/terms/:termId', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { urgencyScore } = req.body;
     

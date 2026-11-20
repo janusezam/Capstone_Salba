@@ -457,7 +457,6 @@ def evaluate_report_fast():
         if cache_key in fast_prediction_cache:
             return jsonify(fast_prediction_cache[cache_key])
         
-        # Real synchronous evaluation (< 15ms), no fake thread timeouts or hardcoded 0.8 values
         result = evaluate_report_v2(data)
         
         response = {
@@ -469,6 +468,9 @@ def evaluate_report_fast():
             'overall': result['overall']
         }
         
+        if len(fast_prediction_cache) >= 1000:
+            oldest_key = next(iter(fast_prediction_cache))
+            fast_prediction_cache.pop(oldest_key, None)
         fast_prediction_cache[cache_key] = response
         return jsonify(response)
         

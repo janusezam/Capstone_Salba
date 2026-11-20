@@ -255,6 +255,10 @@ router.post('/login', authLimiter, async (req, res) => {
     if (!user)
       return res.status(401).json({ message: 'Invalid credentials' });
 
+    if (user.blocked) {
+      return res.status(403).json({ message: 'Your account has been suspended by an administrator.' });
+    }
+
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
       if (user.previousPassword) {
@@ -495,6 +499,10 @@ router.post('/forgot-password/verify-otp', authLimiter, async (req, res) => {
 
     if (record.expiresAt.getTime() < Date.now()) {
       return res.status(400).json({ message: 'OTP expired' });
+    }
+
+    if (record.attempts >= (record.maxAttempts || 5)) {
+      return res.status(429).json({ message: 'Too many failed OTP attempts. Please request a new code.' });
     }
 
     const isMatch = await bcrypt.compare(String(otp).trim(), record.otpHash);
@@ -1110,6 +1118,8 @@ router.post('/google-login', authLimiter, async (req, res) => {
         termsAcceptedAt: termsAcceptedAt ? new Date(termsAcceptedAt) : new Date(),
         termsVersion: termsVersion || '2026-04-09',
       });
+    } else if (user.blocked) {
+      return res.status(403).json({ message: 'Your account has been suspended by an administrator.' });
     }
 
     // Generate JWT token
@@ -1129,7 +1139,7 @@ router.post('/google-login', authLimiter, async (req, res) => {
 /* ==============================
    BLOCK/UNBLOCK USER (ADMIN ONLY)
   ============================== */
-router.patch('/:userId/block-status', async (req, res) => {
+router.patch('/:userId/block-status', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
     const { blocked } = req.body;
@@ -1159,10 +1169,14 @@ router.patch('/:userId/block-status', async (req, res) => {
 /* ==============================
    UPDATE RESCUER DUTY STATUS
   ============================== */
-router.patch('/:userId/duty-status', async (req, res) => {
+router.patch('/:userId/duty-status', authMiddleware, async (req, res) => {
   try {
     const { userId } = req.params;
     const { dutyStatus } = req.body;
+
+    if (req.user.role !== 'admin' && String(req.user.id) !== String(userId)) {
+      return res.status(403).json({ message: 'Forbidden: cannot modify another user\'s duty status' });
+    }
     
     if (!['on-duty', 'off-duty'].includes(dutyStatus)) {
       return res.status(400).json({ message: 'dutyStatus must be "on-duty" or "off-duty"' });
