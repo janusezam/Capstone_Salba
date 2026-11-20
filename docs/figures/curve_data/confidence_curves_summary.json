@@ -1,0 +1,149 @@
+{
+  "random_forest_type": {
+    "n_test": 9300,
+    "argmax_accuracy": 0.8404301075268817,
+    "argmax_macro_f1": 0.8635546081113553,
+    "argmax_weighted_f1": 0.837000681657179,
+    "curve_macro_best_f1": 0.8690165567643042,
+    "curve_macro_best_thresh": 0.495,
+    "curve_macro_prec_at_best": 0.9068204852037021,
+    "curve_macro_rec_at_best": 0.8614290906850215,
+    "curve_weighted_best_f1": 0.8372983564671074,
+    "curve_weighted_best_thresh": 0.43,
+    "per_class": {
+      "Earthquake": {
+        "support": 1982,
+        "best_f1": 0.9172525689561926,
+        "best_thresh": 0.33,
+        "prec_at_best_f1": 0.9883449883449883,
+        "rec_at_best_f1": 0.8557013118062563
+      },
+      "Fire": {
+        "support": 1182,
+        "best_f1": 0.9761092150170648,
+        "best_thresh": 0.48,
+        "prec_at_best_f1": 0.9845094664371773,
+        "rec_at_best_f1": 0.9678510998307953
+      },
+      "Flood": {
+        "support": 2584,
+        "best_f1": 0.743529411764706,
+        "best_thresh": 0.305,
+        "prec_at_best_f1": 0.9483793517406963,
+        "rec_at_best_f1": 0.6114551083591331
+      },
+      "Landslide": {
+        "support": 130,
+        "best_f1": 0.9166666666666667,
+        "best_thresh": 0.605,
+        "prec_at_best_f1": 0.9029850746268657,
+        "rec_at_best_f1": 0.9307692307692308
+      },
+      "Typhoon": {
+        "support": 3422,
+        "best_f1": 0.8241370622323002,
+        "best_thresh": 0.545,
+        "prec_at_best_f1": 0.7243135518157662,
+        "rec_at_best_f1": 0.9558737580362361
+      }
+    }
+  },
+  "xgboost_severity": {
+    "n_test": 12593,
+    "argmax_accuracy": 0.6164535853251807,
+    "argmax_macro_f1": 0.5919672353765519,
+    "argmax_weighted_f1": 0.6099380527812271,
+    "curve_macro_best_f1": 0.6097785644453442,
+    "curve_macro_best_thresh": 0.305,
+    "curve_macro_prec_at_best": 0.5561152517097933,
+    "curve_macro_rec_at_best": 0.7016707485933767,
+    "curve_weighted_best_f1": 0.6268581384992169,
+    "curve_weighted_best_thresh": 0.305,
+    "per_class": {
+      "Low": {
+        "support": 3649,
+        "best_f1": 0.6848584845792614,
+        "best_thresh": 0.255,
+        "prec_at_best_f1": 0.6378250591016549,
+        "rec_at_best_f1": 0.7393806522334886
+      },
+      "Moderate": {
+        "support": 4592,
+        "best_f1": 0.6828166700882776,
+        "best_thresh": 0.535,
+        "prec_at_best_f1": 0.6458252427184467,
+        "rec_at_best_f1": 0.7243031358885017
+      },
+      "High": {
+        "support": 3776,
+        "best_f1": 0.5926114002792942,
+        "best_thresh": 0.255,
+        "prec_at_best_f1": 0.5691294806144843,
+        "rec_at_best_f1": 0.618114406779661
+      },
+      "Critical": {
+        "support": 576,
+        "best_f1": 0.5487719298245615,
+        "best_thresh": 0.325,
+        "prec_at_best_f1": 0.46054181389870436,
+        "rec_at_best_f1": 0.6788194444444444
+      }
+    }
+  },
+  "logistic_regression_false_alarm": {
+    "n_test": 21404,
+    "argmax_accuracy": 0.7119697252849935,
+    "argmax_macro_f1": 0.6991581305393297,
+    "argmax_weighted_f1": 0.7224202971366183,
+    "curve_macro_best_f1": 0.7135969854306042,
+    "curve_macro_best_thresh": 0.33,
+    "curve_macro_prec_at_best": 0.6491260981775281,
+    "curve_macro_rec_at_best": 0.8505684719436452,
+    "curve_weighted_best_f1": 0.7610951197095529,
+    "curve_weighted_best_thresh": 0.24,
+    "per_class": {
+      "False Alarm (0)": {
+        "support": 6692,
+        "best_f1": 0.6502298927167321,
+        "best_thresh": 0.615,
+        "prec_at_best_f1": 0.5867708959711365,
+        "rec_at_best_f1": 0.7290794979079498
+      },
+      "Legitimate Emergency (1)": {
+        "support": 14712,
+        "best_f1": 0.8495347890103694,
+        "best_thresh": 0.19,
+        "prec_at_best_f1": 0.7879016793538265,
+        "rec_at_best_f1": 0.9216286025013595
+      }
+    }
+  },
+  "histgb_deployed_false_alarm": {
+    "n_test": 21404,
+    "argmax_accuracy": 0.7791534292655579,
+    "argmax_macro_f1": 0.7408700029000299,
+    "argmax_weighted_f1": 0.7781901778667898,
+    "curve_macro_best_f1": 0.7525979898525034,
+    "curve_macro_best_thresh": 0.35,
+    "curve_macro_prec_at_best": 0.6926539371097289,
+    "curve_macro_rec_at_best": 0.8250649773925967,
+    "curve_weighted_best_f1": 0.7897293943278905,
+    "curve_weighted_best_thresh": 0.35,
+    "per_class": {
+      "False Alarm (0)": {
+        "support": 6692,
+        "best_f1": 0.6544021024967147,
+        "best_thresh": 0.4,
+        "prec_at_best_f1": 0.6091154886056392,
+        "rec_at_best_f1": 0.7069635385534967
+      },
+      "Legitimate Emergency (1)": {
+        "support": 14712,
+        "best_f1": 0.8518565056229189,
+        "best_thresh": 0.325,
+        "prec_at_best_f1": 0.7919051512673753,
+        "rec_at_best_f1": 0.9216286025013595
+      }
+    }
+  }
+}

@@ -159,9 +159,21 @@ router.patch('/my-mission/status', authMiddleware, requireRescuer, async (req, r
       }
     } else if (status === 'resolved') {
       report.rescuerResolvedAt = now;
+      report.status = 'resolved';
+      report.resolvedBy = req.user.id;
+      report.resolvedAt = now;
       if (resolutionPhotoUrl) {
         report.resolutionPhotoUrl = resolutionPhotoUrl;
         console.log(`📷 [RESCUE] Resolution photo saved for report ${report._id}`);
+      }
+
+      // Free the assigned team so it immediately returns to 'available' for new dispatches
+      if (team?._id) {
+        await Team.findByIdAndUpdate(team._id, {
+          status: 'available',
+          currentMission: null,
+        });
+        console.log(`✓ [RESCUE] Team ${team.name} freed and marked available after rescuer resolution`);
       }
     }
 
@@ -213,6 +225,22 @@ router.patch('/my-mission/status', authMiddleware, requireRescuer, async (req, r
       });
       // Emit alert update to trigger list/dashboard refresh
       req.io.to('admins').emit('alert_updated', report);
+
+      if (status === 'resolved') {
+        req.io.to('admins').emit('report_resolved', {
+          reportId: report._id,
+          status: 'resolved',
+          resolvedBy: req.user.id,
+          resolvedAt: report.resolvedAt,
+        });
+        if (team?._id) {
+          req.io.to('admins').emit('team_available', {
+            teamId: team._id,
+            teamName: team.name,
+            status: 'available',
+          });
+        }
+      }
     }
 
     return res.json({

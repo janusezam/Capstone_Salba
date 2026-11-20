@@ -1,4 +1,6 @@
 // middleware/adaptiveRateLimiter.js
+const jwt = require('jsonwebtoken');
+
 /**
  * Adaptive Rate Limiter designed for Disaster & Mobile Environments.
  * Accounts for Carrier-Grade NAT (CGNAT) where hundreds of mobile devices share a single cell-tower IP.
@@ -17,12 +19,27 @@ class SlidingWindowLimiter {
     }
   }
 
+  _extractTokenUserId(req) {
+    const authHeader = req.headers?.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+    const rawToken = authHeader.split(' ')[1];
+    if (!rawToken || rawToken === 'null' || rawToken === 'undefined') return null;
+    try {
+      const decoded = jwt.decode(rawToken);
+      return decoded?.id ? String(decoded.id) : (decoded?._id ? String(decoded._id) : null);
+    } catch (_) {
+      return null;
+    }
+  }
+
   middleware(keyGenerator = null) {
     return (req, res, next) => {
-      // Default key strategy: User ID -> Phone -> Device Header -> IP
+      // Default key strategy: JWT User ID -> req.user -> Body User/Phone -> Device Header -> IP
       const key = keyGenerator
         ? keyGenerator(req)
-        : req.user?._id?.toString() ||
+        : req.user?.id?.toString() ||
+          req.user?._id?.toString() ||
+          this._extractTokenUserId(req) ||
           req.body?.userId ||
           req.body?.userPhone ||
           req.body?.senderPhone ||
@@ -67,19 +84,19 @@ class SlidingWindowLimiter {
 // Pre-configured rate limiters
 const alertLimiter = new SlidingWindowLimiter(
   60 * 1000, // 1 minute window
-  15,        // 15 SOS alerts per minute per user/device
+  30,        // 30 SOS alerts per minute per user/device (supports stress testing & emergency bursts)
   'Too many emergency alerts sent from this device. Please wait a moment.'
 );
 
 const generalApiLimiter = new SlidingWindowLimiter(
   15 * 60 * 1000, // 15 minutes window
-  500,            // 500 requests per 15 min per IP/User
+  3000,           // 3000 requests per 15 min per User/IP (supports dashboard polling + live tracking)
   'Too many requests. Please slow down.'
 );
 
 const authLimiter = new SlidingWindowLimiter(
   15 * 60 * 1000, // 15 minutes
-  30,             // 30 attempts per 15 minutes
+  60,             // 60 attempts per 15 minutes
   'Too many authentication attempts. Please try again in 15 minutes.'
 );
 

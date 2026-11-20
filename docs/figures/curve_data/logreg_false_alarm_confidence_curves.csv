@@ -1,0 +1,805 @@
+model,class_or_average,evaluation_type,support,confidence_threshold,precision,recall,f1_score
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.0,0.312652,1.0,0.476367
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.0,0.687348,1.0,0.814708
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.0,0.5,1.0,0.645537
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.0,0.570199,1.0,0.708925
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.005,0.315323,0.999402,0.479392
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.005,0.687751,0.999932,0.814969
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.005,0.501537,0.999667,0.64718
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.005,0.571311,0.999766,0.71005
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.01,0.317966,0.998655,0.482353
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.01,0.688835,0.999728,0.815661
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.01,0.5034,0.999192,0.649007
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.01,0.572882,0.999393,0.711452
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.015,0.320628,0.998057,0.48534
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.015,0.690005,0.999456,0.81639
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.015,0.505316,0.998757,0.650865
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.015,0.574518,0.999019,0.712886
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.02,0.323433,0.99746,0.488474
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.02,0.69128,0.999048,0.817146
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.02,0.507356,0.998254,0.65281
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.02,0.576272,0.998552,0.714386
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.025,0.325969,0.996563,0.491253
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.025,0.693136,0.997961,0.818075
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.025,0.509552,0.997262,0.654664
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.025,0.57834,0.997524,0.715894
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.03,0.328514,0.994919,0.493935
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.03,0.695355,0.997281,0.81939
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.03,0.511935,0.9961,0.656663
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.03,0.580662,0.996543,0.717636
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.035,0.330879,0.994023,0.496492
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.035,0.697417,0.996397,0.82052
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.035,0.514148,0.99521,0.658506
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.035,0.582818,0.995655,0.719212
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.04,0.333568,0.993276,0.499418
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.04,0.699947,0.995446,0.821945
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.04,0.516757,0.994361,0.660681
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.04,0.585398,0.994767,0.721106
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.045,0.335523,0.99208,0.501454
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.045,0.70231,0.994222,0.823152
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.045,0.518916,0.993151,0.662303
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.045,0.587633,0.993553,0.722573
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.05,0.337456,0.990735,0.503436
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.05,0.705436,0.993135,0.824921
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.05,0.521446,0.991935,0.664178
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.05,0.590387,0.992385,0.724408
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.055,0.339782,0.98939,0.505845
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.055,0.707699,0.992183,0.826136
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.055,0.523741,0.990787,0.66599
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.055,0.592669,0.99131,0.725996
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.06,0.34223,0.988643,0.508454
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.06,0.710026,0.99062,0.827175
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.06,0.526128,0.989632,0.667814
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.06,0.595034,0.990002,0.727526
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.065,0.344097,0.987298,0.510331
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.065,0.712494,0.988445,0.828085
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.065,0.528295,0.987872,0.669208
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.065,0.597314,0.988086,0.728739
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.07,0.346148,0.986252,0.512442
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.07,0.715405,0.986746,0.829448
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.07,0.530776,0.986499,0.670945
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.07,0.599956,0.986591,0.730336
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.075,0.348189,0.985356,0.514553
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.075,0.717888,0.985046,0.830511
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.075,0.533038,0.985201,0.672532
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.075,0.602301,0.985143,0.731726
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.08,0.350423,0.983562,0.516742
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.08,0.721388,0.983279,0.832216
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.08,0.535906,0.983421,0.674479
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.08,0.605405,0.983368,0.733583
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.085,0.352783,0.982068,0.519095
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.085,0.723684,0.981784,0.833204
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.085,0.538233,0.981926,0.676149
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.085,0.607721,0.981873,0.734997
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.09,0.354844,0.980275,0.521069
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.09,0.726411,0.979608,0.834221
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.09,0.540628,0.979942,0.677645
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.09,0.61024,0.979817,0.736313
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.095,0.356606,0.977735,0.522604
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.095,0.729134,0.977977,0.835419
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.095,0.54287,0.977856,0.679011
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.095,0.612662,0.977901,0.737617
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.1,0.35837,0.975344,0.524152
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.1,0.731998,0.976346,0.836697
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.1,0.545184,0.975845,0.680425
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.1,0.615183,0.976033,0.738979
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.105,0.360327,0.973401,0.525959
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.105,0.734711,0.974171,0.837663
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.105,0.547519,0.973786,0.681811
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.105,0.617659,0.97393,0.740208
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.11,0.3624,0.971907,0.527944
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.11,0.73839,0.972675,0.839493
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.11,0.550395,0.972291,0.683718
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.11,0.620836,0.972435,0.742087
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.115,0.364372,0.969516,0.529676
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.115,0.741438,0.969685,0.840338
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.115,0.552905,0.9696,0.685007
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.115,0.623547,0.969632,0.743209
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.12,0.366633,0.967424,0.531745
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.12,0.744567,0.96649,0.841137
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.12,0.5556,0.966957,0.686441
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.12,0.626405,0.966782,0.744405
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.125,0.368851,0.96578,0.533823
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.125,0.747591,0.964927,0.842468
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.125,0.558221,0.965353,0.688145
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.125,0.629177,0.965193,0.745969
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.13,0.370883,0.964286,0.535719
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.13,0.750889,0.961324,0.843175
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.13,0.560886,0.962805,0.689447
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.13,0.63208,0.96225,0.747048
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.135,0.372489,0.961447,0.53695
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.135,0.754282,0.957926,0.843993
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.135,0.563385,0.959686,0.690472
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.135,0.634913,0.959026,0.747996
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.14,0.374453,0.958906,0.538587
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.14,0.757888,0.955139,0.845157
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.14,0.56617,0.957022,0.691872
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.14,0.638006,0.956317,0.749307
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.145,0.376359,0.957262,0.540294
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.145,0.760821,0.952216,0.845826
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.145,0.56859,0.954739,0.69306
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.145,0.640618,0.953794,0.750301
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.15,0.37775,0.954423,0.541271
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.15,0.764348,0.948681,0.846597
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.15,0.571049,0.951552,0.693934
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.15,0.643478,0.950477,0.751136
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.155,0.380004,0.951883,0.543168
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.155,0.767813,0.945623,0.847492
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.155,0.573908,0.948753,0.69533
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.155,0.646564,0.94758,0.752344
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.16,0.381851,0.949492,0.54466
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.16,0.770486,0.943312,0.848185
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.16,0.576169,0.946402,0.696422
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.16,0.648979,0.945244,0.753287
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.165,0.38408,0.948147,0.5467
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.165,0.773198,0.939641,0.848332
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.165,0.578639,0.943894,0.697516
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.165,0.651539,0.942301,0.754026
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.17,0.386073,0.946952,0.548516
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.17,0.776125,0.936446,0.848782
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.17,0.581099,0.941699,0.698649
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.17,0.654175,0.939731,0.754903
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.175,0.388172,0.944561,0.550226
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.175,0.779641,0.932368,0.849192
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.175,0.583907,0.938464,0.699709
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.175,0.657247,0.93618,0.75572
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.18,0.389781,0.942767,0.551534
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.18,0.78236,0.928494,0.849186
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.18,0.58607,0.935631,0.70036
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.18,0.659619,0.932956,0.756124
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.185,0.392295,0.941871,0.553891
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.185,0.785376,0.925027,0.849501
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.185,0.588836,0.933449,0.701696
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.185,0.662479,0.930293,0.757078
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.19,0.394887,0.93948,0.556052
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.19,0.787902,0.921629,0.849535
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.19,0.591394,0.930554,0.702793
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.19,0.665025,0.92721,0.757777
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.195,0.396574,0.937388,0.557352
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.195,0.790383,0.917278,0.849116
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.195,0.593478,0.927333,0.703234
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.195,0.667258,0.923566,0.757896
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.2,0.398791,0.936192,0.559325
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.2,0.793201,0.91354,0.849128
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.2,0.595996,0.924866,0.704227
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.2,0.669888,0.920622,0.758521
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.205,0.40032,0.933802,0.560398
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.205,0.795812,0.90919,0.848731
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.205,0.598066,0.921496,0.704565
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.205,0.67216,0.916885,0.758583
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.21,0.40192,0.932008,0.561639
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.21,0.79831,0.905587,0.848572
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.21,0.600115,0.918798,0.705105
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.21,0.674378,0.913848,0.758862
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.215,0.40409,0.930215,0.563425
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.215,0.801244,0.901509,0.848425
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.215,0.602667,0.915862,0.705925
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.215,0.677073,0.910484,0.759319
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.22,0.406105,0.928422,0.565049
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.22,0.803579,0.897363,0.847885
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.22,0.604842,0.912892,0.706467
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.22,0.679308,0.907073,0.759456
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.225,0.408471,0.926629,0.567
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.225,0.80664,0.893488,0.847846
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.225,0.607555,0.910059,0.707423
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.225,0.682152,0.90385,0.760039
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.23,0.41029,0.924686,0.568384
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.23,0.808664,0.88941,0.847117
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.23,0.609477,0.907048,0.707751
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.23,0.684112,0.900439,0.759971
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.235,0.412605,0.923491,0.570374
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.235,0.811807,0.886079,0.847319
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.235,0.612206,0.904785,0.708846
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.235,0.686996,0.897776,0.760731
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.24,0.414695,0.921847,0.572051
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.24,0.81448,0.882409,0.847085
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.24,0.614588,0.902128,0.709568
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.24,0.689487,0.894739,0.761095
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.245,0.41612,0.919605,0.572971
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.245,0.81631,0.878399,0.846217
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.245,0.616215,0.899002,0.709594
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.245,0.69119,0.891282,0.760786
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.25,0.418364,0.917812,0.574744
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.25,0.818355,0.87398,0.845254
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.25,0.61836,0.895896,0.709999
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.25,0.693297,0.887685,0.760678
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.255,0.42006,0.915571,0.5759
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.255,0.821009,0.870174,0.844877
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.255,0.620535,0.892872,0.710389
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.255,0.695652,0.884367,0.760781
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.26,0.422285,0.913479,0.57757
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.26,0.822869,0.866775,0.844252
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.26,0.622577,0.890127,0.710911
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.26,0.697626,0.881377,0.760873
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.265,0.424171,0.911536,0.57894
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.265,0.82488,0.862221,0.843137
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.265,0.624525,0.886879,0.711039
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.265,0.699597,0.87764,0.760535
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.27,0.426083,0.910042,0.580415
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.27,0.826431,0.858619,0.842218
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.27,0.626257,0.88433,0.711316
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.27,0.701261,0.874696,0.760364
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.275,0.428551,0.908846,0.582455
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.275,0.828481,0.854948,0.841507
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.275,0.628516,0.881897,0.711981
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.275,0.703442,0.8718,0.760514
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.28,0.430812,0.907203,0.584199
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.28,0.830269,0.85019,0.840111
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.28,0.63054,0.878696,0.712155
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.28,0.705378,0.868015,0.7601
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.285,0.432755,0.905409,0.585609
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.285,0.832553,0.846248,0.839345
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.285,0.632654,0.875829,0.712477
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.285,0.707555,0.864745,0.760014
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.29,0.435226,0.904662,0.58771
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.29,0.834601,0.842713,0.838638
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.29,0.634914,0.873688,0.713174
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.29,0.709736,0.862082,0.760185
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.295,0.437084,0.902122,0.588861
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.295,0.836192,0.838295,0.837242
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.295,0.636638,0.870209,0.713052
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.295,0.71141,0.858251,0.759585
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.3,0.439012,0.900329,0.590223
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.3,0.838183,0.834081,0.836127
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.3,0.638598,0.867205,0.713175
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.3,0.713381,0.854793,0.759245
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.305,0.44134,0.899432,0.59213
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.305,0.839813,0.829595,0.834673
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.305,0.640577,0.864514,0.713401
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.305,0.71523,0.85143,0.758841
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.31,0.443108,0.89734,0.593262
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.31,0.8408,0.825313,0.832985
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.31,0.641954,0.861326,0.713123
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.31,0.716461,0.847832,0.758035
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.315,0.445245,0.896145,0.594911
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.315,0.842267,0.82137,0.831687
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.315,0.643756,0.858757,0.713299
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.315,0.718137,0.844749,0.757659
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.32,0.447435,0.894202,0.596432
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.32,0.843616,0.816952,0.83007
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.32,0.645526,0.855577,0.713251
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.32,0.71975,0.841104,0.757023
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.325,0.449654,0.892857,0.598098
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.325,0.845431,0.813078,0.828939
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.325,0.647542,0.852967,0.713518
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.325,0.72169,0.838021,0.756766
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.33,0.451601,0.891662,0.599548
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.33,0.846652,0.809475,0.827646
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.33,0.649126,0.850568,0.713597
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.33,0.723138,0.835171,0.756331
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.335,0.453148,0.88957,0.600434
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.335,0.847839,0.805193,0.825966
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.335,0.650493,0.847381,0.7132
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.335,0.724438,0.831574,0.755453
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.34,0.455367,0.888075,0.602036
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.34,0.849474,0.801319,0.824694
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.34,0.652421,0.844697,0.713365
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.34,0.726256,0.828443,0.75508
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.345,0.457436,0.885684,0.603288
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.345,0.850518,0.797852,0.823344
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.345,0.653977,0.841768,0.713316
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.345,0.72762,0.825313,0.754543
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.35,0.459132,0.883891,0.604342
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.35,0.852722,0.794182,0.822411
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.35,0.655927,0.839036,0.713377
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.35,0.729666,0.822229,0.754232
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.355,0.461466,0.882247,0.605974
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.355,0.853952,0.790103,0.820788
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.355,0.657709,0.836175,0.713381
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.355,0.731241,0.818912,0.753626
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.36,0.463476,0.879857,0.607135
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.36,0.854959,0.786909,0.819524
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.36,0.659218,0.833383,0.71333
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.36,0.732561,0.815969,0.75312
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.365,0.465579,0.878213,0.608543
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.365,0.856092,0.78283,0.817824
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.365,0.660835,0.830522,0.713183
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.365,0.733997,0.812652,0.752391
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.37,0.467326,0.875224,0.609311
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.37,0.857111,0.778344,0.815831
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.37,0.662219,0.826784,0.712571
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.37,0.735244,0.808634,0.751262
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.375,0.469091,0.873132,0.610299
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.375,0.858188,0.773722,0.813769
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.375,0.663639,0.823427,0.712034
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.375,0.736536,0.804803,0.750154
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.38,0.470755,0.870741,0.611117
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.38,0.859964,0.769712,0.812339
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.38,0.665359,0.820226,0.711728
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.38,0.738277,0.801299,0.749426
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.385,0.472046,0.868051,0.611538
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.385,0.861487,0.766449,0.811194
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.385,0.666766,0.81725,0.711366
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.385,0.739727,0.798215,0.748771
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.39,0.473671,0.86566,0.612303
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.39,0.862716,0.762031,0.809254
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.39,0.668194,0.813846,0.710779
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.39,0.741081,0.794431,0.747677
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.395,0.476206,0.864316,0.614078
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.395,0.863929,0.757817,0.807401
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.395,0.670067,0.811066,0.71074
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.395,0.742707,0.791114,0.746958
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.4,0.477868,0.861476,0.614737
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.4,0.864544,0.753127,0.804999
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.4,0.671206,0.807302,0.709868
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.4,0.743649,0.787002,0.745513
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.405,0.480458,0.859683,0.616415
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.405,0.865986,0.74932,0.80344
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.405,0.673222,0.804502,0.709927
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.405,0.74545,0.783825,0.744966
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.41,0.482541,0.856993,0.61743
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.41,0.867574,0.745446,0.801886
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.41,0.675057,0.80122,0.709658
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.41,0.747193,0.780321,0.744216
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.415,0.484489,0.854154,0.61828
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.415,0.868886,0.741436,0.800117
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.415,0.676688,0.797795,0.709199
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.415,0.748704,0.776677,0.743266
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.42,0.487401,0.85266,0.620251
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.42,0.869879,0.737493,0.798234
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.42,0.67864,0.795077,0.709243
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.42,0.750296,0.7735,0.742588
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.425,0.489503,0.85012,0.621273
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.425,0.871294,0.733007,0.79619
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.425,0.680398,0.791563,0.708732
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.425,0.751926,0.769623,0.741502
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.43,0.492059,0.84728,0.622564
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.43,0.87191,0.728725,0.793913
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.43,0.681984,0.788003,0.708238
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.43,0.753149,0.765791,0.74034
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.435,0.494794,0.845039,0.624138
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.435,0.872858,0.723763,0.791349
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.435,0.683826,0.784401,0.707744
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.435,0.754656,0.76168,0.73907
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.44,0.496305,0.843096,0.624806
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.44,0.873987,0.718461,0.788629
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.44,0.685146,0.780779,0.706718
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.44,0.755904,0.757429,0.73741
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.445,0.498273,0.840855,0.625744
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.445,0.875031,0.714383,0.786588
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.445,0.686652,0.777619,0.706166
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.445,0.757237,0.753925,0.7363
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.45,0.500804,0.838016,0.626942
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.45,0.875544,0.710576,0.784481
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.45,0.688174,0.774296,0.705712
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.45,0.758381,0.75042,0.735227
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.455,0.502835,0.834877,0.627647
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.455,0.877023,0.707246,0.783037
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.455,0.689929,0.771062,0.705342
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.455,0.760032,0.74715,0.734454
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.46,0.505173,0.831739,0.628571
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.46,0.878345,0.70276,0.780803
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.46,0.691759,0.76725,0.704687
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.46,0.761672,0.743085,0.733207
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.465,0.507261,0.829946,0.62967
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.465,0.879346,0.698002,0.778249
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.465,0.693303,0.763974,0.703959
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.465,0.763013,0.739254,0.731796
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.47,0.509901,0.827256,0.630919
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.47,0.879583,0.693108,0.77529
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.47,0.694742,0.760182,0.703105
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.47,0.764001,0.73505,0.730152
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.475,0.512918,0.824716,0.632478
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.475,0.880361,0.689233,0.773161
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.475,0.69664,0.756975,0.702819
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.475,0.765479,0.731592,0.729176
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.48,0.516068,0.820681,0.633668
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.48,0.880898,0.685223,0.770837
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.48,0.698483,0.752952,0.702252
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.48,0.766834,0.727574,0.727951
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.485,0.519028,0.817244,0.63486
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.485,0.881985,0.681213,0.768706
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.485,0.700507,0.749229,0.701783
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.485,0.768506,0.723743,0.726859
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.49,0.520674,0.812911,0.634772
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.49,0.882953,0.676319,0.765944
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.49,0.701814,0.744615,0.700358
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.49,0.769686,0.719024,0.724933
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.495,0.523341,0.810819,0.636108
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.495,0.883729,0.672648,0.763875
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.495,0.703535,0.741734,0.699991
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.495,0.771053,0.715848,0.723928
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.5,0.525595,0.808577,0.637075
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.5,0.884688,0.668026,0.761241
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.5,0.705142,0.738302,0.699158
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.5,0.772417,0.71197,0.72242
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.505,0.528121,0.805439,0.637945
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.505,0.885285,0.664084,0.758894
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.505,0.706703,0.734762,0.69842
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.505,0.773617,0.708279,0.721079
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.51,0.530143,0.802899,0.638617
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.51,0.885725,0.659598,0.756117
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.51,0.707934,0.731248,0.697367
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.51,0.774551,0.704401,0.71938
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.515,0.532915,0.799611,0.639574
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.515,0.887457,0.655519,0.754056
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.515,0.710186,0.727565,0.696815
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.515,0.776609,0.70057,0.718263
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.52,0.53504,0.796324,0.640043
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.52,0.888497,0.649946,0.750726
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.52,0.711768,0.723135,0.695385
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.52,0.777988,0.695711,0.716121
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.525,0.537528,0.794082,0.641091
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.525,0.889797,0.64376,0.747042
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.525,0.713662,0.718921,0.694066
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.525,0.779659,0.690759,0.713916
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.53,0.539802,0.791393,0.641823
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.53,0.890395,0.638322,0.743577
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.53,0.715099,0.714858,0.6927
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.53,0.780782,0.68618,0.711763
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.535,0.543183,0.78945,0.643562
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.535,0.891153,0.633293,0.740414
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.535,0.717168,0.711371,0.691988
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.535,0.782359,0.682115,0.710133
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.54,0.54604,0.786013,0.64441
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.54,0.891585,0.629418,0.737907
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.54,0.718812,0.707716,0.691159
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.54,0.783549,0.678378,0.708675
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.545,0.548532,0.781978,0.644776
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.545,0.892645,0.624524,0.734893
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.545,0.720589,0.703251,0.689834
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.545,0.785058,0.673753,0.706718
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.55,0.550085,0.777944,0.644466
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.55,0.893788,0.620038,0.732161
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.55,0.721936,0.698991,0.688314
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.55,0.786328,0.669408,0.704743
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.555,0.552646,0.775702,0.645446
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.555,0.894669,0.614872,0.72884
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.555,0.723657,0.695287,0.687143
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.555,0.787735,0.665156,0.702767
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.56,0.555102,0.772265,0.645919
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.56,0.895377,0.610794,0.7262
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.56,0.725239,0.69153,0.68606
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.56,0.788989,0.661278,0.7011
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.565,0.558501,0.768231,0.646789
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.565,0.89604,0.607531,0.724106
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.565,0.72727,0.687881,0.685447
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.565,0.790508,0.657774,0.699932
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.57,0.561814,0.764644,0.647722
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.57,0.896569,0.602162,0.720449
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.57,0.729191,0.683403,0.684085
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.57,0.791907,0.652962,0.697711
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.575,0.564861,0.761955,0.648769
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.575,0.897465,0.596724,0.716829
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.575,0.731163,0.679339,0.682799
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.575,0.793476,0.648383,0.69555
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.58,0.567574,0.757472,0.648915
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.58,0.898319,0.592102,0.713753
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.58,0.732946,0.674787,0.681334
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.58,0.794911,0.643805,0.693481
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.585,0.570169,0.754035,0.649337
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.585,0.898397,0.586596,0.709762
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.585,0.734283,0.670315,0.67955
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.585,0.795776,0.638946,0.69087
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.59,0.572635,0.749851,0.649369
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.59,0.899464,0.581974,0.706698
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.59,0.73605,0.665912,0.678034
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.59,0.79728,0.634461,0.688774
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.595,0.574821,0.745069,0.648965
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.595,0.900424,0.577148,0.703421
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.595,0.737623,0.661108,0.676193
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.595,0.798624,0.629649,0.686396
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.6,0.577084,0.740586,0.648691
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.6,0.900749,0.571846,0.699568
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.6,0.738917,0.656216,0.674129
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.6,0.799555,0.624603,0.683661
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.605,0.580774,0.737597,0.649858
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.605,0.901923,0.567564,0.696704
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.605,0.741348,0.652581,0.673281
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.605,0.801515,0.620725,0.682058
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.61,0.58366,0.733413,0.650023
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.61,0.902006,0.562466,0.692874
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.61,0.742833,0.64794,0.671449
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.61,0.802474,0.615913,0.679477
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.615,0.586771,0.729079,0.65023
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.615,0.902946,0.558388,0.690046
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.615,0.744858,0.643734,0.670138
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.615,0.804093,0.611755,0.677598
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.62,0.588635,0.724447,0.649518
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.62,0.904166,0.554717,0.68759
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.62,0.746401,0.639582,0.668554
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.62,0.805515,0.607784,0.675686
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.625,0.591032,0.718918,0.648732
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.625,0.905118,0.550503,0.684615
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.625,0.748075,0.634711,0.666674
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.625,0.806919,0.603158,0.673397
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.63,0.594605,0.714734,0.649159
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.63,0.905873,0.546221,0.681508
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.63,0.750239,0.630477,0.665333
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.63,0.808554,0.598907,0.671394
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.635,0.598164,0.710699,0.649594
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.635,0.907186,0.541463,0.678159
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.635,0.752675,0.626081,0.663877
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.635,0.81057,0.594375,0.669228
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.64,0.601297,0.706515,0.649674
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.64,0.907586,0.536705,0.674526
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.64,0.754442,0.62161,0.6621
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.64,0.811824,0.589796,0.666756
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.645,0.603696,0.702929,0.649544
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.645,0.908479,0.531675,0.670783
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.645,0.756087,0.617302,0.660164
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.645,0.813188,0.585218,0.664143
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.65,0.606855,0.698446,0.649437
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.65,0.908814,0.526373,0.666638
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.65,0.757834,0.612409,0.658038
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.65,0.814406,0.580172,0.66126
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.655,0.608839,0.691721,0.647639
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.655,0.909435,0.522159,0.663414
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.655,0.759137,0.60694,0.655526
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.655,0.815453,0.575173,0.658482
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.66,0.611613,0.687836,0.647489
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.66,0.910332,0.516857,0.659354
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.66,0.760972,0.602347,0.653422
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.66,0.816937,0.570314,0.655644
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.665,0.61437,0.682307,0.646559
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.665,0.910608,0.511691,0.655207
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.665,0.762489,0.596999,0.650883
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.665,0.817989,0.565035,0.652503
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.67,0.618016,0.677675,0.646472
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.67,0.911488,0.507477,0.651967
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.67,0.764752,0.592576,0.649219
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.67,0.819734,0.56069,0.650249
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.675,0.620951,0.673192,0.646017
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.675,0.911656,0.502923,0.648239
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.675,0.766304,0.588057,0.647128
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.675,0.820767,0.556158,0.647544
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.68,0.623725,0.667065,0.644667
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.68,0.911831,0.497689,0.643919
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.68,0.767778,0.582377,0.644293
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.68,0.821754,0.550645,0.644153
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.685,0.627604,0.661835,0.644265
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.685,0.912413,0.492115,0.639378
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.685,0.770009,0.576975,0.641822
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.685,0.823367,0.545178,0.640906
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.69,0.630906,0.656455,0.643427
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.69,0.912506,0.487017,0.635082
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.69,0.771706,0.571736,0.639255
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.69,0.824464,0.539993,0.637691
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.695,0.635133,0.652122,0.643515
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.695,0.91334,0.482123,0.631106
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.695,0.774237,0.567123,0.637311
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.695,0.826358,0.535274,0.634986
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.7,0.639119,0.645995,0.642539
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.7,0.913151,0.476686,0.626384
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.7,0.776135,0.56134,0.634462
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.7,0.827474,0.529621,0.631435
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.705,0.642524,0.638972,0.640743
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.705,0.913725,0.47152,0.622041
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.705,0.778125,0.555246,0.631392
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.705,0.828934,0.523874,0.627888
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.71,0.646664,0.632845,0.63968
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.71,0.914865,0.466014,0.617491
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.71,0.780764,0.54943,0.628585
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.71,0.831011,0.518174,0.624428
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.715,0.649302,0.625822,0.637346
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.715,0.914494,0.460169,0.612254
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.715,0.781898,0.542995,0.6248
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.715,0.831581,0.51196,0.620099
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.72,0.652311,0.617902,0.63464
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.72,0.915071,0.454799,0.60761
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.72,0.783691,0.53635,0.621125
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.72,0.832919,0.505793,0.616061
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.725,0.657023,0.610879,0.633111
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.725,0.915419,0.448749,0.602262
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.725,0.786221,0.529814,0.617687
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.725,0.834631,0.499439,0.611907
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.73,0.660075,0.603556,0.630552
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.73,0.915342,0.442428,0.596527
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.73,0.787709,0.522992,0.613539
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.73,0.835533,0.492805,0.607165
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.735,0.663624,0.597579,0.628872
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.735,0.915706,0.437126,0.591764
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.735,0.789665,0.517353,0.610318
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.735,0.836892,0.487292,0.603366
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.74,0.66819,0.589809,0.626558
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.74,0.916426,0.431552,0.586784
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.74,0.792308,0.510681,0.606671
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.74,0.838815,0.481032,0.599219
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.745,0.671313,0.582935,0.62401
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.745,0.917131,0.425027,0.580864
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.745,0.794222,0.503981,0.602437
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.745,0.840276,0.474397,0.594354
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.75,0.67428,0.573521,0.619832
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.75,0.918191,0.419589,0.575974
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.75,0.796235,0.496555,0.597903
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.75,0.841932,0.467716,0.589686
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.755,0.678988,0.565451,0.61704
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.755,0.91867,0.413064,0.569888
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.755,0.798829,0.489258,0.593464
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.755,0.843733,0.460708,0.58463
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.76,0.68344,0.558129,0.614461
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.76,0.919884,0.40817,0.565443
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.76,0.801662,0.48315,0.589952
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.76,0.845959,0.455055,0.580768
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.765,0.686495,0.548416,0.609736
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.765,0.920324,0.401985,0.559561
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.765,0.803409,0.4752,0.584648
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.765,0.847217,0.447767,0.575248
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.77,0.688493,0.537358,0.603609
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.77,0.920278,0.395459,0.5532
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.77,0.804386,0.466409,0.578404
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.77,0.84781,0.439824,0.56896
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.775,0.693226,0.529139,0.600169
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.775,0.921099,0.389614,0.5476
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.775,0.807163,0.459377,0.573885
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.775,0.849854,0.433237,0.564036
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.78,0.696482,0.517782,0.593983
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.78,0.92154,0.382409,0.54052
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.78,0.809011,0.450096,0.567251
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.78,0.851175,0.424734,0.557235
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.785,0.701299,0.508368,0.589448
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.785,0.922154,0.37602,0.534209
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.785,0.811726,0.442194,0.561829
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.785,0.853103,0.417399,0.55148
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.79,0.705408,0.497011,0.583151
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.79,0.922698,0.369154,0.527333
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.79,0.814053,0.433083,0.555242
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.79,0.854762,0.409129,0.544784
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.795,0.709312,0.487149,0.577605
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.795,0.923542,0.363717,0.521896
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.795,0.816427,0.425433,0.54975
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.795,0.856562,0.402308,0.539313
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.8,0.714798,0.47639,0.571736
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.8,0.925009,0.358007,0.516221
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.8,0.819903,0.417198,0.543978
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.8,0.859286,0.39502,0.533578
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.805,0.718938,0.465182,0.56487
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.805,0.924991,0.35121,0.509114
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.805,0.821964,0.408196,0.536992
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.805,0.860568,0.386844,0.526546
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.81,0.725149,0.454573,0.558832
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.81,0.926135,0.34516,0.502897
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.81,0.825642,0.399867,0.530864
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.81,0.863297,0.379368,0.520385
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.815,0.729392,0.444262,0.552192
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.815,0.927113,0.336324,0.493591
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.815,0.828252,0.390293,0.522891
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.815,0.865295,0.370071,0.511912
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.82,0.733266,0.432158,0.543813
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.82,0.9266,0.328643,0.485198
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.82,0.829933,0.380401,0.514506
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.82,0.866154,0.361007,0.503524
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.825,0.738845,0.420652,0.536088
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.825,0.927539,0.322798,0.478923
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.825,0.833192,0.371725,0.507506
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.825,0.868544,0.353392,0.496796
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.83,0.744046,0.406157,0.525471
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.83,0.928858,0.315049,0.470511
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.83,0.836452,0.360603,0.497991
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.83,0.871076,0.343534,0.487694
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.835,0.748085,0.394053,0.516198
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.835,0.928952,0.308388,0.463054
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.835,0.838518,0.35122,0.489626
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.835,0.872403,0.335171,0.47967
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.84,0.754127,0.382247,0.507338
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.84,0.929051,0.300843,0.454508
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.84,0.841589,0.341545,0.480923
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.84,0.874361,0.326294,0.471026
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.845,0.756469,0.371339,0.498146
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.845,0.930618,0.29357,0.446339
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.845,0.843544,0.332454,0.472242
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.845,0.87617,0.317885,0.462537
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.85,0.75986,0.356993,0.485767
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.85,0.932162,0.284869,0.436381
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.85,0.846011,0.320931,0.461074
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.85,0.878291,0.307419,0.451821
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.855,0.764962,0.341901,0.472581
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.855,0.934748,0.27848,0.429118
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.855,0.849855,0.31019,0.450849
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.855,0.881664,0.298309,0.442706
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.86,0.769473,0.329199,0.46112
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.86,0.935552,0.271343,0.420675
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.86,0.852512,0.300271,0.440898
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.86,0.883627,0.289432,0.43332
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.865,0.772426,0.313957,0.446451
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.865,0.937545,0.263254,0.411081
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.865,0.854986,0.288606,0.428766
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.865,0.885921,0.279107,0.42214
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.87,0.778513,0.298864,0.431919
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.87,0.940325,0.255982,0.402415
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.87,0.859419,0.277423,0.417167
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.87,0.889734,0.269389,0.411639
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.875,0.786335,0.283772,0.417042
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.875,0.94101,0.248301,0.392922
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.875,0.863673,0.266036,0.404982
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.875,0.892651,0.259391,0.400463
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.88,0.786303,0.27107,0.403156
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.88,0.941805,0.239804,0.382273
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.88,0.864054,0.255437,0.392715
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.88,0.893187,0.24958,0.388802
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.885,0.793805,0.256575,0.387804
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.885,0.943302,0.230696,0.370726
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.885,0.868553,0.243636,0.379265
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.885,0.896561,0.238787,0.376066
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.89,0.801383,0.242379,0.372189
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.89,0.945618,0.2222,0.359844
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.89,0.8735,0.232289,0.366016
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.89,0.900523,0.228509,0.363703
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.895,0.799684,0.226689,0.353243
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.895,0.946482,0.213975,0.349041
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.895,0.873083,0.220332,0.351142
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.895,0.900585,0.21795,0.350355
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.9,0.804604,0.214136,0.338251
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.9,0.948292,0.205682,0.338044
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.9,0.876448,0.209909,0.338147
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.9,0.903368,0.208326,0.338109
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.905,0.806104,0.201285,0.322133
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.905,0.951243,0.197594,0.327217
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.905,0.878674,0.199439,0.324675
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.905,0.905865,0.198748,0.325628
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.91,0.808184,0.188882,0.306202
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.91,0.954748,0.189301,0.315957
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.91,0.881466,0.189092,0.311079
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.91,0.908925,0.18917,0.312907
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.915,0.814533,0.175882,0.289296
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.915,0.956757,0.180465,0.303654
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.915,0.885645,0.178173,0.296475
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.915,0.91229,0.179032,0.299165
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.92,0.817913,0.165123,0.274773
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.92,0.958031,0.170677,0.289736
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.92,0.887972,0.1679,0.282255
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.92,0.914223,0.16894,0.285058
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.925,0.819228,0.148984,0.252118
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.925,0.96026,0.160957,0.275701
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.925,0.889744,0.15497,0.26391
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.925,0.916166,0.157214,0.268328
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.93,0.82464,0.137029,0.235008
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.93,0.960633,0.152597,0.263359
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.93,0.892637,0.144813,0.249183
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.93,0.918115,0.147729,0.254495
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.935,0.828974,0.123132,0.214416
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.935,0.961416,0.143964,0.250429
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.935,0.895195,0.133548,0.232422
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.935,0.920008,0.137451,0.239169
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.94,0.842825,0.11058,0.195509
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.94,0.96332,0.135672,0.237846
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.94,0.903073,0.123126,0.216677
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.94,0.925647,0.127827,0.224609
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.945,0.852185,0.099074,0.17751
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.945,0.962982,0.125544,0.222129
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.945,0.907584,0.112309,0.199819
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.945,0.928341,0.117268,0.208179
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.95,0.854046,0.088314,0.160076
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.95,0.964713,0.115212,0.205841
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.95,0.909379,0.101763,0.182959
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.95,0.930113,0.106802,0.191533
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.955,0.852686,0.073521,0.135369
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.955,0.967223,0.106308,0.191561
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.955,0.909955,0.089914,0.163465
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.955,0.931413,0.096057,0.173993
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.96,0.860707,0.061865,0.115433
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.96,0.969533,0.097336,0.17691
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.96,0.91512,0.0796,0.146172
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.96,0.935508,0.086246,0.157689
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.965,0.862338,0.049611,0.093825
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.965,0.969231,0.085644,0.157382
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.965,0.915784,0.067628,0.125604
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.965,0.93581,0.074379,0.137511
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.97,0.868421,0.03945,0.075472
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.97,0.970097,0.074973,0.139189
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.97,0.919259,0.057211,0.10733
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.97,0.938308,0.063867,0.119267
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.975,0.864865,0.028691,0.055539
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.975,0.975661,0.06267,0.117775
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.975,0.920263,0.04568,0.086657
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.975,0.941021,0.052046,0.098317
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.98,0.901408,0.019127,0.03746
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.98,0.977807,0.050911,0.096783
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.98,0.939608,0.035019,0.067121
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.98,0.953921,0.040974,0.078235
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.985,0.914894,0.012851,0.025346
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.985,0.977312,0.038064,0.073274
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.985,0.946103,0.025458,0.04931
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.985,0.957797,0.030181,0.05829
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.99,0.923077,0.007173,0.014235
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.99,0.976684,0.025625,0.04994
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.99,0.94988,0.016399,0.032088
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.99,0.959924,0.019856,0.038777
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,0.995,0.928571,0.001943,0.003877
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,0.995,0.979381,0.012915,0.025493
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,0.995,0.953976,0.007429,0.014685
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,0.995,0.963496,0.009484,0.018735
+LogisticRegression_FalseAlarm_Baseline,False Alarm (0),one_vs_rest_class,6692,1.0,1.0,0.0,0.0
+LogisticRegression_FalseAlarm_Baseline,Legitimate Emergency (1),one_vs_rest_class,14712,1.0,1.0,0.0,0.0
+LogisticRegression_FalseAlarm_Baseline,all_classes_macro_avg,macro_average,21404,1.0,1.0,0.0,0.0
+LogisticRegression_FalseAlarm_Baseline,all_classes_weighted_avg,weighted_average,21404,1.0,1.0,0.0,0.0

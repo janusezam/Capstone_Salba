@@ -1059,7 +1059,7 @@ function AdminDashboard() {
     } catch (err) {
       console.error("[API] ✗ Failed to fetch reports:", err.response?.data || err.message);
       setReportsError(err.response?.data?.message || err.message || "Failed to fetch reports");
-      setReports([]);
+      // Preserve existing reports in state on transient network / rate-limit errors so UI does not blank out
     } finally {
       setLoadingReports(false);
     }
@@ -1891,7 +1891,9 @@ function AdminDashboard() {
   }, []);
 
   // Safety-net polling: keeps reports fresh even if socket events are missed.
+  // Uses a 30s interval when Socket.IO is actively connected, or 12s when disconnected.
   useEffect(() => {
+    const pollMs = socketConnected ? 30000 : 12000;
     const intervalId = setInterval(() => {
       if (document.visibilityState !== 'visible') return;
       Promise.allSettled([
@@ -1900,10 +1902,10 @@ function AdminDashboard() {
         fetchOngoingRescues({ silent: true }),
         fetchRescuersAndTeams(),
       ]).catch(() => {});
-    }, 8000);
+    }, pollMs);
 
     return () => clearInterval(intervalId);
-  }, [filterSeverity, filterStatus, searchQuery]);
+  }, [filterSeverity, filterStatus, searchQuery, socketConnected]);
 
   const rawReportSource = (allReports && allReports.length > 0) ? allReports : reports;
   const reportSource = (() => {
