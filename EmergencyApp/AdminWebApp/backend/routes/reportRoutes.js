@@ -817,8 +817,12 @@ router.get('/', authMiddleware, requireAdmin, async (req, res) => {
     }
 
     // Validate sorting parameters
-    const validSortFields = ['createdAt', 'severity', 'status', 'userId'];
-    const sortField = validSortFields.includes(sortBy) ? sortBy : 'createdAt';
+    const validSortFields = ['createdAt', 'resolvedAt', 'updatedAt', 'severity', 'status', 'userId'];
+    let sortField = validSortFields.includes(sortBy) ? sortBy : 'createdAt';
+    // If querying resolved reports without explicit sortBy, default to most recently resolved
+    if (status === 'resolved' && !req.query.sortBy) {
+      sortField = 'resolvedAt';
+    }
     const sortOrderValue = sortOrder.toLowerCase() === 'asc' ? 1 : -1;
 
     // Calculate pagination

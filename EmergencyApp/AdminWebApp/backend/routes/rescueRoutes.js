@@ -159,9 +159,8 @@ router.patch('/my-mission/status', authMiddleware, requireRescuer, async (req, r
       }
     } else if (status === 'resolved') {
       report.rescuerResolvedAt = now;
-      report.status = 'resolved';
-      report.resolvedBy = req.user.id;
-      report.resolvedAt = now;
+      // Keep overall status as in_progress so admin can verify evidence before final resolution
+      report.status = 'in_progress';
       if (resolutionPhotoUrl) {
         report.resolutionPhotoUrl = resolutionPhotoUrl;
         console.log(`📷 [RESCUE] Resolution photo saved for report ${report._id}`);

@@ -1097,7 +1097,7 @@ function AdminDashboard() {
       setArchivedRescuesError(null);
     }
     try {
-      const res = await API.get(`/reports`, { params: { status: 'resolved', limit: 100 } });
+      const res = await API.get(`/reports`, { params: { status: 'resolved', sortBy: 'resolvedAt', sortOrder: 'desc', limit: 100 } });
       if (res.data?.success && Array.isArray(res.data?.data)) {
         setArchivedRescues(res.data.data);
       } else {
