@@ -663,15 +663,26 @@ const generateSitrepWord = async (sitrep, templateType, reportId) => {
   try {
     const timestamp = new Date().toLocaleString();
     
-    // Path to template files in frontend/public folder
-    const templateFilePath = path.join(
-      __dirname,
-      '../../frontend/public',
-      `${templateType}.docx`
-    );
+    // Check multiple candidate locations for the template file:
+    // 1. backend/templates (works when backend is deployed independently)
+    // 2. frontend/public (local dev monorepo)
+    // 3. frontend/build (production build directory)
+    const candidatePaths = [
+      path.join(__dirname, '../templates', `${templateType}.docx`),
+      path.join(__dirname, '../../frontend/public', `${templateType}.docx`),
+      path.join(__dirname, '../../frontend/build', `${templateType}.docx`)
+    ];
+
+    let templateFilePath = null;
+    for (const p of candidatePaths) {
+      if (fs.existsSync(p)) {
+        templateFilePath = p;
+        break;
+      }
+    }
 
     // Check if template file exists, if yes try to use it with fallback
-    if (fs.existsSync(templateFilePath)) {
+    if (templateFilePath && fs.existsSync(templateFilePath)) {
       try {
         const docxContent = fs.readFileSync(templateFilePath);
 

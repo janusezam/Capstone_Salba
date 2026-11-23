@@ -28,6 +28,8 @@ env/
 Thumbs.db
 *.log
 *.docx
+!EmergencyApp/AdminWebApp/backend/templates/*.docx
+!EmergencyApp/AdminWebApp/frontend/public/*.docx
 *.zip
 *.jar
 
